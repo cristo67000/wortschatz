@@ -18,10 +18,10 @@
  */
 (function (racine) {
 
-  const ARTICLES = {
-    de: { masc: 'der', fem: 'die', neut: 'das' },
-    fr: { masc: 'un', fem: 'une' },
-  };
+  /* Les articles viennent d'`Exercices`, qui en a besoin pour corriger : deux
+   * tables finiraient par différer, et la fiche enseignerait alors un article
+   * que l'exercice compterait faux. */
+  const ARTICLES = Exercices.ARTICLES;
 
   function element(balise, classe, texte) {
     const noeud = document.createElement(balise);
@@ -92,17 +92,6 @@
     return bouton;
   }
 
-  /* Les genres distincts sous lesquels le mot se lit, dans l'ordre. */
-  function genres(entree) {
-    const vus = [];
-    for (const lecture of entree.lectures) {
-      if (lecture[0] === 'n' && lecture[1] && vus.indexOf(lecture[1]) === -1) {
-        vus.push(lecture[1]);
-      }
-    }
-    return vus;
-  }
-
   function vedette(entree) {
     const bloc = element('div', 'vedette');
     const table = ARTICLES[entree.langue] || {};
@@ -110,7 +99,7 @@
      * c'est la mer et masculin quand c'est le lac ; n'afficher que « die »
      * apprend une moitié fausse, et c'est justement le genre qu'on vient
      * vérifier. */
-    for (const genre of genres(entree)) {
+    for (const genre of Exercices.genresDe(entree)) {
       if (table[genre]) bloc.appendChild(element('span', 'article ' + genre, table[genre]));
     }
     bloc.appendChild(element('span', 'mot', entree.mot));

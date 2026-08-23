@@ -21,7 +21,7 @@
 
   /* Les exercices où l'on produit la réponse, par opposition à ceux où on la
    * reconnaît parmi d'autres. */
-  const PRODUCTION = ['saisie', 'trou', 'ecoute'];
+  const PRODUCTION = ['saisie', 'saisie-article', 'trou', 'ecoute'];
 
   const JOUR = 24 * 60 * 60 * 1000;
 
