@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- L'application ne parle à personne : ni carte, ni police distante, ni
+       mesure d'audience. `connect-src 'self'` suffit, et le dit. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="description" content="Dictionnaire français ⇄ allemand hors ligne et exercices de mémorisation : cherchez un mot ou une expression, écoutez-le, apprenez-le. Tout reste sur l’appareil.">
+  <meta name="theme-color" content="#1d3557">
+  <title>Wortschatz — français ⇄ allemand</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+  <div id="demarrage" role="status">
+    <div class="marque">Wortschatz</div>
+    <p data-t="demarrage.chargement">Ouverture du dictionnaire…</p>
+  </div>
+
+  <header id="barre">
+    <h1><span class="marque-petite">Wortschatz</span></h1>
+    <p class="sous-titre" data-t="app.sous-titre">français ⇄ allemand</p>
+  </header>
+
+  <main id="scene">
+
+    <!-- ————— Chercher ————— -->
+    <section id="vue-chercher" class="vue">
+      <div id="bloc-recherche">
+        <input id="q" type="search" autocomplete="off" autocapitalize="off"
+               autocorrect="off" spellcheck="false"
+               data-t-ph="chercher.champ" data-t-aria="chercher.aria">
+        <button id="q-vider" type="button" data-t-aria="chercher.vider" hidden>✕</button>
+      </div>
+
+      <div id="accueil">
+        <h2 data-t="chercher.accueil.titre"></h2>
+        <p data-t="chercher.accueil.texte"></p>
+        <p class="essayez"><span data-t="chercher.essayez"></span> <span id="suggestions"></span></p>
+        <div id="recents"></div>
+      </div>
+
+      <ul id="resultats" role="listbox" aria-label="Résultats" hidden></ul>
+
+      <div id="rien" hidden>
+        <p data-t="chercher.rien"></p>
+        <p class="discret" id="rien-conseil"></p>
+      </div>
+    </section>
+
+    <!-- ————— Réviser ————— -->
+    <section id="vue-reviser" class="vue" hidden>
+
+      <div id="revision-accueil">
+        <h2 data-t="reviser.titre"></h2>
+        <div id="revision-compteurs" class="compteurs"></div>
+        <button id="b-commencer" type="button" class="bouton-principal"
+                data-t="reviser.commencer"></button>
+        <div id="revision-vide" hidden>
+          <p data-t="reviser.vide.texte"></p>
+          <button id="b-vers-recherche" type="button" class="bouton-discret"
+                  data-t="reviser.vide.bouton"></button>
+        </div>
+        <div id="revision-avance" hidden>
+          <p class="discret" data-t="reviser.rien-du-jour"></p>
+        </div>
+      </div>
+
+      <div id="seance" hidden>
+        <div class="seance-tete">
+          <div class="jauge"><div id="seance-jauge"></div></div>
+          <button id="b-arreter" type="button" class="lien-discret"
+                  data-t="reviser.arreter"></button>
+        </div>
+
+        <p id="seance-consigne" class="consigne"></p>
+        <div id="seance-enonce"></div>
+        <div id="seance-zone"></div>
+
+        <div id="seance-verdict" hidden>
+          <p id="verdict-texte"></p>
+          <p id="verdict-remarque" class="discret"></p>
+          <div id="verdict-fiche"></div>
+          <div id="verdict-boutons"></div>
+        </div>
+      </div>
+
+      <div id="seance-bilan" hidden>
+        <h2 data-t="reviser.bilan.titre"></h2>
+        <div id="bilan-chiffres" class="compteurs"></div>
+        <p id="bilan-mot" class="discret"></p>
+        <button id="b-continuer" type="button" class="bouton-principal"
+                data-t="reviser.bilan.continuer"></button>
+        <button id="b-terminer" type="button" class="bouton-discret"
+                data-t="reviser.bilan.terminer"></button>
+      </div>
+
+    </section>
+
+    <!-- ————— Progrès ————— -->
+    <section id="vue-progres" class="vue" hidden>
+      <h2 data-t="progres.titre"></h2>
+      <div id="progres-contenu"></div>
+    </section>
+
+    <!-- ————— Réglages ————— -->
+    <section id="vue-reglages" class="vue" hidden>
+      <h2 data-t="reglages.titre"></h2>
+
+      <section class="bloc">
+        <h3 data-t="reglages.interface"></h3>
+        <div class="segments" role="group">
+          <button type="button" data-langue="fr" aria-pressed="false">Français</button>
+          <button type="button" data-langue="de" aria-pressed="false">Deutsch</button>
+        </div>
+      </section>
+
+      <section class="bloc">
+        <h3 data-t="reglages.dictionnaire"></h3>
+        <p id="etat-dictionnaire" class="discret"></p>
+        <div id="zone-telechargement"></div>
+      </section>
+
+      <section class="bloc">
+        <h3 data-t="reglages.rythme"></h3>
+        <label class="champ-nombre">
+          <span data-t="reglages.rythme.nouveautes"></span>
+          <input type="number" id="reglage-nouveautes" min="0" max="60" step="5" inputmode="numeric">
+        </label>
+        <p class="discret" data-t="reglages.rythme.note"></p>
+      </section>
+
+      <section class="bloc">
+        <h3 data-t="reglages.voix"></h3>
+        <label class="bascule">
+          <input type="checkbox" id="reglage-voix">
+          <span data-t="reglages.voix.active"></span>
+        </label>
+        <p id="etat-voix" class="discret"></p>
+      </section>
+
+      <section class="bloc">
+        <h3 data-t="reglages.apropos"></h3>
+        <p class="discret" id="apropos-versions"></p>
+        <p><a href="confidentialite.html" data-t="reglages.confidentialite"></a></p>
+      </section>
+    </section>
+
+  </main>
+
+  <nav id="onglets" aria-label="Sections">
+    <button type="button" data-vue="chercher" aria-current="true">
+      <span class="pictogramme" aria-hidden="true">⌕</span><span data-t="onglet.chercher"></span>
+    </button>
+    <button type="button" data-vue="reviser">
+      <span class="pictogramme" aria-hidden="true">◳</span><span data-t="onglet.reviser"></span>
+    </button>
+    <button type="button" data-vue="progres">
+      <span class="pictogramme" aria-hidden="true">◔</span><span data-t="onglet.progres"></span>
+    </button>
+    <button type="button" data-vue="reglages">
+      <span class="pictogramme" aria-hidden="true">⚙</span><span data-t="onglet.reglages"></span>
+    </button>
+  </nav>
+
+  <aside id="fiche" hidden aria-modal="true" role="dialog">
+    <div id="fiche-contenu"></div>
+  </aside>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/lexique.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/voix.js"></script>
+  <script src="js/revision.js"></script>
+  <script src="js/exercices.js"></script>
+  <script src="js/fiche.js"></script>
+  <script src="js/seance.js"></script>
+  <script src="js/progres.js"></script>
+  <script src="js/paquets.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/demarrage.js"></script>
+</body>
+</html>

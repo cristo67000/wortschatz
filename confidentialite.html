@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'self'; form-action 'none'; object-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Wortschatz — confidentialité et sources</title>
+  <link rel="stylesheet" href="css/page.css">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+</head>
+<body>
+
+<p class="retour"><a href="./">← Wortschatz</a></p>
+
+<h1>Confidentialité et sources</h1>
+
+<h2>Ce que l’application envoie : rien</h2>
+
+<p>Wortschatz n’a pas de serveur, pas de compte, pas de mesure d’audience et pas
+de publicité. Elle ne communique avec aucun service : sa politique de sécurité
+(<code>connect-src 'self'</code>) lui interdit techniquement de contacter un autre
+hôte que celui d’où elle a été installée. Une fois le dictionnaire téléchargé,
+elle fonctionne entièrement sans réseau — vous pouvez couper la connexion et
+vérifier.</p>
+
+<h2>Ce qui reste sur votre appareil</h2>
+
+<ul>
+  <li>le <strong>dictionnaire</strong>, dans le cache du navigateur ;</li>
+  <li>vos <strong>révisions</strong> : les mots que vous apprenez, leur échéance,
+      l’historique de vos réponses ;</li>
+  <li>vos <strong>réglages</strong> et les derniers mots consultés.</li>
+</ul>
+
+<p>Tout cela vit dans le stockage local du navigateur, sur cet appareil, et nulle
+part ailleurs. Effacer les données du site depuis les réglages de votre
+navigateur les supprime définitivement — y compris vos révisions, que rien ne
+sauvegarde à votre place.</p>
+
+<h2>La prononciation</h2>
+
+<p>Le bouton « écouter » utilise la synthèse vocale de votre système
+d’exploitation, celle qui est déjà installée sur l’appareil. Aucun son n’est
+téléchargé et aucun texte n’est envoyé à un service de synthèse en ligne. Si
+aucune voix allemande ou française n’est installée, le bouton reste inactif :
+vous pouvez en ajouter une depuis les réglages de votre téléphone.</p>
+
+<h2>Origine des données</h2>
+
+<p>Wortschatz ne fabrique aucune donnée linguistique. Elle met en forme, pour un
+usage hors ligne, des ressources libres :</p>
+
+<h3>WikDict — le dictionnaire</h3>
+
+<p>Dictionnaires bilingues <a href="https://www.wikdict.com/">WikDict</a> de Karl
+Bartel (mouture du 21 novembre 2025) : 59 631 entrées allemand → français et
+48 578 entrées français → allemand, avec la nature grammaticale, le genre des
+noms, la transcription phonétique, les formes fléchies et les définitions.</p>
+
+<p>Ces dictionnaires sont dérivés du
+<a href="https://www.wiktionary.org/">Wiktionnaire</a> par l’intermédiaire de
+<a href="http://kaiko.getalp.org/about-dbnary/">DBnary</a>, et diffusés sous
+licence <a href="https://creativecommons.org/licenses/by-sa/3.0/legalcode">Creative
+Commons Attribution — Partage dans les mêmes conditions 3.0</a>. Les données
+préparées pour cette application sont donc, elles aussi, sous cette licence.</p>
+
+<h3>Tatoeba — les phrases d’exemple</h3>
+
+<p>Phrases allemandes et françaises alignées du projet
+<a href="https://tatoeba.org/">Tatoeba</a>, sous licence
+<a href="https://creativecommons.org/licenses/by/2.0/fr/">Creative Commons
+Attribution 2.0 France</a>, quelques-unes sous CC0 1.0.</p>
+
+<h3>Sept entrées écrites pour l’application</h3>
+
+<p>Les mots <em>mon</em>, <em>notre</em>, <em>votre</em>, <em>leur</em>,
+<em>ce</em>, <em>celui</em> et <em>ne</em> manquaient au dictionnaire source —
+il ne retient que les entrées dotées d’une traduction bien attestée. Ils ont été
+rédigés pour cette application. Ce sont les seuls : tout le reste vient des
+sources ci-dessus, sans retouche.</p>
+
+<h2>Ce que ces données ne sont pas</h2>
+
+<p>Le dictionnaire est <strong>dérivé automatiquement</strong> du Wiktionnaire. Il
+est vaste et globalement fiable, mais il n’a pas été relu mot à mot : quelques
+traductions sont approximatives, quelques définitions sont techniques ou
+tronquées. Pour un mot dont beaucoup dépend, un dictionnaire d’éditeur reste
+préférable.</p>
+
+<p>Les regroupements « autour de ce mot » sont calculés par un procédé
+automatique de décomposition et de dérivation. Ce sont des <strong>voisinages
+utiles</strong>, pas des filiations étymologiques établies.</p>
+
+<p>Enfin, les niveaux affichés (« premiers pas », « courant », « étendu »,
+« rare ») sont des rangs de fréquence mesurés dans un corpus de phrases réelles.
+Ce ne sont <strong>pas</strong> les niveaux A1, A2 ou B1 du Cadre européen : les
+listes officielles des certifications sont protégées par le droit d’auteur et ne
+peuvent pas être redistribuées.</p>
+
+<h2>Contact</h2>
+
+<p>Une erreur, une suggestion : <a href="mailto:cristo67apps@gmail.com">cristo67apps@gmail.com</a>.</p>
+
+</body>
+</html>

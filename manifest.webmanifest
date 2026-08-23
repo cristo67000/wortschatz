@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "Wortschatz — français ⇄ allemand",
+  "short_name": "Wortschatz",
+  "description": "Dictionnaire français ⇄ allemand hors ligne et exercices de mémorisation : cherchez un mot ou une expression dans les deux sens, écoutez-le, apprenez-le par répétition espacée. Tout reste sur l’appareil, sans compte ni réseau.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#faf7f2",
+  "theme_color": "#1d3557",
+  "categories": ["education", "books", "productivity"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

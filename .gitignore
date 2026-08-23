@@ -1,0 +1,7 @@
+build/sources/
+build/rapport.txt
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+build/apercu-*.png
