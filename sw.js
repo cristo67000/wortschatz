@@ -19,7 +19,7 @@
  * efface, sur demande explicite ou en installant une version plus récente.
  */
 
-const VERSION = 'v1.1.0';
+const VERSION = 'v1.1.1';
 const COQUILLE = 'wortschatz-coquille-' + VERSION;
 
 const FICHIERS = [
@@ -103,15 +103,31 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  e.respondWith(
-    fetch(e.request.url, { cache: 'no-cache' })
-      .then((reponse) => {
-        if (reponse.ok) {
-          const copie = reponse.clone();
-          caches.open(COQUILLE).then((c) => c.put(e.request, copie));
-        }
+  /* Réseau d'abord, cache en secours — et « secours » veut dire les deux
+   * façons dont le réseau manque :
+   *
+   *   il ne répond pas      → fetch() rejette
+   *   il répond mal         → fetch() résout, avec un statut d'erreur
+   *
+   * Ne rattraper que le premier cas laissait passer le second : une réponse en
+   * erreur était renvoyée telle quelle à la page, qui se retrouvait sans son
+   * JavaScript. Cela arrive derrière un portail captif d'hôtel, un proxy
+   * d'entreprise, un réseau qui filtre — c'est-à-dire précisément là où une
+   * application hors ligne doit tenir.
+   */
+  e.respondWith((async () => {
+    try {
+      const reponse = await fetch(e.request.url, { cache: 'no-cache' });
+      if (reponse.ok) {
+        const copie = reponse.clone();
+        caches.open(COQUILLE).then((c) => c.put(e.request, copie));
         return reponse;
-      })
-      .catch(() => caches.match(e.request, { ignoreSearch: true }))
-  );
+      }
+      return (await caches.match(e.request, { ignoreSearch: true })) || reponse;
+    } catch (erreur) {
+      const enCache = await caches.match(e.request, { ignoreSearch: true });
+      if (enCache) return enCache;
+      throw erreur;
+    }
+  })());
 });
