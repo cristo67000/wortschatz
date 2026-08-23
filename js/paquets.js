@@ -117,13 +117,21 @@
     return manifeste.paquets.complet.octets;
   }
 
+  /* Une taille lisible, dans les unités de la langue affichée : « 30,1 Mo »
+   * en français, « 30,1 MB » en allemand. La virgule décimale est commune aux
+   * deux ; seules les unités changent. */
+  const UNITES = {
+    fr: ['o', 'Ko', 'Mo', 'Go'],
+    de: ['B', 'KB', 'MB', 'GB'],
+  };
+
   function humain(octets, langue) {
-    const unites = ['o', 'Ko', 'Mo', 'Go'];
+    const unites = UNITES[langue] || UNITES.fr;
     let valeur = octets;
     let rang = 0;
     while (valeur >= 1024 && rang < unites.length - 1) { valeur /= 1024; rang += 1; }
     const nombre = rang === 0 ? Math.round(valeur) : valeur.toFixed(1);
-    return String(nombre).replace('.', langue === 'de' ? ',' : ',') + ' ' + unites[rang];
+    return String(nombre).replace('.', ',') + ' ' + unites[rang];
   }
 
   racine.Paquets = { complet, manquants, telecharger, supprimer, poids, humain, nomDuCache };

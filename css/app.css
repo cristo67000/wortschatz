@@ -370,6 +370,19 @@ button { font: inherit; color: inherit; }
   .segments button[aria-pressed="true"] { color: #16171a; }
 }
 
+/* ————— Installer et partager ————— */
+
+.marche-a-suivre { margin: .5rem 0 0; padding-left: 1.3rem; color: var(--encre-douce); }
+.marche-a-suivre li { margin: .35rem 0; }
+.adresse-partage {
+  margin: .6rem 0 0;
+  font-size: .82rem;
+  color: var(--encre-tres-douce);
+  word-break: break-all;
+}
+.retour-partage { margin: .4rem 0 0; color: var(--das); }
+.retour-partage[hidden] { display: none; }
+
 .champ-nombre { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .champ-nombre input {
   width: 5rem;

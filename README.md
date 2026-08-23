@@ -85,7 +85,23 @@ corrigent dans `build/exclusions.txt`.
 
 Un troisième script, `build/generer-icones.py`, redessine les icônes.
 
-## Essayer
+## Installer sur un téléphone
+
+**<https://cristo67000.github.io/wortschatz/>** — puis, dans l'onglet Réglages,
+*Installer sur cet appareil*.
+
+- **Android** (Chrome, Edge, Samsung Internet) : un bouton fait tout.
+- **iPhone, iPad** (Safari) : Apple ne permet pas de déclencher l'installation
+  par programme ; l'application affiche donc la marche à suivre — Partager,
+  puis « Sur l'écran d'accueil ».
+- Une fois installée, l'icône est sur l'écran d'accueil et l'application s'ouvre
+  sans barre d'adresse. Elle pèse alors 8 Mo et fonctionne déjà sans réseau ;
+  le dictionnaire complet (30 Mo) reste facultatif.
+
+Le bouton *Partager le lien* ouvre la feuille de partage du système, ou copie
+l'adresse là où elle n'existe pas.
+
+## Essayer en local
 
 ```bash
 python -m http.server 8143 --directory wortschatz
@@ -104,6 +120,7 @@ js/i18n.js       textes français et allemands, bascule de langue
 js/lexique.js    index en mémoire, recherche, lemmatisation, phrases
 js/store.js      IndexedDB : cartes, journal, réglages, historique
 js/paquets.js    téléchargement et installation du dictionnaire complet
+js/installer.js  installation sur l’appareil, et partage du lien
 js/voix.js       synthèse vocale du système, sans réseau
 js/revision.js   planificateur SM-2
 js/exercices.js  les sept exercices et la correction tolérante

@@ -159,6 +159,7 @@
     elements.aproposVersions.textContent = versions;
 
     dessinerDictionnaire();
+    Installer.dessiner();
   }
 
   async function dessinerDictionnaire() {
@@ -278,6 +279,7 @@
     });
 
     Seance.brancher(reglages);
+    Installer.brancher();
 
     elements.q.addEventListener('input', chercher);
     elements.qVider.addEventListener('click', () => {

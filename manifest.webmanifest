@@ -11,10 +11,52 @@
   "orientation": "any",
   "background_color": "#faf7f2",
   "theme_color": "#1d3557",
-  "categories": ["education", "books", "productivity"],
+  "categories": [
+    "education",
+    "books",
+    "productivity"
+  ],
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "captures/capture-1-chercher.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Chercher un mot dans les deux langues à la fois"
+    },
+    {
+      "src": "captures/capture-2-fiche.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "La fiche d'un mot : genre, prononciation, sens et phrases"
+    },
+    {
+      "src": "captures/capture-3-exercice.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Exercice de mémorisation : der, die ou das ?"
+    }
   ]
 }

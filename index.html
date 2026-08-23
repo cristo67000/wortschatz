@@ -10,6 +10,30 @@
   <meta name="description" content="Dictionnaire français ⇄ allemand hors ligne et exercices de mémorisation : cherchez un mot ou une expression, écoutez-le, apprenez-le. Tout reste sur l’appareil.">
   <meta name="theme-color" content="#1d3557">
   <title>Wortschatz — français ⇄ allemand</title>
+  <!-- Installation sur iOS : Safari ne lit pas le manifeste pour l'écran
+       d'accueil, il lui faut ces trois-là. -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Wortschatz">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+  <!-- Aperçu du lien quand on le partage par message ou sur un réseau. Sans
+       cela le destinataire ne voit qu'une adresse nue, et n'ouvre pas. L'URL
+       doit être absolue : elle est lue par un serveur distant, qui n'a aucun
+       contexte pour résoudre un chemin relatif. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Wortschatz">
+  <meta property="og:title" content="Wortschatz — dictionnaire français ⇄ allemand">
+  <meta property="og:description" content="Cherchez un mot ou une expression dans les deux sens, écoutez-le, apprenez-le par répétition espacée. Hors ligne, sans compte, sans publicité.">
+  <meta property="og:url" content="https://cristo67000.github.io/wortschatz/">
+  <meta property="og:image" content="https://cristo67000.github.io/wortschatz/icons/apercu-1200x630.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Wortschatz — dictionnaire français ⇄ allemand hors ligne">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:locale:alternate" content="de_DE">
+  <meta name="twitter:card" content="summary_large_image">
+
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -126,6 +150,18 @@
         <div id="zone-telechargement"></div>
       </section>
 
+      <section class="bloc" id="bloc-installer" hidden>
+        <h3 data-t="reglages.installer"></h3>
+        <p class="discret" data-t="reglages.installer.detail"></p>
+        <div id="zone-installer"></div>
+      </section>
+
+      <section class="bloc">
+        <h3 data-t="reglages.partager"></h3>
+        <p class="discret" data-t="reglages.partager.detail"></p>
+        <div id="zone-partager"></div>
+      </section>
+
       <section class="bloc">
         <h3 data-t="reglages.rythme"></h3>
         <label class="champ-nombre">
@@ -182,6 +218,7 @@
   <script src="js/seance.js"></script>
   <script src="js/progres.js"></script>
   <script src="js/paquets.js"></script>
+  <script src="js/installer.js"></script>
   <script src="js/app.js"></script>
   <script src="js/demarrage.js"></script>
 </body>
