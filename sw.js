@@ -19,7 +19,7 @@
  * efface, sur demande explicite ou en installant une version plus récente.
  */
 
-const VERSION = 'v1.2.1';
+const VERSION = 'v1.2.2';
 const COQUILLE = 'wortschatz-coquille-' + VERSION;
 
 const FICHIERS = [
@@ -45,7 +45,6 @@ const FICHIERS = [
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/icon-maskable-512.png',
-  'icons/apercu-1200x630.png',
   'captures/capture-1-chercher.webp',
   'captures/capture-2-fiche.webp',
   'captures/capture-3-exercice.webp',
