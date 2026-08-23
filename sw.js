@@ -19,7 +19,7 @@
  * efface, sur demande explicite ou en installant une version plus récente.
  */
 
-const VERSION = 'v1.2.0';
+const VERSION = 'v1.2.1';
 const COQUILLE = 'wortschatz-coquille-' + VERSION;
 
 const FICHIERS = [
@@ -52,6 +52,44 @@ const FICHIERS = [
   'data/manifeste.json',
 ];
 
+/* Met en cache une liste de fichiers, un par un, en tolérant les échecs.
+ *
+ * `addAll()` est tout-ou-rien : un seul fichier manqué et rien n'est gardé.
+ * Sur les vingt-sept fichiers de la coquille c'est ce qu'on veut — une
+ * application à qui il manque un script ne vaut pas mieux que pas
+ * d'application. Sur les cinquante-huit du dictionnaire, non : un hoquet de
+ * réseau mobile, un proxy, une limitation de débit, et l'installation entière
+ * échouait — donc plus aucun mode hors ligne, en silence, alors que
+ * cinquante-sept fichiers étaient arrivés.
+ *
+ * Ce qui manque ici sera rattrapé à l'usage : le gestionnaire `fetch` range
+ * dans le cache tout fichier de données qu'il doit aller chercher.
+ */
+async function cacherTolerant(cache, urls) {
+  let manques = 0;
+  // Six à la fois : assez pour ne pas attendre, assez peu pour ne pas se faire
+  // limiter par l'hébergeur.
+  const PARALLELE = 6;
+  let curseur = 0;
+  async function ouvrier() {
+    while (curseur < urls.length) {
+      const url = urls[curseur];
+      curseur += 1;
+      try {
+        const reponse = await fetch(new Request(url, { cache: 'reload' }));
+        if (reponse.ok) await cache.put(url, reponse);
+        else manques += 1;
+      } catch (erreur) {
+        manques += 1;
+      }
+    }
+  }
+  const ouvriers = [];
+  for (let i = 0; i < Math.min(PARALLELE, urls.length); i += 1) ouvriers.push(ouvrier());
+  await Promise.all(ouvriers);
+  return manques;
+}
+
 self.addEventListener('install', (e) => {
   e.waitUntil((async () => {
     const cache = await caches.open(COQUILLE);
@@ -74,8 +112,12 @@ self.addEventListener('install', (e) => {
      * mode hors ligne. C'est exactement ce qui s'est produit ici une fois. */
     const enCache = await cache.match('data/manifeste.json');
     const manifeste = await enCache.json();
-    await cache.addAll(manifeste.paquets.noyau.fichiers.map(
-      (f) => new Request('data/' + f, { cache: 'reload' })));
+    const manques = await cacherTolerant(
+      cache, manifeste.paquets.noyau.fichiers.map((f) => 'data/' + f));
+    if (manques) {
+      console.warn('Wortschatz : ' + manques + ' fichiers du noyau non pré-cachés, '
+        + 'ils seront rattrapés à l’usage.');
+    }
 
     await self.skipWaiting();
   })());
@@ -100,11 +142,23 @@ self.addEventListener('fetch', (e) => {
   const estDonnee = url.pathname.includes('/data/');
 
   if (estDonnee) {
-    // Cache d'abord, tous caches confondus : le noyau est dans la coquille, le
-    // dictionnaire complet dans le cache des données.
-    e.respondWith(
-      caches.match(e.request).then((trouve) => trouve || fetch(e.request))
-    );
+    /* Cache d'abord, tous caches confondus : le noyau est dans la coquille, le
+     * dictionnaire complet dans le cache des données.
+     *
+     * Ce qui n'y est pas est rangé au passage. C'est ce qui rattrape un
+     * pré-cache incomplet : un fichier manqué à l'installation entre dans le
+     * cache la première fois qu'on en a besoin, et l'application se répare
+     * d'elle-même au fil de l'usage. */
+    e.respondWith((async () => {
+      const trouve = await caches.match(e.request);
+      if (trouve) return trouve;
+      const reponse = await fetch(e.request);
+      if (reponse.ok) {
+        const copie = reponse.clone();
+        caches.open(COQUILLE).then((c) => c.put(e.request, copie)).catch(() => {});
+      }
+      return reponse;
+    })());
     return;
   }
 
