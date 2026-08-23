@@ -1,13 +1,14 @@
 /*
  * Cas de contrôle du code de l'application, hors navigateur.
  *
- * Deux fonctions y sont éprouvées, choisies parce qu'elles décident seules de
+ * Trois fonctions y sont éprouvées, choisies parce qu'elles décident seules de
  * ce que l'apprenant vit :
  *
- *   Exercices.corriger()  ce qui est compté juste, presque, ou faux
- *   Revision.juger()      quand un mot revient
+ *   Exercices.corriger()      ce qui est compté juste, presque, ou faux
+ *   Exercices.typeDExercice() ce qu'on demande, et à quel moment
+ *   Revision.juger()          quand un mot revient
  *
- * Toutes deux sont pures — même entrée, même sortie — donc vérifiables sans
+ * Toutes trois sont pures — même entrée, même sortie — donc vérifiables sans
  * navigateur ni base de données. Une erreur y passerait autrement inaperçue :
  * un intervalle mal calculé ne casse rien, il fait seulement oublier.
  *
@@ -38,6 +39,14 @@ function titre(texte) {
 
 // ── La correction des réponses ─────────────────────────────────────────────
 
+/* Le palier exigeant : la correction reçoit les genres acceptables, et des
+ * attendus qui portent déjà leur article. */
+const DE_FEM = { langue: 'de', estNom: true, articleExige: true, genres: ['fem'] };
+const DE_NEUT = { langue: 'de', estNom: true, articleExige: true, genres: ['neut'] };
+const DE_DEUX = { langue: 'de', estNom: true, articleExige: true,
+                  genres: ['masc', 'fem'] };
+const FR_FEM = { langue: 'fr', estNom: true, articleExige: true, genres: ['fem'] };
+
 const CAS = [
   // saisie,       attendus,             options,                        verdict,   remarque
   ['Haus',         ['Haus'],             { langue: 'de', estNom: true }, 'juste',   null],
@@ -57,6 +66,27 @@ const CAS = [
   ['logis',        ['maison', 'logis'],  { langue: 'fr' },               'juste',   null],
   ['maisone',      ['maison'],           { langue: 'fr' },               'presque', null],
   ['voiture',      ['maison'],           { langue: 'fr' },               'faux',    null],
+
+  // Le mot avec son article : le palier exigeant.
+  ['die Bohne',    ['die Bohne'],        DE_FEM,                         'juste',   null],
+  ['die bohne',    ['die Bohne'],        DE_FEM,                         'juste',   'majuscule'],
+  ['Bohne',        ['die Bohne'],        DE_FEM,                         'presque', 'article-manque'],
+  ['der Bohne',    ['die Bohne'],        DE_FEM,                         'faux',    'article-faux'],
+  ['eine Bohne',   ['die Bohne'],        DE_FEM,                         'presque', 'article-forme'],
+  ['die Bone',     ['die Bohne'],        DE_FEM,                         'presque', null],
+  ['die Katze',    ['die Bohne'],        DE_FEM,                         'faux',    null],
+  ['',             ['die Bohne'],        DE_FEM,                         'faux',    null],
+  ['dem Haus',     ['das Haus'],         DE_NEUT,                        'presque', 'article-forme'],
+  // « See » se lit sous deux genres : les deux articles sont justes.
+  ['der See',      ['der See', 'die See'], DE_DEUX,                       'juste',   null],
+  ['die See',      ['der See', 'die See'], DE_DEUX,                       'juste',   null],
+  ['das See',      ['der See', 'die See'], DE_DEUX,                       'faux',    'article-faux'],
+  ['une abeille',  ['une abeille'],      FR_FEM,                         'juste',   null],
+  ['la abeille',   ['une abeille'],      FR_FEM,                         'juste',   null],
+  ['un abeille',   ['une abeille'],      FR_FEM,                         'faux',    'article-faux'],
+  ['abeille',      ['une abeille'],      FR_FEM,                         'presque', 'article-manque'],
+  // L'article élidé est du bon français, mais il ne dit pas le genre.
+  ['l’abeille',    ['une abeille'],      FR_FEM,                         'presque', 'article-forme'],
 ];
 
 titre('Correction des réponses (Exercices.corriger)');
@@ -73,6 +103,56 @@ for (const [saisie, attendus, options, verdictAttendu, remarqueAttendue] of CAS)
 }
 console.log(`  ${CAS.length - fautesCorrection}/${CAS.length} cas conformes`);
 fautesTotales += fautesCorrection;
+
+// ── Le moment où l'on réclame l'article ────────────────────────────────────
+
+const E = globalThis.Exercices;
+
+function entree(langue, mot, lectures) {
+  return { langue, mot, tranche: 0, bande: 0, lectures, phrases: [], voisins: [] };
+}
+function sens(reussites) {
+  return { type: 'sens', langue: 'de', mot: 'Bohne', tranche: 0, reussites };
+}
+
+const BOHNE = entree('de', 'Bohne', [['n', 'fem', 'ˈboːnə', [], [['', ['haricot']]]]]);
+const SEE = entree('de', 'See', [['n', 'masc', 'zeː', [], [['', ['lac']]]],
+                                 ['n', 'fem', 'zeː', [], [['', ['mer']]]]]);
+const GEHEN = entree('de', 'gehen', [['v', '', 'ˈɡeːən', [], [['', ['aller']]]]]);
+const OSTERN = entree('de', 'Ostern', [['n', '', 'ˈoːstɐn', [], [['', ['Pâques']]]]]);
+
+const PALIERS = [
+  ['un nom donne son article et son genre',
+    () => JSON.stringify(E.avecArticle(BOHNE)) === '{"genres":["fem"],"formes":["die Bohne"]}'],
+  ['un nom à deux genres donne les deux formes',
+    () => E.avecArticle(SEE).formes.join(' · ') === 'der See · die See'],
+  ['un verbe n’a pas d’article à réclamer',
+    () => E.avecArticle(GEHEN) === null],
+  ['un nom sans genre connu non plus',
+    () => E.avecArticle(OSTERN) === null],
+  ['la troisième réussite fait écrire le mot seul',
+    () => E.typeDExercice(sens(2), BOHNE, []) === 'saisie'],
+  ['la quatrième réclame l’article',
+    () => E.typeDExercice(sens(3), BOHNE, []) === 'saisie-article'],
+  ['et ne le lâche plus ensuite',
+    () => E.typeDExercice(sens(9), BOHNE, []) === 'saisie-article'],
+  ['le réglage coupé rend la saisie ordinaire',
+    () => E.typeDExercice(sens(3), BOHNE, [], { exigerArticle: false }) === 'saisie'],
+  ['un verbe reste à la saisie ordinaire',
+    () => E.typeDExercice(sens(3), GEHEN, []) === 'saisie'],
+  ['la carte de genre garde son exercice',
+    () => E.typeDExercice({ type: 'genre', langue: 'de', reussites: 5 }, BOHNE, []) === 'genre'],
+];
+
+titre('Le palier des articles (Exercices.typeDExercice)');
+let fautesPaliers = 0;
+for (const [libelle, verifier] of PALIERS) {
+  const ok = verifier();
+  if (!ok) fautesPaliers += 1;
+  console.log(`  ${ok ? 'ok ' : 'NON'} ${libelle}`);
+}
+console.log(`  ${PALIERS.length - fautesPaliers}/${PALIERS.length} cas conformes`);
+fautesTotales += fautesPaliers;
 
 // ── Le planificateur ───────────────────────────────────────────────────────
 

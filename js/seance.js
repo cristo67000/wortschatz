@@ -37,6 +37,7 @@
   let question = null;
   let bilan = null;
   let quota = 10;
+  let exigerArticle = true;
 
   function element(balise, classe, texte) {
     const noeud = document.createElement(balise);
@@ -112,7 +113,7 @@
       return poser();
     }
 
-    question = await Exercices.preparer(carte, entree);
+    question = await Exercices.preparer(carte, entree, { exigerArticle });
     elements.verdict.hidden = true;
     afficher(question);
   }
@@ -174,6 +175,13 @@
     champ.autocapitalize = 'off';
     champ.spellcheck = false;
     champ.setAttribute('aria-label', I18n.t('exercice.saisie.aria'));
+    /* Au palier exigeant, le champ rappelle la forme attendue. Les articles
+     * d'une langue sont les mêmes pour tous ses noms : les montrer ne souffle
+     * rien du mot, mais dit ce qu'on réclame. */
+    if (q.articleExige) {
+      const table = Exercices.ARTICLES[q.carte.langue] || {};
+      champ.placeholder = Object.values(table).join(' / ') + ' …';
+    }
     zone.appendChild(champ);
 
     const touches = element('div', 'touches');
@@ -224,6 +232,7 @@
     } else {
       verdict = Exercices.corriger(saisie, q.attendus || [q.attendu], {
         langue: q.carte.langue, estNom: q.estNom,
+        articleExige: q.articleExige, genres: q.genres,
       });
     }
 
@@ -340,6 +349,7 @@
 
   function brancher(reglages) {
     quota = reglages.nouveautesParJour || 10;
+    exigerArticle = reglages.exigerArticle !== false;
     Object.assign(elements, {
       accueil: $('#revision-accueil'),
       compteurs: $('#revision-compteurs'),
@@ -374,6 +384,8 @@
 
   racine.Seance = { brancher, rafraichir, commencer, arreter,
                     get quota() { return quota; },
-                    set quota(v) { quota = v; } };
+                    set quota(v) { quota = v; },
+                    get exigerArticle() { return exigerArticle; },
+                    set exigerArticle(v) { exigerArticle = v; } };
 
 })(window);

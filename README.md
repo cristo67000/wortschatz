@@ -26,11 +26,13 @@ leur définition, deux à quatre phrases d'exemple réelles où le mot est
 surligné, et les mots du même voisinage.
 
 **Retenir.** Un bouton *Apprendre ce mot* verse le mot dans une file de
-révision espacée (SM-2 simplifié). Sept exercices se relaient, de difficulté
-croissante : reconnaître, choisir, écrire, le genre der/die/das, la phrase à
-trou, l'appariement de phrases, l'écoute. La correction est tolérante mais
+révision espacée (SM-2 simplifié). Huit exercices se relaient, de difficulté
+croissante : reconnaître, choisir, écrire, écrire avec l'article (« die
+Bohne », et non « Bohne »), le genre der/die/das, la phrase à trou,
+l'appariement de phrases, l'écoute. La correction est tolérante mais
 instructive — une majuscule oubliée sur un nom allemand n'est pas comptée
-fausse, elle est expliquée.
+fausse, elle est expliquée, et l'article oublié ne se paie pas comme l'article
+faux.
 
 **Se situer.** L'onglet Progrès distingue ce qu'on **sait produire** de ce qu'on
 sait seulement reconnaître. C'est la seule mesure qui ne se flatte pas.
@@ -123,7 +125,7 @@ js/paquets.js    téléchargement et installation du dictionnaire complet
 js/installer.js  installation sur l’appareil, et partage du lien
 js/voix.js       synthèse vocale du système, sans réseau
 js/revision.js   planificateur SM-2
-js/exercices.js  les sept exercices et la correction tolérante
+js/exercices.js  les huit exercices et la correction tolérante
 js/fiche.js      affichage d'une entrée
 js/seance.js     déroulé d'une séance
 js/progres.js    statistiques

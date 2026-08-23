@@ -19,7 +19,7 @@
  * efface, sur demande explicite ou en installant une version plus récente.
  */
 
-const VERSION = 'v1.2.2';
+const VERSION = 'v1.3.0';
 const COQUILLE = 'wortschatz-coquille-' + VERSION;
 
 const FICHIERS = [

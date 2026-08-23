@@ -149,6 +149,7 @@
     }
 
     elements.reglageVoix.checked = !!reglages.voix;
+    elements.reglageArticle.checked = reglages.exigerArticle !== false;
     elements.reglageNouveautes.value = String(reglages.nouveautesParJour);
     elements.etatVoix.textContent = Voix.possible('de') && Voix.possible('fr')
       ? '' : I18n.t('fiche.aucune-voix');
@@ -272,6 +273,7 @@
       zoneTelechargement: $('#zone-telechargement'),
       etatDictionnaire: $('#etat-dictionnaire'),
       reglageVoix: $('#reglage-voix'),
+      reglageArticle: $('#reglage-article'),
       reglageNouveautes: $('#reglage-nouveautes'),
       etatVoix: $('#etat-voix'),
       aproposVersions: $('#apropos-versions'),
@@ -307,6 +309,12 @@
       Seance.quota = valeur;
       await Store.ecrireReglage('nouveautesParJour', valeur);
       Seance.rafraichir();
+    });
+
+    elements.reglageArticle.addEventListener('change', async () => {
+      reglages.exigerArticle = elements.reglageArticle.checked;
+      Seance.exigerArticle = reglages.exigerArticle;
+      await Store.ecrireReglage('exigerArticle', reglages.exigerArticle);
     });
 
     elements.reglageVoix.addEventListener('change', async () => {
