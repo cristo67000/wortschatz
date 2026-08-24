@@ -12,9 +12,9 @@
  *
  *   1re fois     reconnaître   le mot étranger → sa traduction, parmi quatre
  *   2e fois      choisir       la traduction → le mot étranger, parmi quatre
- *   3e fois      écrire        la traduction → le mot étranger, au clavier
- *   4e fois      écrire tout   le même, article compris : « die Bohne »
- *   ensuite      alterner      écriture exigeante, phrase à trou, écoute
+ *   3e fois      écrire        la traduction → le mot étranger, au clavier —
+ *                              et pour un nom, avec son article : « die Bohne »
+ *   ensuite      alterner      écriture, phrase à trou, écoute
  *
  * Alterner ensuite n'est pas de la décoration : une carte toujours posée de la
  * même façon finit par être reconnue à sa forme plutôt qu'à son sens.
@@ -23,12 +23,18 @@
  * faute la plus tenace d'un francophone, et la seule que l'on puisse corriger
  * par la répétition pure : il n'y a rien à comprendre, seulement à retenir.
  *
- * Le quatrième palier n'en est pas la redite. Devant les trois boutons, le mot
- * est sous les yeux et il ne reste qu'à choisir ; au palier exigeant, on ne
- * voit que « haricot » et il faut ressortir « die Bohne » entière, orthographe
- * et genre d'un seul geste. C'est sous cette forme qu'un nom s'emploie, c'est
- * donc celle-là qu'il faut savoir produire. Il ne concerne que les noms dont le
- * genre est connu, et se coupe dans les Réglages pour qui le trouve trop rude.
+ * Écrire un nom, c'est l'écrire avec son article — les deux exercices ne se
+ * redoublent pas. Devant les trois boutons, le mot est sous les yeux et il ne
+ * reste qu'à choisir ; à l'écrit, on ne voit que « haricot » et il faut
+ * ressortir « die Bohne » entière, orthographe et genre d'un seul geste. C'est
+ * sous cette forme qu'un nom s'emploie, c'est donc celle-là qu'il faut savoir
+ * produire.
+ *
+ * L'exigence ne vaut que pour les noms dont le genre est connu, et se coupe
+ * dans les Réglages pour qui la trouve trop rude. Elle a d'abord attendu une
+ * réussite de plus — un palier à part, après l'écriture nue. C'était une porte
+ * de trop : le mot n'y arrivait qu'au quatrième passage, trois ou quatre jours
+ * après son ajout, si bien que l'exercice existait sans que personne le voie.
  *
  * ── La correction ──────────────────────────────────────────────────────────
  *
@@ -359,17 +365,16 @@
     const reglages = options || {};
     if (carte.type === 'genre') return 'genre';
 
-    /* L'écriture ne devient exigeante qu'une fois le mot déjà écrit juste :
-     * réclamer l'article plus tôt ferait rater deux choses à la fois, sans
-     * qu'on sache laquelle des deux manquait. */
+    /* Un nom s'écrit avec son article, dès la première fois qu'on le demande.
+     * L'oubli de l'article ne coûte d'ailleurs qu'un « presque » : rien ne
+     * justifiait d'attendre un passage de plus pour poser la vraie question. */
     const exigeante = reglages.exigerArticle !== false && !!avecArticle(entree);
     const ecrire = exigeante ? 'saisie-article' : 'saisie';
 
     const vues = carte.reussites;
     if (vues === 0) return 'qcm-comprendre';
     if (vues === 1) return 'qcm-produire';
-    if (vues === 2) return 'saisie';
-    if (vues === 3 && exigeante) return 'saisie-article';
+    if (vues === 2) return ecrire;
 
     // Ensuite on varie. La phrase à trou n'est proposée que si une phrase
     // existe, l'écoute que si une voix est installée.
