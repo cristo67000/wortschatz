@@ -27,9 +27,9 @@ surligné, et les mots du même voisinage.
 
 **Retenir.** Un bouton *Apprendre ce mot* verse le mot dans une file de
 révision espacée (SM-2 simplifié). Huit exercices se relaient, de difficulté
-croissante : reconnaître, choisir, écrire, écrire avec l'article (« die
-Bohne », et non « Bohne »), le genre der/die/das, la phrase à trou,
-l'appariement de phrases, l'écoute. La correction est tolérante mais
+croissante : reconnaître, choisir, écrire — et pour un nom, l'écrire avec son
+article (« die Bohne », et non « Bohne ») —, le genre der/die/das, la phrase à
+trou, l'appariement de phrases, l'écoute. La correction est tolérante mais
 instructive — une majuscule oubliée sur un nom allemand n'est pas comptée
 fausse, elle est expliquée, et l'article oublié ne se paie pas comme l'article
 faux.
