@@ -103,6 +103,13 @@ Un troisième script, `build/generer-icones.py`, redessine les icônes.
 Le bouton *Partager le lien* ouvre la feuille de partage du système, ou copie
 l'adresse là où elle n'existe pas.
 
+**Les mises à jour se disent.** Une application posée sur l'écran d'accueil ne
+se recharge jamais : la version suivante pouvait dormir dans son cache pendant
+des semaines. Elle s'installe désormais en silence puis attend, un bandeau
+annonce qu'elle est prête, et rien ne bascule avant un clic — recharger sous les
+doigts de quelqu'un ferait perdre la séance en cours. Les Réglages permettent
+aussi de chercher une mise à jour à la main, et affichent la version installée.
+
 ## Essayer en local
 
 ```bash
@@ -123,6 +130,7 @@ js/lexique.js    index en mémoire, recherche, lemmatisation, phrases
 js/store.js      IndexedDB : cartes, journal, réglages, historique
 js/paquets.js    téléchargement et installation du dictionnaire complet
 js/installer.js  installation sur l’appareil, et partage du lien
+js/miseajour.js  bandeau de mise à jour, et vérification à la demande
 js/voix.js       synthèse vocale du système, sans réseau
 js/revision.js   planificateur SM-2
 js/exercices.js  les huit exercices et la correction tolérante

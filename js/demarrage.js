@@ -11,7 +11,8 @@
  * Le service worker est enregistré en dernier, une fois l'application à
  * l'écran. Il sert au deuxième lancement, pas au premier ; le retarder évite de
  * disputer la bande passante aux fichiers dont l'affichage a besoin tout de
- * suite.
+ * suite. Son enregistrement est confié à `MiseAJour`, qui surveille l'arrivée
+ * d'une version et se charge de l'annoncer.
  */
 (function () {
 
@@ -75,9 +76,11 @@
        * navigateur a ses raisons (page servie en http, navigation privée…),
        * mais l'échec doit laisser une trace dans la console : une panne
        * d'installation entièrement muette a déjà coûté une soirée. */
-      navigator.serviceWorker.register('sw.js').catch((erreur) => {
-        console.warn('Wortschatz : service worker non installé —', erreur);
-      });
+      navigator.serviceWorker.register('sw.js')
+        .then((enregistrement) => MiseAJour.surveiller(enregistrement))
+        .catch((erreur) => {
+          console.warn('Wortschatz : service worker non installé —', erreur);
+        });
     }
   }
 

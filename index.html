@@ -192,11 +192,24 @@
       <section class="bloc">
         <h3 data-t="reglages.apropos"></h3>
         <p class="discret" id="apropos-versions"></p>
+        <div class="ligne-maj">
+          <button id="b-verifier-maj" type="button" class="bouton-discret"
+                  data-t="maj.verifier"></button>
+          <span id="etat-maj" class="discret"></span>
+        </div>
         <p><a href="confidentialite.html" data-t="reglages.confidentialite"></a></p>
       </section>
     </section>
 
   </main>
+
+  <div id="mise-a-jour" role="status" aria-live="polite" hidden>
+    <p id="mise-a-jour-texte"></p>
+    <div class="maj-boutons">
+      <button id="b-mettre-a-jour" type="button" class="bouton-principal"></button>
+      <button id="b-maj-plus-tard" type="button" class="lien-discret" data-t="maj.plus-tard"></button>
+    </div>
+  </div>
 
   <nav id="onglets" aria-label="Sections">
     <button type="button" data-vue="chercher" aria-current="true">
@@ -228,6 +241,7 @@
   <script src="js/progres.js"></script>
   <script src="js/paquets.js"></script>
   <script src="js/installer.js"></script>
+  <script src="js/miseajour.js"></script>
   <script src="js/app.js"></script>
   <script src="js/demarrage.js"></script>
 </body>
