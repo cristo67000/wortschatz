@@ -154,10 +154,14 @@
     elements.etatVoix.textContent = Voix.possible('de') && Voix.possible('fr')
       ? '' : I18n.t('fiche.aucune-voix');
 
+    /* La version de l'application vient du service worker, seul à la connaître ;
+     * elle manque au tout premier lancement, avant qu'il ne contrôle la page. */
+    const application = 'Wortschatz' + (MiseAJour.version ? ' ' + MiseAJour.version : '');
     const versions = manifeste
-      ? `Wortschatz · données ${manifeste.construit} · Wiktionnaire (WikDict, CC BY-SA) · Tatoeba (CC BY 2.0 FR)`
+      ? `${application} · données ${manifeste.construit} · Wiktionnaire (WikDict, CC BY-SA) · Tatoeba (CC BY 2.0 FR)`
       : '';
     elements.aproposVersions.textContent = versions;
+    elements.etatMaj.textContent = '';
 
     dessinerDictionnaire();
     Installer.dessiner();
@@ -277,6 +281,8 @@
       reglageNouveautes: $('#reglage-nouveautes'),
       etatVoix: $('#etat-voix'),
       aproposVersions: $('#apropos-versions'),
+      verifierMaj: $('#b-verifier-maj'),
+      etatMaj: $('#etat-maj'),
       progresContenu: $('#progres-contenu'),
     });
 
@@ -315,6 +321,17 @@
       reglages.exigerArticle = elements.reglageArticle.checked;
       Seance.exigerArticle = reglages.exigerArticle;
       await Store.ecrireReglage('exigerArticle', reglages.exigerArticle);
+    });
+
+    /* Chercher une mise à jour à la main. Le bandeau s'affiche de lui-même si
+     * une version arrive ; ce bouton sert à celui qui veut en avoir le cœur net
+     * — et à savoir, quand tout va bien, qu'il n'y a rien à faire. */
+    elements.verifierMaj.addEventListener('click', async () => {
+      elements.verifierMaj.disabled = true;
+      elements.etatMaj.textContent = I18n.t('maj.recherche');
+      const etat = await MiseAJour.verifier(true);
+      elements.verifierMaj.disabled = false;
+      elements.etatMaj.textContent = I18n.t('maj.etat.' + etat);
     });
 
     elements.reglageVoix.addEventListener('change', async () => {

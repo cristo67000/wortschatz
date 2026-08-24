@@ -12,6 +12,12 @@
  *   du temps et des octets perdus. Une nouvelle version des données porte de
  *   nouveaux noms de cache, et c'est l'application qui la télécharge.
  *
+ * Une nouvelle version s'installe en silence, puis **attend** : elle ne prend
+ * la main qu'au feu vert de `js/miseajour.js`, c'est-à-dire quand la personne a
+ * accepté le bandeau. Tant qu'elle attend, l'ancienne sert et son cache reste
+ * entier — s'activer d'office effacerait sous la page ouverte les fichiers dont
+ * elle se sert encore.
+ *
  * ⚠ Ce service worker ne supprime **que** les caches de coquille périmés. Le
  * cache des données (`wortschatz-donnees-…`) ne lui appartient pas : il
  * contient les 25 Mo que l'utilisateur a téléchargés, et une mise à jour du
@@ -19,7 +25,7 @@
  * efface, sur demande explicite ou en installant une version plus récente.
  */
 
-const VERSION = 'v1.3.0';
+const VERSION = 'v1.4.0';
 const COQUILLE = 'wortschatz-coquille-' + VERSION;
 
 const FICHIERS = [
@@ -40,6 +46,7 @@ const FICHIERS = [
   'js/progres.js',
   'js/paquets.js',
   'js/installer.js',
+  'js/miseajour.js',
   'js/app.js',
   'js/demarrage.js',
   'icons/icon-192.png',
@@ -118,8 +125,25 @@ self.addEventListener('install', (e) => {
         + 'ils seront rattrapés à l’usage.');
     }
 
-    await self.skipWaiting();
+    /* Pas de `skipWaiting()` ici. Ce service worker est prêt, mais il attend :
+     * prendre la main tout seul reviendrait à changer l'application sous les
+     * doigts de quelqu'un — et à effacer, en s'activant, le cache dont la page
+     * ouverte se sert encore. C'est `js/miseajour.js` qui annonce la version
+     * prête et qui donne le feu vert, une fois qu'on le lui a demandé. */
   })());
+});
+
+self.addEventListener('message', (e) => {
+  const message = e.data || {};
+
+  // Le feu vert du bandeau de mise à jour.
+  if (message.type === 'passer-devant') self.skipWaiting();
+
+  /* La version de la coquille n'est écrite qu'ici. La page la demande plutôt
+   * que d'en tenir une copie, qui finirait par mentir. */
+  if (message.type === 'version' && e.ports && e.ports[0]) {
+    e.ports[0].postMessage({ version: VERSION });
+  }
 });
 
 self.addEventListener('activate', (e) => {
