@@ -35,6 +35,7 @@
       if (actif) bouton.setAttribute('aria-current', 'true');
       else bouton.removeAttribute('aria-current');
     }
+    if (nom !== 'reviser' && racine.Suivis) Suivis.reinitialiser();
     if (nom === 'reglages') dessinerReglages();
     if (nom === 'reviser') Seance.rafraichir();
     if (nom === 'progres') Progres.dessiner(elements.progresContenu);

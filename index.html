@@ -93,6 +93,15 @@
         <div id="revision-avance" hidden>
           <p class="discret" data-t="reviser.rien-du-jour"></p>
         </div>
+
+        <section id="mots-suivis" hidden>
+          <h3><span data-t="suivis.titre"></span><span id="suivis-compte" class="compte"></span></h3>
+          <input id="suivis-filtre" type="search" autocomplete="off" autocapitalize="off"
+                 spellcheck="false" data-t-ph="suivis.filtrer" data-t-aria="suivis.filtrer" hidden>
+          <ul id="suivis-liste"></ul>
+          <p id="suivis-reste" class="discret" hidden></p>
+          <p id="suivis-rien" class="discret" data-t="suivis.rien" hidden></p>
+        </section>
       </div>
 
       <div id="seance" hidden>
@@ -240,6 +249,7 @@
   <script src="js/fiche.js"></script>
   <script src="js/seance.js"></script>
   <script src="js/progres.js"></script>
+  <script src="js/suivis.js"></script>
   <script src="js/paquets.js"></script>
   <script src="js/installer.js"></script>
   <script src="js/miseajour.js"></script>

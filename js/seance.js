@@ -63,7 +63,7 @@
     for (const [cle, valeur] of [
       ['reviser.compteur.dues', comptes.dues],
       ['reviser.compteur.nouvelles', Math.min(reste, comptes.nouvelles)],
-      ['reviser.compteur.total', comptes.total],
+      ['reviser.compteur.total', comptes.mots],
     ]) {
       const bloc = element('div', 'compteur');
       bloc.appendChild(element('span', 'chiffre', String(valeur)));
@@ -75,6 +75,10 @@
     elements.avance.hidden = !(comptes.total > 0 && aFaire === 0);
     elements.commencer.hidden = aFaire === 0;
     elements.compteurs.hidden = comptes.total === 0;
+
+    /* La liste des mots suivis vit sous les compteurs : elle se redessine avec
+     * eux, et n'a donc jamais à se demander si elle est encore juste. */
+    if (racine.Suivis) await Suivis.dessiner();
   }
 
   // ── Cycle de vie d'une séance ─────────────────────────────────────────────
@@ -87,6 +91,7 @@
     elements.accueil.hidden = true;
     elements.bilan.hidden = true;
     elements.seance.hidden = false;
+    if (racine.Suivis) Suivis.reinitialiser();
     await poser();
   }
 

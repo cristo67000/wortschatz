@@ -34,6 +34,11 @@ instructive — une majuscule oubliée sur un nom allemand n'est pas comptée
 fausse, elle est expliquée, et l'article oublié ne se paie pas comme l'article
 faux.
 
+L'onglet Réviser liste les mots suivis, avec leur prochaine échéance, et permet
+d'en retirer. Un retrait ne demande pas confirmation : il s'annule, et remet la
+carte telle qu'elle était — intervalle, facilité, réussites. Retirer un mot puis
+le rajouter par sa fiche, au contraire, en refait un mot neuf.
+
 **Se situer.** L'onglet Progrès distingue ce qu'on **sait produire** de ce qu'on
 sait seulement reconnaître. C'est la seule mesure qui ne se flatte pas.
 
@@ -137,6 +142,7 @@ js/exercices.js  les huit exercices et la correction tolérante
 js/fiche.js      affichage d'une entrée
 js/seance.js     déroulé d'une séance
 js/progres.js    statistiques
+js/suivis.js     la liste des mots suivis, et leur retrait
 js/app.js        onglets, recherche, réglages
 js/demarrage.js  amorçage
 ```
