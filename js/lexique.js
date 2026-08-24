@@ -171,6 +171,28 @@
     }
   }
 
+  /* La ligne d'index d'une vedette précise. `chercher()` ratisse trois pistes
+   * dans les deux langues pour deviner ce qu'on voulait taper ; ici on sait
+   * déjà, et une dichotomie suffit. Renvoie null si le mot n'est pas dans le
+   * paquet installé — le paquet complet a pu être supprimé depuis qu'on l'a
+   * mis en révision. */
+  function vedette(langue, mot) {
+    const index = etat.index[langue];
+    if (!index || !mot) return null;
+    const k = cle(mot);
+    let numero = premiereLigne(index, k);
+    while (numero < index.debuts.length) {
+      const [cleLue, vedetteLue, tranche, bande, apercu] = champs(index, numero);
+      if (cleLue !== k) return null;
+      if (vedetteLue === mot) {
+        return { langue, mot: vedetteLue, cle: cleLue, tranche: Number(tranche),
+                 bande: Number(bande), apercu: apercu || '', via: null };
+      }
+      numero += 1;
+    }
+    return null;
+  }
+
   /* Le lemme d'une forme fléchie, s'il est connu. Renvoie une liste : « ist »
    * n'a qu'un lemme, mais certaines formes en ont plusieurs. */
   function lemmes(langue, k) {
@@ -361,6 +383,7 @@
     cle,
     charger,
     chercher,
+    vedette,
     ouvrir,
     phrases,
     entreesAuHasard,

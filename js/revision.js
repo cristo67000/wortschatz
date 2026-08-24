@@ -237,11 +237,16 @@
     return sortie.concat(attente);
   }
 
+  /* Deux unités, et il faut les deux. Ce qu'il reste à faire se compte en
+   * cartes — c'est le nombre de questions qui viennent. Ce qu'on suit se compte
+   * en mots : un nom allemand en occupe deux, le sens et le genre, et annoncer
+   * « 24 mots suivis » à qui en a mis 16 dans sa liste serait faux. */
   async function compter() {
     const t = maintenant();
     const toutes = await Store.toutesLesCartes();
     return {
       total: toutes.length,
+      mots: new Set(toutes.map((c) => c.langue + ' ' + c.mot)).size,
       nouvelles: toutes.filter((c) => c.etat === 'nouveau').length,
       apprentissage: toutes.filter((c) => c.etat === 'apprentissage').length,
       revision: toutes.filter((c) => c.etat === 'revision').length,
