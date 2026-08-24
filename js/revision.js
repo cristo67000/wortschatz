@@ -15,10 +15,23 @@
  * « facilité » ; une réussite multiplie l'intervalle par la facilité, un échec
  * renvoie la carte en apprentissage et rabote sa facilité.
  *
- * ── Deux sortes de cartes ──────────────────────────────────────────────────
+ * ── Trois sortes de cartes ─────────────────────────────────────────────────
  *
- *   sens   ce que le mot veut dire, dans les deux sens de traduction
- *   genre  der / die / das, pour les noms allemands seulement
+ *   vers-de  produire l'allemand :  « maison » → Haus
+ *   vers-fr  produire le français : « Haus »   → maison
+ *   genre    der / die / das, pour les noms allemands seulement
+ *
+ * Les cartes portent le nom de **la langue de la réponse**, et non celui du mot.
+ * C'est le seul repère qui ne s'inverse pas : pour l'entrée allemande « Haus »,
+ * la carte `vers-de` demande de produire « Haus » à partir de « maison », et
+ * pour l'entrée française « maison » elle demande exactement la même chose. Le
+ * réglage « sens de travail » se lit alors sans détour.
+ *
+ * En version 1, une seule carte « sens » couvrait les deux directions : l'exercice
+ * tiré décidait, un jour dans un sens, un jour dans l'autre, sur une seule
+ * échéance. On croyait donc travailler les deux sens et on n'en consolidait
+ * aucun — reconnaître « Haus » et savoir le produire s'oublient à des rythmes
+ * différents, et une échéance commune suit le plus facile des deux.
  *
  * Le genre a sa carte à lui parce qu'il s'oublie séparément : on peut très bien
  * savoir que « Tisch » est une table et ne plus savoir si c'est der ou die. Les
@@ -68,16 +81,41 @@
     };
   }
 
-  /* Quelles cartes créer pour une entrée. Une pour le sens ; une pour le genre
-   * si c'est un nom allemand dont le genre est connu — 2 % ne le sont pas, et
-   * interroger sur un genre absent des données serait insensé. */
+  /* Le sens de travail : quelles directions on veut réviser.
+   *
+   * Réglé depuis les Réglages, il ne vaut que pour les cartes **créées
+   * ensuite**. Repasser de « les deux » à « vers l'allemand » n'efface pas les
+   * cartes françaises déjà acquises : on ne détruit pas des mois de révisions
+   * sur un changement de préférence, on cesse simplement d'en fabriquer. */
+  let sensDeTravail = 'les-deux';
+
+  function directionsPour(langue) {
+    if (sensDeTravail === 'vers-de') return ['vers-de'];
+    if (sensDeTravail === 'vers-fr') return ['vers-fr'];
+    // « Les deux » : produire le mot, et produire sa traduction.
+    return ['vers-' + langue, langue === 'de' ? 'vers-fr' : 'vers-de'];
+  }
+
+  /* Quelles cartes créer pour une entrée. Une ou deux pour le sens, selon le
+   * sens de travail ; une pour le genre si c'est un nom allemand dont le genre
+   * est connu — 2 % ne le sont pas, et interroger sur un genre absent des
+   * données serait insensé. */
   function cartesPour(entree) {
-    const types = ['sens'];
+    const types = directionsPour(entree.langue);
     if (entree.langue === 'de') {
       const aUnGenre = entree.lectures.some((l) => l[0] === 'n' && l[1]);
       if (aUnGenre) types.push('genre');
     }
     return types.map((type) => neuve(entree.langue, entree.mot, entree.tranche, type));
+  }
+
+  /* La carte demande-t-elle de produire la vedette elle-même, ou sa traduction ?
+   *
+   * C'est la question dont dépend tout le reste : quel exercice poser, quoi
+   * afficher, quoi attendre. Elle se répond d'une comparaison, et vaut mieux
+   * qu'un champ de plus dans la carte, qui pourrait mentir. */
+  function produitLaVedette(carte) {
+    return carte.type === 'vers-' + carte.langue;
   }
 
   async function apprendre(entree) {
@@ -225,13 +263,19 @@
     return copie;
   }
 
-  /* Éloigne les cartes qui portent sur le même mot. */
+  /* Éloigne les cartes qui portent sur le même mot.
+   *
+   * Un nom allemand en compte désormais trois — produire l'allemand, produire
+   * le français, le genre — et les trois se donnent mutuellement la réponse :
+   * qui vient de lire « Haus » en face de « maison » n'a plus rien à retrouver
+   * quand on lui demande le genre de « Haus ». On regarde donc plus loin en
+   * arrière qu'avec deux cartes. */
   function espacer(liste) {
     const sortie = [];
     const attente = [];
     for (const carte of liste) {
-      const troisDerniers = sortie.slice(-3).map((c) => c.langue + c.mot);
-      if (troisDerniers.indexOf(carte.langue + carte.mot) !== -1) attente.push(carte);
+      const recents = sortie.slice(-5).map((c) => c.langue + c.mot);
+      if (recents.indexOf(carte.langue + carte.mot) !== -1) attente.push(carte);
       else sortie.push(carte);
     }
     return sortie.concat(attente);
@@ -257,8 +301,10 @@
   racine.Revision = {
     RATE, DIFFICILE, CORRECT, FACILE,
     JOUR, PALIERS, FACILITE_INITIALE,
-    neuve, cartesPour, apprendre, oublier, estAppris,
+    neuve, cartesPour, apprendre, oublier, estAppris, produitLaVedette,
     juger, noter, file, compter, nouveautesDuJour, memeJour,
+    get sensDeTravail() { return sensDeTravail; },
+    set sensDeTravail(v) { sensDeTravail = v; },
   };
 
 })(window);

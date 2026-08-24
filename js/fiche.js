@@ -2,7 +2,7 @@
 /*
  * La fiche d'un mot : ce qu'on voit quand on a trouvé ce qu'on cherchait.
  *
- * Deux partis pris.
+ * Trois partis pris.
  *
  * L'article avant le nom. Un francophone qui apprend « Tisch » sans « der »
  * apprend un mot inutilisable : le genre allemand ne se devine pas et se
@@ -15,6 +15,24 @@
  * Les lectures les unes sous les autres. « See » est masculin quand c'est un
  * lac, féminin quand c'est la mer. Les séparer sur deux fiches ferait manquer
  * ce qui compte ; les mettre côte à côte fait de l'homographe une leçon.
+ *
+ * ── Ce qui change en version 2 ─────────────────────────────────────────────
+ *
+ * **Chaque signification porte ses propres exemples.** En version 1, les trois
+ * phrases d'un mot s'entassaient au bas de la fiche, après tous les sens :
+ * « abbauen » veut dire extraire, atténuer et démanteler, et rien ne disait
+ * laquelle des trois phrases illustrait laquelle des trois traductions. Le
+ * lecteur devait deviner, ou renoncer. Elles sont désormais sous le sens
+ * qu'elles servent, dans les deux formes que les données permettent :
+ *
+ *   citations  du Wiktionnaire, dans la langue du mot, non traduites — mais le
+ *              mot vedette y est marqué, et chaque mot est cliquable ;
+ *   phrases    de Tatoeba, avec leur traduction en regard.
+ *
+ * **Tout mot est cliquable** (`motsvifs.js`) : dans les définitions, dans les
+ * citations, dans les phrases. Un mot inconnu rencontré en lisant se met dans
+ * les révisions sans quitter la fiche. C'est le geste que la version 1 rendait
+ * si coûteux que personne ne le faisait.
  */
 (function (racine) {
 
@@ -156,9 +174,130 @@
     return ligne;
   }
 
-  function sens(lecture, plusieurs) {
+  // ── Flexion ───────────────────────────────────────────────────────────────
+
+  /* Les codes de flexion, regroupés à l'affichage. Un verbe français en porte
+   * quatorze : les aligner d'un bloc noierait le reste de la fiche. On les
+   * range donc par temps, et le tout se replie.
+   *
+   * Le regroupement se lit dans le code lui-même — « pres3 » est au présent —
+   * plutôt que dans une table par langue : les deux langues n'ont pas les mêmes
+   * temps, et une table de plus finirait par diverger de celle du build. */
+  function groupeDe(code) {
+    if (code.indexOf('pres') === 0) return 'present';
+    if (code.indexOf('imp') === 0) return 'imparfait';
+    return 'formes';
+  }
+
+  function flexion(lecture) {
+    const liste = lecture[5] || [];
+    if (!liste.length) return null;
+
+    const bloc = element('details', 'flexion');
+    bloc.appendChild(element('summary', null, I18n.t('fiche.flexion')));
+
+    const groupes = new Map();
+    for (const [code, graphie, article] of liste) {
+      const nom = groupeDe(code);
+      if (!groupes.has(nom)) groupes.set(nom, []);
+      groupes.get(nom).push([code, graphie, article]);
+    }
+
+    for (const [nom, entrees] of groupes) {
+      if (groupes.size > 1) {
+        bloc.appendChild(element('h4', 'flexion-groupe', I18n.t('flexion.groupe.' + nom)));
+      }
+      const table = element('dl', 'flexion-table');
+      for (const [code, graphie, article] of entrees) {
+        const etiquette = I18n.t('flexion.' + code);
+        table.appendChild(element('dt', null,
+          etiquette.startsWith('‹') ? code : etiquette));
+        /* L'article accompagne la forme sans être coloré. Les couleurs de
+         * l'application disent le genre — bleu masculin, rouge féminin, vert
+         * neutre — et « der » au génitif féminin est rouge, pas bleu. Le
+         * peindre selon sa graphie enseignerait un genre faux. */
+        const valeur = element('dd', null, article ? article + ' ' + graphie : graphie);
+        table.appendChild(valeur);
+      }
+      bloc.appendChild(table);
+    }
+    return bloc;
+  }
+
+  // ── Les sens, et leurs exemples ───────────────────────────────────────────
+
+  /* Une citation du Wiktionnaire : la phrase, le mot marqué, la référence.
+   *
+   * Elle n'est pas traduite — le Wiktionnaire allemand écrit en allemand. C'est
+   * assumé : les mots y sont cliquables, et un exemple qu'on déchiffre mot à
+   * mot vaut mieux qu'un sens laissé sans exemple. Les phrases de Tatoeba, qui
+   * viennent juste après, apportent la traduction. */
+  function citation(texte, marque, reference, langue) {
+    const bloc = element('div', 'citation');
+    const phrase = element('p', 'citation-texte');
+    phrase.appendChild(MotsVifs.tisser(texte, langue, { marque }));
+    bloc.appendChild(phrase);
+    if (reference) {
+      bloc.appendChild(element('p', 'citation-source', reference));
+    }
+    if (Voix.possible(langue)) {
+      const ecouter = element('button', 'ecouter-phrase', '▸');
+      ecouter.type = 'button';
+      ecouter.setAttribute('aria-label', I18n.t('fiche.ecouter'));
+      ecouter.addEventListener('click', () => Voix.dire(texte, langue));
+      phrase.appendChild(ecouter);
+    }
+    return bloc;
+  }
+
+  /* Une paire alignée : la phrase dans la langue du mot, sa traduction dessous.
+   * Les deux côtés sont cliquables — on apprend aussi en butant sur un mot de
+   * la traduction. */
+  function paireTraduite(paire, entree, cleVedette) {
+    const bloc = element('div', 'exemple');
+    const source = element('p', 'exemple-source');
+    const autre = entree.langue === 'de' ? 'fr' : 'de';
+    source.appendChild(MotsVifs.tisser(
+      entree.langue === 'de' ? paire.de : paire.fr, entree.langue,
+      { cible: cleVedette }));
+    bloc.appendChild(source);
+
+    const cible = element('p', 'exemple-cible');
+    cible.appendChild(MotsVifs.tisser(
+      entree.langue === 'de' ? paire.fr : paire.de, autre, {}));
+    bloc.appendChild(cible);
+
+    if (Voix.possible(entree.langue)) {
+      const ecouter = element('button', 'ecouter-phrase', '▸');
+      ecouter.type = 'button';
+      ecouter.setAttribute('aria-label', I18n.t('fiche.ecouter'));
+      ecouter.addEventListener('click', () => Voix.dire(
+        entree.langue === 'de' ? paire.de : paire.fr, entree.langue));
+      source.appendChild(ecouter);
+    }
+    return bloc;
+  }
+
+  /* Les phrases arrivent après coup : elles vivent dans un vivier partagé qu'il
+   * faut aller chercher. Le sens s'affiche sans les attendre — sa traduction et
+   * sa définition sont ce qu'on est venu voir. */
+  async function remplirPaires(numeros, hote, entree, cleVedette) {
+    const paires = await Lexique.phrases(numeros);
+    if (!paires.length) { hote.remove(); return; }
+    for (const paire of paires) {
+      hote.appendChild(paireTraduite(paire, entree, cleVedette));
+    }
+  }
+
+  function sens(entree, lecture, cleVedette) {
     const bloc = document.createDocumentFragment();
-    lecture[4].forEach(([definition, traductions], rang) => {
+    const plusieurs = lecture[4].length > 1;
+
+    lecture[4].forEach((donnees, rang) => {
+      const [definition, traductions] = donnees;
+      const citations = donnees[2] || [];
+      const numeros = donnees[3] || [];
+
       const paragraphe = element('div', 'sens');
       const ligne = element('p', 'traductions');
       if (plusieurs) {
@@ -167,66 +306,62 @@
       for (const traduction of traductions) {
         ligne.appendChild(element('span', null, traduction));
       }
-      paragraphe.appendChild(ligne);
-      if (definition) {
-        paragraphe.appendChild(element('p', 'definition', definition));
+      /* Un sens que le Wiktionnaire connaît et que WikDict ignore n'a pas de
+       * traduction. Il vaut d'être montré — il a sa définition et son exemple —
+       * mais il faut dire pourquoi la ligne des traductions est vide, sans quoi
+       * on croit à une donnée manquante. */
+      if (!traductions.length) {
+        ligne.appendChild(element('span', 'sans-traduction',
+          I18n.t('fiche.sens-sans-traduction')));
       }
+      paragraphe.appendChild(ligne);
+
+      if (definition) {
+        const texte = element('p', 'definition');
+        texte.appendChild(MotsVifs.tisser(definition, entree.langue, {}));
+        paragraphe.appendChild(texte);
+      }
+
+      for (const [texte, marque, reference] of citations) {
+        paragraphe.appendChild(citation(texte, marque, reference, entree.langue));
+      }
+
+      if (numeros.length) {
+        const hote = element('div', 'exemples-du-sens');
+        paragraphe.appendChild(hote);
+        remplirPaires(numeros, hote, entree, cleVedette).catch(() => hote.remove());
+      }
+
       bloc.appendChild(paragraphe);
     });
     return bloc;
   }
 
-  /* Met en évidence, dans une phrase, le mot dont on lit la fiche. Il y apparaît
-   * fléchi — « ging » pour « gehen », « Häuser » pour « Haus » — et le
-   * reconnaître à l'œil est justement l'exercice : on souligne donc tout ce qui
-   * ramène au même lemme, pas la seule graphie de la vedette. */
-  function souligner(texte, langue, cleVedette) {
-    const fragment = document.createDocumentFragment();
-    const morceaux = texte.split(/(\p{L}[\p{L}'’-]*)/u);
-    for (const morceau of morceaux) {
-      if (!morceau) continue;
-      const k = Lexique.cle(morceau);
-      const correspond = k && (k === cleVedette
-        || Lexique.lemmes(langue, k).indexOf(cleVedette) !== -1);
-      fragment.appendChild(correspond
-        ? element('b', 'cible', morceau)
-        : document.createTextNode(morceau));
-    }
-    return fragment;
+  function synonymes(lecture) {
+    const liste = lecture[6] || [];
+    if (!liste.length) return null;
+    const ligne = element('p', 'synonymes');
+    ligne.appendChild(element('b', null, I18n.t('fiche.synonymes') + ' '));
+    ligne.appendChild(document.createTextNode(liste.slice(0, 8).join(', ')));
+    return ligne;
   }
 
-  /* Les phrases arrivent après coup : elles vivent dans un vivier partagé qu'il
-   * faut aller chercher. La fiche s'affiche sans les attendre — le mot, son
-   * genre et sa traduction sont ce qu'on est venu voir. */
-  async function remplirPhrases(entree, section) {
+  /* Ce qu'aucune signification n'a réclamé. Une phrase dont on ne sait pas
+   * quel sens elle illustre reste une phrase utile ; la ranger sous un sens au
+   * hasard, non. */
+  async function remplirRestantes(entree, section, cleVedette) {
     const paires = await Lexique.phrases(entree.phrases);
     if (!paires.length) { section.remove(); return; }
-
     section.appendChild(element('h3', null, I18n.t('fiche.exemples')));
-    const cleVedette = Lexique.cle(entree.mot);
     for (const paire of paires) {
-      const bloc = element('div', 'exemple');
-      const source = element('p', 'exemple-source');
-      source.appendChild(souligner(
-        entree.langue === 'de' ? paire.de : paire.fr, entree.langue, cleVedette));
-      bloc.appendChild(source);
-      bloc.appendChild(element('p', 'exemple-cible',
-        entree.langue === 'de' ? paire.fr : paire.de));
-
-      if (Voix.possible(entree.langue)) {
-        const ecouter = element('button', 'ecouter-phrase', '▸');
-        ecouter.type = 'button';
-        ecouter.setAttribute('aria-label', I18n.t('fiche.ecouter'));
-        ecouter.addEventListener('click', () => Voix.dire(
-          entree.langue === 'de' ? paire.de : paire.fr, entree.langue));
-        source.appendChild(ecouter);
-      }
-      section.appendChild(bloc);
+      section.appendChild(paireTraduite(paire, entree, cleVedette));
     }
   }
 
   function construire(entree, surFermeture) {
     const bloc = document.createDocumentFragment();
+    const cleVedette = Lexique.cle(entree.mot);
+
     bloc.appendChild(enteteFiche(entree, surFermeture));
     bloc.appendChild(vedette(entree));
     bloc.appendChild(ligneSon(entree));
@@ -237,13 +372,17 @@
       section.appendChild(etiquettes(entree, lecture));
       const listeFormes = formes(entree, lecture);
       if (listeFormes) section.appendChild(listeFormes);
-      section.appendChild(sens(lecture, lecture[4].length > 1));
+      section.appendChild(sens(entree, lecture, cleVedette));
+      const listeSynonymes = synonymes(lecture);
+      if (listeSynonymes) section.appendChild(listeSynonymes);
+      const tableau = flexion(lecture);
+      if (tableau) section.appendChild(tableau);
       bloc.appendChild(section);
     }
 
     const exemples = element('section', 'exemples');
     bloc.appendChild(exemples);
-    remplirPhrases(entree, exemples).catch(() => exemples.remove());
+    remplirRestantes(entree, exemples, cleVedette).catch(() => exemples.remove());
 
     const autour = voisinage(entree);
     if (autour) bloc.appendChild(autour);
@@ -270,9 +409,8 @@
       const bouton = element('button', 'voisin', voisin);
       bouton.type = 'button';
       bouton.addEventListener('click', () => {
-        const trouves = Lexique.chercher(voisin, 12)
-          .filter((r) => r.langue === entree.langue && r.mot === voisin);
-        if (trouves.length) App.ouvrirFiche(trouves[0]);
+        const trouve = Lexique.resoudre(voisin, entree.langue);
+        if (trouve) App.ouvrirFiche(trouve);
       });
       mots.appendChild(bouton);
     }
@@ -281,6 +419,6 @@
     return section;
   }
 
-  racine.Fiche = { construire, formeParlee, nomDeNature, souligner, ARTICLES };
+  racine.Fiche = { construire, formeParlee, nomDeNature, ARTICLES };
 
 })(window);

@@ -94,6 +94,13 @@
           <p class="discret" data-t="reviser.rien-du-jour"></p>
         </div>
 
+        <section id="bloc-ateliers">
+          <h3 data-t="atelier.titre"></h3>
+          <p class="discret" data-t="atelier.note"></p>
+          <div id="ateliers"></div>
+          <p id="atelier-avis" class="discret" hidden></p>
+        </section>
+
         <section id="mots-suivis" hidden>
           <h3><span data-t="suivis.titre"></span><span id="suivis-compte" class="compte"></span></h3>
           <input id="suivis-filtre" type="search" autocomplete="off" autocapitalize="off"
@@ -111,6 +118,7 @@
                   data-t="reviser.arreter"></button>
         </div>
 
+        <p id="seance-libre" class="bandeau-libre" data-t="atelier.bandeau" hidden></p>
         <p id="seance-consigne" class="consigne"></p>
         <div id="seance-enonce"></div>
         <div id="seance-zone"></div>
@@ -181,6 +189,19 @@
       </section>
 
       <section class="bloc">
+        <h3 data-t="reglages.sens"></h3>
+        <div class="segments" role="group" id="reglage-sens">
+          <button type="button" data-sens="les-deux" aria-pressed="false"
+                  data-t="reglages.sens.les-deux"></button>
+          <button type="button" data-sens="vers-de" aria-pressed="false"
+                  data-t="reglages.sens.vers-de"></button>
+          <button type="button" data-sens="vers-fr" aria-pressed="false"
+                  data-t="reglages.sens.vers-fr"></button>
+        </div>
+        <p class="discret" data-t="reglages.sens.note"></p>
+      </section>
+
+      <section class="bloc">
         <h3 data-t="reglages.exigence"></h3>
         <label class="bascule">
           <input type="checkbox" id="reglage-article">
@@ -246,9 +267,11 @@
   <script src="js/voix.js"></script>
   <script src="js/revision.js"></script>
   <script src="js/exercices.js"></script>
+  <script src="js/motsvifs.js"></script>
   <script src="js/fiche.js"></script>
   <script src="js/seance.js"></script>
   <script src="js/progres.js"></script>
+  <script src="js/atelier.js"></script>
   <script src="js/suivis.js"></script>
   <script src="js/paquets.js"></script>
   <script src="js/installer.js"></script>

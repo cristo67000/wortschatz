@@ -8,16 +8,30 @@
  * deux compétences distinctes, et la première donne l'illusion de la seconde.
  * Un apprenant qui ne fait que des questions à choix multiples se croit prêt et
  * reste muet le jour où il faut parler. Chaque carte passe donc par une
- * difficulté croissante :
+ * difficulté croissante, propre à sa direction.
  *
- *   1re fois     reconnaître   le mot étranger → sa traduction, parmi quatre
- *   2e fois      choisir       la traduction → le mot étranger, parmi quatre
- *   3e fois      écrire        la traduction → le mot étranger, au clavier —
- *                              et pour un nom, avec son article : « die Bohne »
+ * Carte « produire la vedette » — on ne voit que « haricot » :
+ *
+ *   1re fois     choisir       parmi quatre mots étrangers
+ *   2e fois      écrire        au clavier, et pour un nom avec son article
  *   ensuite      alterner      écriture, phrase à trou, écoute
+ *
+ * Carte « produire la traduction » — on ne voit que « die Bohne » :
+ *
+ *   1re fois     reconnaître   parmi quatre traductions
+ *   2e fois      écrire        la traduction au clavier
+ *   ensuite      alterner      écriture, appariement de phrases
  *
  * Alterner ensuite n'est pas de la décoration : une carte toujours posée de la
  * même façon finit par être reconnue à sa forme plutôt qu'à son sens.
+ *
+ * ── L'exercice imposé ──────────────────────────────────────────────────────
+ *
+ * `preparer(carte, entree, { type })` pose l'exercice demandé au lieu de celui
+ * que la maturité de la carte appellerait. C'est tout ce qu'il a fallu pour que
+ * les **ateliers** existent : les huit exercices étaient écrits depuis le
+ * premier jour, rien ne permettait d'en réclamer un. Un exercice qu'on ne peut
+ * pas demander est un exercice qui n'existe pas pour l'utilisateur.
  *
  * Le genre des noms allemands a son exercice à lui, à trois boutons. C'est la
  * faute la plus tenace d'un francophone, et la seule que l'on puisse corriger
@@ -360,26 +374,76 @@
     return melanger(candidats).slice(0, combien);
   }
 
-  /* Quel exercice poser, selon la maturité de la carte. */
+  /* Une forme fléchie précise — le pluriel, le participe, la 3ᵉ personne.
+   * Rend `{graphie, article}` ou null. Les tableaux pendent de la lecture ;
+   * on prend la première qui porte le code demandé. */
+  function formeFlechie(entree, code) {
+    for (const lecture of entree.lectures) {
+      for (const [c, graphie, article] of (lecture[5] || [])) {
+        if (c === code) return { graphie, article: article || '' };
+      }
+    }
+    return null;
+  }
+
+  function synonymesDe(entree) {
+    const vus = [];
+    for (const lecture of entree.lectures) {
+      for (const mot of (lecture[6] || [])) {
+        if (mot !== entree.mot && vus.indexOf(mot) === -1) vus.push(mot);
+      }
+    }
+    return vus;
+  }
+
+  /* Quel exercice poser.
+   *
+   * Trois choses décident, dans cet ordre :
+   *
+   *   1. `options.type` — un atelier a demandé cet exercice-là, on le pose.
+   *      C'est tout ce qu'il a fallu ajouter pour que les huit exercices déjà
+   *      écrits deviennent accessibles : ils existaient, rien ne permettait de
+   *      les réclamer.
+   *   2. le type de carte — le genre a son exercice à lui.
+   *   3. la direction et la maturité — voir plus bas.
+   *
+   * Les deux directions n'ont pas la même échelle de difficulté, et c'est
+   * normal : reconnaître ce que veut dire « Haus » est plus facile que de
+   * sortir « das Haus » de mémoire en ne voyant que « maison ». La carte qui
+   * produit la vedette passe donc par l'écriture ; celle qui produit la
+   * traduction s'en tient à la reconnaissance puis à la saisie de la traduction.
+   */
   function typeDExercice(carte, entree, phrases, options) {
     const reglages = options || {};
+    if (reglages.type) return reglages.type;
     if (carte.type === 'genre') return 'genre';
 
-    /* Un nom s'écrit avec son article, dès la première fois qu'on le demande.
+    const vues = carte.reussites;
+
+    /* Direction « comprendre » : la réponse est dans l'autre langue. */
+    if (!Revision.produitLaVedette(carte)) {
+      if (vues === 0) return 'qcm-comprendre';
+      if (vues === 1) return 'saisie-traduction';
+      const possibles = ['saisie-traduction', 'saisie-traduction'];
+      if (phrases && phrases.length) possibles.push('paire-phrase');
+      return auHasard(possibles);
+    }
+
+    /* Direction « produire » : il faut ressortir la vedette.
+     *
+     * Un nom s'écrit avec son article, dès la première fois qu'on le demande.
      * L'oubli de l'article ne coûte d'ailleurs qu'un « presque » : rien ne
      * justifiait d'attendre un passage de plus pour poser la vraie question. */
     const exigeante = reglages.exigerArticle !== false && !!avecArticle(entree);
     const ecrire = exigeante ? 'saisie-article' : 'saisie';
 
-    const vues = carte.reussites;
-    if (vues === 0) return 'qcm-comprendre';
-    if (vues === 1) return 'qcm-produire';
-    if (vues === 2) return ecrire;
+    if (vues === 0) return 'qcm-produire';
+    if (vues === 1) return ecrire;
 
     // Ensuite on varie. La phrase à trou n'est proposée que si une phrase
     // existe, l'écoute que si une voix est installée.
     const possibles = [ecrire, ecrire];
-    if (phrases && phrases.length) possibles.push('trou', 'paire-phrase');
+    if (phrases && phrases.length) possibles.push('trou');
     if (Voix.possible(carte.langue)) possibles.push('ecoute');
     return auHasard(possibles);
   }
@@ -390,6 +454,12 @@
     const phrases = await Lexique.phrases(entree.phrases);
     const type = typeDExercice(carte, entree, phrases, options);
     const reponses = traductions(entree);
+    /* La langue dans laquelle on attend la réponse. Elle ne se déduit pas du
+     * nom de l'exercice : « reconnaître le sens » d'une entrée française veut
+     * dire répondre en allemand. C'est pourtant ce que la consigne doit
+     * annoncer, sans quoi on lit « Que veut dire ce mot ? » devant « maison »
+     * en devant répondre « Haus ». */
+    const autreLangue = carte.langue === 'de' ? 'fr' : 'de';
 
     if (type === 'genre') {
       return {
@@ -406,7 +476,8 @@
       const options = melanger([
         { texte: reponses[0], juste: true },
       ].concat(leurres.map((a) => ({ texte: traductions(a)[0], juste: false }))));
-      return { type, carte, entree, enonce: entree.mot, options, attendu: reponses[0] };
+      return { type, carte, entree, enonce: entree.mot, options,
+               attendu: reponses[0], langueReponse: autreLangue };
     }
 
     if (type === 'qcm-produire') {
@@ -415,7 +486,84 @@
         { texte: entree.mot, juste: true },
       ].concat(leurres.map((a) => ({ texte: a.mot, juste: false }))));
       return { type, carte, entree, enonce: reponses.slice(0, 2).join(', '), options,
-               attendu: entree.mot };
+               attendu: entree.mot, langueReponse: carte.langue };
+    }
+
+    /* Écrire la traduction. C'est l'autre moitié du « dans les deux sens » :
+     * la réponse attendue n'est plus la vedette mais l'un de ses équivalents,
+     * dans l'autre langue. `langueReponse` le dit à la séance, qui s'en sert
+     * pour le clavier d'accents et pour la correction — corriger « maison »
+     * avec les règles de l'allemand reprocherait une majuscule absente. */
+    if (type === 'saisie-traduction') {
+      const autre = carte.langue === 'de' ? 'fr' : 'de';
+      const forme = avecArticle(entree);
+      return {
+        type, carte, entree,
+        enonce: forme && carte.langue === 'de' ? forme.formes[0] : entree.mot,
+        attendu: reponses[0],
+        attendus: reponses,
+        estNom: estNom(entree),
+        langueReponse: autre,
+      };
+    }
+
+    /* Le pluriel d'un nom allemand — « der Tisch » → « die Tische ».
+     *
+     * C'est, avec le genre, ce qui ne se devine pas et qu'il faut avoir appris.
+     * L'article accompagne les deux formes : au pluriel il devient « die » quel
+     * que soit le genre, et c'est une leçon en soi. */
+    if (type === 'pluriel') {
+      const singulier = formeFlechie(entree, 'sg');
+      const pluriel = formeFlechie(entree, 'pl');
+      if (pluriel && pluriel.graphie !== entree.mot) {
+        const vu = singulier && singulier.article
+          ? singulier.article + ' ' + (singulier.graphie || entree.mot)
+          : entree.mot;
+        const complet = pluriel.article
+          ? pluriel.article + ' ' + pluriel.graphie : pluriel.graphie;
+        return {
+          type, carte, entree,
+          enonce: vu,
+          attendu: complet,
+          attendus: [complet, pluriel.graphie],
+          estNom: true,
+          langueReponse: carte.langue,
+        };
+      }
+    }
+
+    /* Une forme conjuguée précise, tirée au sort parmi celles qu'on connaît. */
+    if (type === 'conjugaison') {
+      const codes = ['pret', 'part', 'pres3', 'pres1', 'pres2', 'inf']
+        .filter((code) => formeFlechie(entree, code));
+      if (codes.length) {
+        const code = auHasard(codes);
+        const cible = formeFlechie(entree, code);
+        return {
+          type, carte, entree,
+          enonce: entree.mot,
+          indice: I18n.t('flexion.' + code),
+          attendu: cible.graphie,
+          attendus: [cible.graphie],
+          estNom: false,
+          langueReponse: carte.langue,
+        };
+      }
+    }
+
+    /* Reconnaître un synonyme parmi quatre. Les leurres viennent du même tirage
+     * que les autres questions à choix : même nature, même bande, et aucune
+     * traduction commune avec la cible — un leurre synonyme serait injuste. */
+    if (type === 'synonyme') {
+      const proches = synonymesDe(entree);
+      if (proches.length) {
+        const leurres = await distracteurs(entree, 3);
+        const bonne = auHasard(proches);
+        const choix = melanger([{ texte: bonne, juste: true }]
+          .concat(leurres.map((a) => ({ texte: a.mot, juste: false }))));
+        return { type, carte, entree, enonce: entree.mot, options: choix,
+                 attendu: bonne, langueReponse: carte.langue };
+      }
     }
 
     if (type === 'saisie-article') {
@@ -432,6 +580,7 @@
           genres: forme.genres,
           articleExige: true,
           estNom: true,
+          langueReponse: carte.langue,
         };
       }
     }
@@ -444,7 +593,7 @@
       if (troue) {
         return { type, carte, entree, enonce: troue.texte, indice: cible,
                  attendu: troue.mot, attendus: [troue.mot, entree.mot],
-                 estNom: estNom(entree) };
+                 estNom: estNom(entree), langueReponse: carte.langue };
       }
     }
 
@@ -458,14 +607,15 @@
       if (autres.length >= 1) {
         const options = melanger([{ texte: bonne, juste: true }]
           .concat(autres.map((t) => ({ texte: t, juste: false }))));
-        return { type, carte, entree, enonce: source, options, attendu: bonne };
+        return { type, carte, entree, enonce: source, options, attendu: bonne,
+                 langueReponse: autreLangue };
       }
     }
 
     if (type === 'ecoute') {
       return { type, carte, entree, enonce: null, aEcouter: entree.mot,
                attendu: entree.mot, attendus: [entree.mot],
-               estNom: estNom(entree) };
+               estNom: estNom(entree), langueReponse: carte.langue };
     }
 
     // Par défaut, et pour tout ce qui précède qui n'a pas abouti : la saisie.
@@ -476,6 +626,7 @@
       attendu: entree.mot,
       attendus: [entree.mot],
       estNom: estNom(entree),
+      langueReponse: carte.langue,
     };
   }
 
@@ -501,6 +652,7 @@
     ARTICLES,
     corriger, distancePour: distance, nettoyer, decouper,
     traductions, genreDe, genresDe, estNom, avecArticle,
+    formeFlechie, synonymesDe,
     preparer, typeDExercice, trouer, melanger,
   };
 

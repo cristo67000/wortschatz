@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "construit": "2026-08-23",
+  "version": 2,
+  "construit": "2026-08-24",
   "moutures": {
     "de": "2025.11.21",
     "fr": "2025.11.21"
@@ -14,11 +14,11 @@
   "paquets": {
     "noyau": {
       "entrees": {
-        "de": 9000,
-        "fr": 9000
+        "de": 12000,
+        "fr": 12000
       },
-      "phrases": 30063,
-      "octets": 8613305,
+      "phrases": 36869,
+      "octets": 21862147,
       "fichiers": [
         "noyau/de.idx",
         "noyau/de-000.json",
@@ -31,6 +31,10 @@
         "noyau/de-007.json",
         "noyau/de-008.json",
         "noyau/de-009.json",
+        "noyau/de-010.json",
+        "noyau/de-011.json",
+        "noyau/de-012.json",
+        "noyau/de-013.json",
         "noyau/formes-de.idx",
         "noyau/fr.idx",
         "noyau/fr-000.json",
@@ -43,6 +47,10 @@
         "noyau/fr-007.json",
         "noyau/fr-008.json",
         "noyau/fr-009.json",
+        "noyau/fr-010.json",
+        "noyau/fr-011.json",
+        "noyau/fr-012.json",
+        "noyau/fr-013.json",
         "noyau/formes-fr.idx",
         "noyau/phrases-000.json",
         "noyau/phrases-001.json",
@@ -77,7 +85,14 @@
         "noyau/phrases-030.json",
         "noyau/phrases-031.json",
         "noyau/phrases-032.json",
-        "noyau/phrases-033.json"
+        "noyau/phrases-033.json",
+        "noyau/phrases-034.json",
+        "noyau/phrases-035.json",
+        "noyau/phrases-036.json",
+        "noyau/phrases-037.json",
+        "noyau/phrases-038.json",
+        "noyau/phrases-039.json",
+        "noyau/phrases-040.json"
       ]
     },
     "complet": {
@@ -85,8 +100,8 @@
         "de": 59027,
         "fr": 47340
       },
-      "phrases": 37873,
-      "octets": 31523941,
+      "phrases": 40637,
+      "octets": 74540964,
       "fichiers": [
         "complet/de.idx",
         "complet/de-000.json",
@@ -253,7 +268,10 @@
         "complet/phrases-039.json",
         "complet/phrases-040.json",
         "complet/phrases-041.json",
-        "complet/phrases-042.json"
+        "complet/phrases-042.json",
+        "complet/phrases-043.json",
+        "complet/phrases-044.json",
+        "complet/phrases-045.json"
       ]
     }
   }

@@ -290,6 +290,126 @@ button { font: inherit; color: inherit; }
 .sens .traductions .numero-sens + span::before { content: none; }
 .sens .definition { margin: .2rem 0 0; color: var(--encre-douce); font-size: .92rem; }
 .numero-sens { color: var(--encre-tres-douce); font-weight: 600; margin-right: .3rem; }
+.sens .sans-traduction { color: var(--encre-tres-douce); font-style: italic; font-size: .9rem; }
+
+/* Un sens de la version 2 porte ses propres exemples : un filet à gauche les
+   rattache visuellement à la signification qu'ils illustrent, et non au mot. */
+.sens { border-left: 2px solid transparent; padding-left: 0; }
+.sens:has(.citation, .exemples-du-sens) {
+  border-left-color: var(--trait);
+  padding-left: .7rem;
+}
+
+/* ————— Citations du Wiktionnaire ————— */
+
+.citation { margin: .45rem 0 0; }
+.citation-texte { margin: 0; font-size: .97rem; }
+.citation-texte .cible { color: var(--accent); font-weight: 700; }
+.citation-source {
+  margin: .1rem 0 0;
+  font-size: .78rem;
+  color: var(--encre-tres-douce);
+}
+.exemples-du-sens { margin-top: .5rem; }
+.exemples-du-sens .exemple:last-child { margin-bottom: 0; }
+
+/* ————— Le mot cliquable ————— */
+
+/* Discret : un soulignement pointillé, pas un lien bleu. Une définition dont
+   chaque mot serait peint en couleur d'accent ne se lirait plus — et ici
+   presque chaque mot mène quelque part. */
+.mot-vif {
+  cursor: pointer;
+  border-bottom: 1px dotted var(--encre-tres-douce);
+  -webkit-tap-highlight-color: transparent;
+}
+.mot-vif:hover, .mot-vif:focus-visible {
+  background: var(--accent-clair);
+  border-bottom-color: var(--accent);
+  border-radius: 3px;
+  outline: none;
+}
+.mot-vif.cible { border-bottom-style: solid; }
+
+.cartouche {
+  position: fixed;
+  z-index: 60;
+  max-width: min(21rem, calc(100vw - 1.5rem));
+  padding: .7rem .85rem;
+  background: var(--papier-releve);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  box-shadow: var(--ombre);
+}
+.cartouche-tete { display: flex; align-items: baseline; gap: .35rem; flex-wrap: wrap; }
+.cartouche-mot { font-size: 1.15rem; }
+.cartouche-forme, .cartouche-sens { margin: .3rem 0 0; font-size: .9rem; }
+.cartouche-forme { color: var(--encre-tres-douce); font-style: italic; }
+.cartouche-sens { color: var(--encre-douce); }
+.cartouche-attente { margin: 0; color: var(--encre-tres-douce); }
+.cartouche-boutons { display: flex; gap: .4rem; margin-top: .6rem; align-items: stretch; }
+.cartouche-apprendre {
+  flex: 1;
+  padding: .45rem .6rem;
+  font: inherit;
+  font-size: .9rem;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--papier-releve);
+  cursor: pointer;
+}
+.cartouche-apprendre.suivi { background: transparent; color: var(--accent); }
+.cartouche-fiche, .cartouche-ecouter {
+  padding: .45rem .6rem;
+  font: inherit;
+  font-size: .9rem;
+  border: 1px solid var(--trait);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--encre-douce);
+  cursor: pointer;
+}
+.cartouche-fermer {
+  position: absolute;
+  top: .25rem;
+  right: .3rem;
+  border: 0;
+  background: transparent;
+  color: var(--encre-tres-douce);
+  cursor: pointer;
+  font-size: .9rem;
+  padding: .2rem .3rem;
+}
+
+/* ————— Tableau des formes ————— */
+
+.flexion { margin: .6rem 0 0; font-size: .92rem; }
+.flexion summary {
+  cursor: pointer;
+  color: var(--encre-douce);
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-weight: 600;
+}
+.flexion-groupe {
+  margin: .7rem 0 .2rem;
+  font-size: .8rem;
+  color: var(--encre-tres-douce);
+  font-weight: 600;
+}
+.flexion-table {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .1rem .8rem;
+  margin: .4rem 0 0;
+}
+.flexion-table dt { color: var(--encre-tres-douce); font-size: .85rem; }
+.flexion-table dd { margin: 0; }
+
+.synonymes { margin: .5rem 0 0; color: var(--encre-douce); font-size: .95rem; }
+.synonymes b { color: var(--encre); font-weight: 600; }
 
 /* ————— Phrases d'exemple ————— */
 
@@ -712,4 +832,60 @@ button.suivi-mot:hover, button.suivi-mot:focus-visible { background: var(--accen
 
 @media (min-width: 48rem) {
   #fiche { left: auto; width: min(30rem, 50vw); border-left: 1px solid var(--trait); box-shadow: var(--ombre); }
+}
+
+/* ————— Ateliers ————— */
+
+/* Une grille de vignettes plutôt qu'une liste : douze exercices en liste font
+   défiler, en grille ils se voient d'un coup d'œil — et l'intérêt d'un atelier
+   est justement de choisir vite. */
+#bloc-ateliers { margin: 2rem 0 1.5rem; }
+#bloc-ateliers h3 {
+  margin: 0 0 .3rem;
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--encre-tres-douce);
+  font-weight: 600;
+}
+.atelier-choix { display: flex; align-items: center; gap: .6rem; margin: .6rem 0; flex-wrap: wrap; }
+.atelier-choix-titre {
+  font-size: .8rem;
+  color: var(--encre-tres-douce);
+  min-width: 4.5rem;
+}
+.ateliers {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: .5rem;
+  margin-top: .9rem;
+}
+.atelier {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  padding: .6rem .7rem;
+  text-align: left;
+  font: inherit;
+  background: var(--papier-releve);
+  border: 1px solid var(--trait);
+  border-radius: 10px;
+  color: var(--encre);
+  cursor: pointer;
+}
+.atelier:hover { border-color: var(--accent); }
+.atelier-nom { font-weight: 600; font-size: .98rem; }
+.atelier-detail { font-size: .8rem; color: var(--encre-tres-douce); }
+/* L'atelier impossible reste là, grisé, et dit pourquoi. Le faire disparaître
+   laisserait croire à un bogue ; l'expliquer enseigne la règle. */
+.atelier.impossible { opacity: .5; cursor: not-allowed; }
+.atelier.impossible:hover { border-color: var(--trait); }
+
+.bandeau-libre {
+  margin: 0 0 .6rem;
+  padding: .35rem .6rem;
+  font-size: .82rem;
+  color: var(--encre-douce);
+  background: var(--accent-clair);
+  border-radius: 8px;
 }

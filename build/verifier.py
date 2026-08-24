@@ -194,6 +194,7 @@ def verifier_paquet(nom, manifeste):
 
         bandes = Counter()
         sans_genre = coupees = sans_traduction = 0
+        sens_total = sens_illustres = avec_flexion = 0
         pieges_vus = {}
         for numero, attendus in sorted(par_tranche.items()):
             chemin = dossier / f"{langue}-{numero:03d}.json"
@@ -209,14 +210,31 @@ def verifier_paquet(nom, manifeste):
                 bandes[bande] += 1
                 if mot in MOTS_PIEGES.get(langue, ()):
                     pieges_vus[mot] = lectures
-                for nature, genre, _pron, _formes, sens in lectures:
+                for lecture in lectures:
+                    nature, genre, sens = lecture[0], lecture[1], lecture[4]
+                    flexion = lecture[5] if len(lecture) > 5 else []
                     if nature == "n" and not genre and langue == "de":
                         sans_genre += 1
-                    for definition, traductions in sens:
+                    if flexion:
+                        avec_flexion += 1
+                    for bloc in sens:
+                        definition, traductions = bloc[0], bloc[1]
+                        citations = bloc[2] if len(bloc) > 2 else []
+                        phrases_du_sens = bloc[3] if len(bloc) > 3 else []
+                        sens_total += 1
+                        if citations or phrases_du_sens:
+                            sens_illustres += 1
                         if not traductions:
                             sans_traduction += 1
                         if definition.endswith("…"):
                             coupees += 1
+                        # Une marque qui déborde de sa phrase mettrait en gras
+                        # n'importe quoi, avec l'aplomb d'une donnée vérifiée.
+                        for texte, marque, _reference in citations:
+                            if marque and not (0 <= marque[0] < marque[1] <= len(texte)):
+                                anomalie(f"« {mot} » : citation dont la marque "
+                                         f"{marque} déborde d'un texte de "
+                                         f"{len(texte)} signes")
             for absent in sorted(attendus - trouves):
                 anomalie(f"« {absent} » adressé à {chemin.name} mais absent de cette tranche")
 
@@ -226,6 +244,14 @@ def verifier_paquet(nom, manifeste):
         if langue == "de":
             dire(f"  · {langue} : {sans_genre} lectures de nom sans genre")
         dire(f"  · {langue} : {coupees} définitions coupées, {sans_traduction} sens sans traduction")
+        # La mesure de la version 2 : un sens sans exemple est un sens qu'on
+        # apprend hors contexte, c'est-à-dire mal.
+        part = 100 * sens_illustres / max(sens_total, 1)
+        dire(f"  · {langue} : {sens_illustres}/{sens_total} sens illustrés "
+             f"({part:.1f} %), {avec_flexion} lectures avec tableau de formes")
+        if part < 60:
+            anomalie(f"{langue} : seuls {part:.1f} % des sens ont un exemple — "
+                     f"la promesse « une phrase par signification » n'est pas tenue")
 
         manquants = [m for m in MOTS_PIEGES.get(langue, ()) if m not in pieges_vus]
         if manquants and nom == "complet":

@@ -146,8 +146,8 @@ def stems_des_traductions(entree):
     """Les débuts des traductions, pour juger d'une parenté de sens."""
     stems = set()
     for lecture in entree["lectures"]:
-        for _definition, traductions in lecture[4]:
-            for traduction in traductions:
+        for bloc in lecture[4]:
+            for traduction in bloc[1]:
                 k = commun.cle(traduction)
                 for morceau in k.split():
                     if len(morceau) >= 4:

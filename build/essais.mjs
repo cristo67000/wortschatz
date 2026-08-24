@@ -107,12 +107,18 @@ fautesTotales += fautesCorrection;
 // ── Le moment où l'on réclame l'article ────────────────────────────────────
 
 const E = globalThis.Exercices;
+const R0 = globalThis.Revision;
 
 function entree(langue, mot, lectures) {
   return { langue, mot, tranche: 0, bande: 0, lectures, phrases: [], voisins: [] };
 }
-function sens(reussites) {
-  return { type: 'sens', langue: 'de', mot: 'Bohne', tranche: 0, reussites };
+/* Une carte de la direction demandée. « produire » veut dire produire la
+ * vedette allemande ; « comprendre », produire sa traduction française. */
+function produire(reussites) {
+  return { type: 'vers-de', langue: 'de', mot: 'Bohne', tranche: 0, reussites };
+}
+function comprendre(reussites) {
+  return { type: 'vers-fr', langue: 'de', mot: 'Bohne', tranche: 0, reussites };
 }
 
 const BOHNE = entree('de', 'Bohne', [['n', 'fem', 'ˈboːnə', [], [['', ['haricot']]]]]);
@@ -130,22 +136,33 @@ const PALIERS = [
     () => E.avecArticle(GEHEN) === null],
   ['un nom sans genre connu non plus',
     () => E.avecArticle(OSTERN) === null],
-  ['les deux premiers passages restent à reconnaître',
-    () => E.typeDExercice(sens(0), BOHNE, []) === 'qcm-comprendre'
-       && E.typeDExercice(sens(1), BOHNE, []) === 'qcm-produire'],
+  ['une carte nomme la langue de sa réponse',
+    () => R0.produitLaVedette(produire(0)) === true
+       && R0.produitLaVedette(comprendre(0)) === false],
+  ['produire commence par le choix parmi quatre',
+    () => E.typeDExercice(produire(0), BOHNE, []) === 'qcm-produire'],
   ['la première écriture réclame déjà l’article',
-    () => E.typeDExercice(sens(2), BOHNE, []) === 'saisie-article'],
+    () => E.typeDExercice(produire(1), BOHNE, []) === 'saisie-article'],
   ['et ne le lâche plus ensuite',
-    () => E.typeDExercice(sens(9), BOHNE, []) === 'saisie-article'],
+    () => E.typeDExercice(produire(9), BOHNE, []) === 'saisie-article'],
   ['le réglage coupé rend la saisie ordinaire',
-    () => E.typeDExercice(sens(2), BOHNE, [], { exigerArticle: false }) === 'saisie'],
+    () => E.typeDExercice(produire(1), BOHNE, [], { exigerArticle: false }) === 'saisie'],
   ['un verbe reste à la saisie ordinaire',
-    () => E.typeDExercice(sens(2), GEHEN, []) === 'saisie'],
+    () => E.typeDExercice({ type: 'vers-de', langue: 'de', mot: 'gehen',
+                            tranche: 0, reussites: 1 }, GEHEN, []) === 'saisie'],
+  ['comprendre commence par reconnaître le sens',
+    () => E.typeDExercice(comprendre(0), BOHNE, []) === 'qcm-comprendre'],
+  ['puis fait écrire la traduction, jamais l’article',
+    () => E.typeDExercice(comprendre(1), BOHNE, []) === 'saisie-traduction'
+       && E.typeDExercice(comprendre(9), BOHNE, []) === 'saisie-traduction'],
   ['la carte de genre garde son exercice',
     () => E.typeDExercice({ type: 'genre', langue: 'de', reussites: 5 }, BOHNE, []) === 'genre'],
+  ['un atelier impose son exercice, quelle que soit la carte',
+    () => E.typeDExercice(produire(0), BOHNE, [], { type: 'ecoute' }) === 'ecoute'
+       && E.typeDExercice(comprendre(9), BOHNE, [], { type: 'genre' }) === 'genre'],
 ];
 
-titre('Le palier des articles (Exercices.typeDExercice)');
+titre('Le choix de l’exercice (Exercices.typeDExercice)');
 let fautesPaliers = 0;
 for (const [libelle, verifier] of PALIERS) {
   const ok = verifier();

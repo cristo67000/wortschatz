@@ -193,6 +193,45 @@
     return null;
   }
 
+  /* La vedette derrière une graphie rencontrée dans un texte.
+   *
+   * C'est ce qui rend les mots cliquables : on lit « Häuser » dans une citation
+   * et il faut arriver à « Haus ». Deux dichotomies au plus — la graphie telle
+   * quelle, puis ses lemmes — soit une trentaine de comparaisons. Une fiche en
+   * contient quelques centaines de mots : le coût total se mesure en
+   * millisecondes, et il n'y a rien à mettre en cache.
+   *
+   * Renvoie null quand le mot n'est pas dans le paquet installé. L'appelant
+   * doit le prévoir : c'est le cas ordinaire pour qui n'a que le noyau, et un
+   * mot muet vaut mieux qu'un bouton qui ne fait rien. */
+  function resoudre(graphie, langue) {
+    const k = cle(graphie);
+    if (!k) return null;
+
+    const direct = [];
+    collecter(langue, k, true, direct, 8);
+    if (direct.length) return meilleur(direct, graphie);
+
+    for (const lemme of lemmes(langue, k)) {
+      const lot = [];
+      collecter(langue, lemme, true, lot, 8);
+      if (lot.length) return meilleur(lot, graphie);
+    }
+    return null;
+  }
+
+  /* Plusieurs vedettes partagent souvent une clé : « gehen » le verbe et
+   * « Gehen » le nom, « été » la saison et « été » le participe. Prendre la
+   * première venue ouvrait la fiche du nom quand on avait cliqué sur le verbe
+   * — la clé ignore la casse, et c'est justement ce qui les distingue en
+   * allemand. La graphie exacte tranche donc ; à défaut, le mot le plus
+   * courant, qui est presque toujours celui qu'on visait. */
+  function meilleur(lot, graphie) {
+    const exact = lot.find((resultat) => resultat.mot === graphie);
+    if (exact) return exact;
+    return lot.reduce((a, b) => (b.bande < a.bande ? b : a));
+  }
+
   /* Le lemme d'une forme fléchie, s'il est connu. Renvoie une liste : « ist »
    * n'a qu'un lemme, mais certaines formes en ont plusieurs. */
   function lemmes(langue, k) {
@@ -384,6 +423,7 @@
     charger,
     chercher,
     vedette,
+    resoudre,
     ouvrir,
     phrases,
     entreesAuHasard,

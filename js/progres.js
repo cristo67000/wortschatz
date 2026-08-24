@@ -19,9 +19,16 @@
  */
 (function (racine) {
 
-  /* Les exercices où l'on produit la réponse, par opposition à ceux où on la
-   * reconnaît parmi d'autres. */
-  const PRODUCTION = ['saisie', 'saisie-article', 'trou', 'ecoute'];
+  /* Les exercices où l'on produit **la vedette** de mémoire, par opposition à
+   * ceux où on la reconnaît parmi d'autres.
+   *
+   * `saisie-traduction` n'y figure pas, et ce n'est pas un oubli : écrire
+   * « maison » en voyant « das Haus » est de la compréhension mise au clavier,
+   * pas de la production. La ranger ici gonflerait le compteur qui se veut
+   * précisément celui qui ne flatte pas. Le pluriel et la conjugaison, eux,
+   * demandent bien une forme qu'il a fallu retenir. */
+  const PRODUCTION = ['saisie', 'saisie-article', 'trou', 'ecoute',
+                      'pluriel', 'conjugaison'];
 
   const JOUR = 24 * 60 * 60 * 1000;
 
@@ -48,8 +55,21 @@
     const reconnus = new Set();
     const echecs = new Map();
     const parJour = new Map();
+    let libres = 0;
 
     for (const ligne of journal) {
+      /* Les réponses données en atelier sont marquées `libre`. Elles ne
+       * comptent pas dans la mémorisation, et c'est voulu : un atelier se
+       * refait dix fois de suite, et dix réussites d'affilée sur le même mot ne
+       * disent rien de ce qu'on en saura demain. La seule mesure honnête est
+       * celle des rappels espacés. Elles sont comptées à part, parce que ce
+       * travail a bien eu lieu et qu'il mérite d'être vu. */
+      if (ligne.libre) {
+        libres += 1;
+        const jourLibre = jourDe(ligne.quand);
+        parJour.set(jourLibre, (parJour.get(jourLibre) || 0) + 1);
+        continue;
+      }
       const mot = ligne.langue + ' ' + ligne.mot;
       if (ligne.qualite >= 2) {
         (PRODUCTION.indexOf(ligne.exercice) !== -1 ? produits : reconnus).add(mot);
@@ -85,6 +105,7 @@
 
     return {
       suivis: suivis.size,
+      libres,
       produits: produits.size,
       reconnus: reconnus.size,
       jamais: jamais.size,
@@ -141,9 +162,10 @@
       barres.appendChild(colonne);
     }
     activite.appendChild(barres);
-    activite.appendChild(element('p', 'discret',
-      I18n.n('progres.reponses', etat.reponses)
-      + ' · ' + I18n.n('progres.serie', etat.serie)));
+    const detail = I18n.n('progres.reponses', etat.reponses)
+      + ' · ' + I18n.n('progres.serie', etat.serie)
+      + (etat.libres ? ' · ' + I18n.n('progres.libres', etat.libres) : '');
+    activite.appendChild(element('p', 'discret', detail));
     conteneur.appendChild(activite);
 
     if (etat.difficiles.length) {

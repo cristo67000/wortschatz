@@ -45,6 +45,13 @@
       if (!reponse.ok) throw new Error('manifeste : ' + reponse.status);
       const manifeste = await reponse.json();
       const paquet = await quelPaquet(manifeste, reglages);
+
+      /* Les données d'un format antérieur ne resserviront jamais : le cache
+       * porte le numéro de format, et rien ne va plus le chercher. Les laisser
+       * coûterait des dizaines de méga-octets sur l'appareil, sans contrepartie.
+       * On n'attend pas le résultat : c'est du ménage, pas une étape du
+       * démarrage. */
+      Paquets.oublierLesPerimes(manifeste).catch(() => {});
       Lexique.etat.manifeste = manifeste;
       await Lexique.charger(paquet);
 

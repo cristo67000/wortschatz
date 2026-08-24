@@ -112,6 +112,31 @@
     for (const nom of await cachesDeDonnees()) await caches.delete(nom);
   }
 
+  /* Les données d'une version qui n'existe plus.
+   *
+   * Le format des données a changé en version 2 : le cache s'appelle désormais
+   * `wortschatz-donnees-2`, et celui de la version 1 ne sera plus jamais lu —
+   * `complet()` ne regarde que la version du manifeste courant. Ce sont trente
+   * méga-octets morts sur l'appareil.
+   *
+   * On les efface donc, et c'est la **seule** suppression automatique que
+   * s'autorise l'application : ce qui est effacé ici est inutilisable par
+   * définition, alors que le cache de la version courante représente un
+   * téléchargement que l'utilisateur a payé de son forfait et que personne ne
+   * doit lui reprendre sans le lui demander. */
+  async function oublierLesPerimes(manifeste) {
+    if (!('caches' in racine)) return 0;
+    const courant = nomDuCache(manifeste.version);
+    let effaces = 0;
+    for (const nom of await cachesDeDonnees()) {
+      if (nom !== courant) {
+        await caches.delete(nom);
+        effaces += 1;
+      }
+    }
+    return effaces;
+  }
+
   /* Poids annoncé à l'utilisateur avant qu'il ne décide. */
   function poids(manifeste) {
     return manifeste.paquets.complet.octets;
@@ -134,6 +159,7 @@
     return String(nombre).replace('.', ',') + ' ' + unites[rang];
   }
 
-  racine.Paquets = { complet, manquants, telecharger, supprimer, poids, humain, nomDuCache };
+  racine.Paquets = { complet, manquants, telecharger, supprimer, oublierLesPerimes,
+                     poids, humain, nomDuCache };
 
 })(window);

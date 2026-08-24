@@ -5,7 +5,7 @@ Récupération des sources de Wortschatz.
 
 Rien de ce qui est téléchargé ici n'est publié tel quel : ce sont les matières
 premières, `construire.py` en tire les paquets de l'application. Le dossier
-`build/sources/` pèse environ 150 Mo et n'a pas sa place dans le dépôt (voir
+`build/sources/` pèse environ 1,6 Go et n'a pas sa place dans le dépôt (voir
 .gitignore).
 
 Provenance et licences : voir SOURCES.md, à côté de ce fichier.
@@ -37,6 +37,12 @@ SOURCES = RACINE / "sources"
 WIKDICT_TEI = "https://download.wikdict.com/dictionaries/tei/recommended/"
 WIKDICT_SQLITE = "https://download.wikdict.com/dictionaries/sqlite/"
 TATOEBA = "https://downloads.tatoeba.org/exports/per_language/"
+
+# Le Wiktionnaire intégral, passé par wiktextract (Tatu Ylonen). Chaque édition
+# a son dump : l'allemande donne les entrées allemandes avec leurs définitions
+# et leurs exemples **en allemand**, la française de même. C'est ce que WikDict
+# ne retient pas — il ne garde que les paires de traduction.
+KAIKKI = "https://kaikki.org/{edition}wiktionary/raw-wiktextract-data.jsonl.gz"
 
 # Un navigateur poli s'annonce. Les deux hébergeurs servent des fichiers lourds
 # gratuitement ; se présenter est la moindre des choses.
@@ -157,9 +163,15 @@ def main():
                         ("deu", "deu-fra_links.tsv.bz2")):
         telecharger(TATOEBA + langue + "/" + nom, SOURCES / nom, options.forcer)
 
+    print("\nWiktionnaire intégral (définitions, exemples et flexions par sens)")
+    print("  ~970 Mo à eux deux : c'est long, et la reprise sur coupure marche.")
+    for edition in ("de", "fr"):
+        telecharger(KAIKKI.format(edition=edition),
+                    SOURCES / f"wiktionnaire-{edition}.jsonl.gz", options.forcer)
+
     total = sum(f.stat().st_size for f in SOURCES.iterdir() if f.is_file())
     print(f"\nTotal : {humain(total)} dans build/sources/")
-    print("Étape suivante : python build/construire.py")
+    print("Étape suivante : python build/wiktionnaire.py, puis construire.py")
 
 
 if __name__ == "__main__":

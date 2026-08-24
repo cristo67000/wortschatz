@@ -149,6 +149,11 @@
       bouton.setAttribute('aria-pressed', String(bouton.dataset.langue === I18n.langue));
     }
 
+    for (const bouton of document.querySelectorAll('[data-sens]')) {
+      bouton.setAttribute('aria-pressed',
+        String(bouton.dataset.sens === (reglages.sensDeTravail || 'les-deux')));
+    }
+
     elements.reglageVoix.checked = !!reglages.voix;
     elements.reglageArticle.checked = reglages.exigerArticle !== false;
     elements.reglageNouveautes.value = String(reglages.nouveautesParJour);
@@ -159,7 +164,7 @@
      * elle manque au tout premier lancement, avant qu'il ne contrôle la page. */
     const application = 'Wortschatz' + (MiseAJour.version ? ' ' + MiseAJour.version : '');
     const versions = manifeste
-      ? `${application} · données ${manifeste.construit} · Wiktionnaire (WikDict, CC BY-SA) · Tatoeba (CC BY 2.0 FR)`
+      ? `${application} · données ${manifeste.construit} · Wiktionnaire (WikDict et wiktextract, CC BY-SA) · Tatoeba (CC BY 2.0 FR)`
       : '';
     elements.aproposVersions.textContent = versions;
     elements.etatMaj.textContent = '';
@@ -290,6 +295,15 @@
     Seance.brancher(reglages);
     Installer.brancher();
 
+    /* Un seul écouteur pour tous les mots cliquables de l'application, posé une
+     * fois pour toutes : les fiches se redessinent sans avoir à le refaire.
+     *
+     * Il est branché **avant** la touche Échap ci-dessous, et l'ordre compte :
+     * les deux écoutent le document, et Échap doit d'abord refermer le
+     * cartouche ouvert par-dessus la fiche, pas la fiche elle-même. */
+    MotsVifs.brancher();
+    Atelier.brancher();
+
     elements.q.addEventListener('input', chercher);
     elements.qVider.addEventListener('click', () => {
       elements.q.value = '';
@@ -317,6 +331,15 @@
       await Store.ecrireReglage('nouveautesParJour', valeur);
       Seance.rafraichir();
     });
+
+    for (const bouton of document.querySelectorAll('[data-sens]')) {
+      bouton.addEventListener('click', async () => {
+        reglages.sensDeTravail = bouton.dataset.sens;
+        Revision.sensDeTravail = reglages.sensDeTravail;
+        await Store.ecrireReglage('sensDeTravail', reglages.sensDeTravail);
+        dessinerReglages();
+      });
+    }
 
     elements.reglageArticle.addEventListener('change', async () => {
       reglages.exigerArticle = elements.reglageArticle.checked;
@@ -354,10 +377,12 @@
       chercher();
       if (!elements.fiche.hidden) fermerFiche();
       if (!$('#vue-reglages').hidden) dessinerReglages();
+      if (racine.Atelier) Atelier.dessiner();
       if (!$('#vue-reviser').hidden) Seance.rafraichir();
       if (!$('#vue-progres').hidden) Progres.dessiner(elements.progresContenu);
     });
 
+    Revision.sensDeTravail = reglages.sensDeTravail || 'les-deux';
     Voix.actif = !!reglages.voix;
     dessinerSuggestions();
     dessinerRecents();

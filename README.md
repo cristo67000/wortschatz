@@ -21,9 +21,20 @@ aussi : *dans l'ensemble*, *tout de suite*, *avoir lieu*.
 
 **Comprendre.** Chaque fiche donne l'article coloré des noms allemands (der
 bleu, die rouge, das vert — le code des tableaux de classe), la prononciation
-avec un bouton pour l'écouter, les formes irrégulières, jusqu'à trois sens avec
-leur définition, deux à quatre phrases d'exemple réelles où le mot est
-surligné, et les mots du même voisinage.
+avec un bouton pour l'écouter, les formes irrégulières, et les mots du même
+voisinage.
+
+Chaque **signification** porte ses propres exemples : une citation du
+Wiktionnaire dans la langue du mot, et les phrases traduites de Tatoeba qui
+l'illustrent vraiment. *See* est un lac au masculin et la mer au féminin, avec
+des phrases distinctes ; *abbauen* a cinq sens, chacun avec le sien. Le tableau
+des formes qu'il faut retenir — pluriel et génitif, temps primitifs, comparatif,
+conjugaison — se déplie sous chaque lecture.
+
+**Tout mot affiché est cliquable.** Dans une définition, dans une citation, dans
+une phrase d'exemple et dans sa traduction : un clic ouvre un cartouche avec la
+vedette, sa prononciation, ses traductions, et le bouton *Apprendre*. Un mot
+inconnu rencontré en lisant entre dans les révisions sans quitter la fiche.
 
 **Retenir.** Un bouton *Apprendre ce mot* verse le mot dans une file de
 révision espacée (SM-2 simplifié). Huit exercices se relaient, de difficulté
@@ -33,6 +44,18 @@ trou, l'appariement de phrases, l'écoute. La correction est tolérante mais
 instructive — une majuscule oubliée sur un nom allemand n'est pas comptée
 fausse, elle est expliquée, et l'article oublié ne se paie pas comme l'article
 faux.
+
+Un mot appris dans les deux sens compte **deux cartes** : produire l'allemand et
+produire le français s'oublient à des rythmes différents, et une échéance
+commune suivrait le plus facile des deux. Le réglage *Sens de travail* permet de
+n'en garder qu'une.
+
+**Les ateliers.** Douze exercices se réclament directement — genre, écriture
+avec article, phrase à trou, écoute, pluriel, conjugaison, synonymes — sur les
+mots de son choix : ceux qu'on suit, ceux qu'on vient de consulter, ou au hasard
+dans le vocabulaire courant. Un atelier **ne touche jamais à l'échéancier** :
+on s'entraîne autant qu'on veut sans faire croire au planificateur qu'un mot est
+su. Un atelier impossible reste affiché, grisé, et dit pourquoi.
 
 L'onglet Réviser liste les mots suivis, avec leur prochaine échéance, et permet
 d'en retirer. Un retrait ne demande pas confirmation : il s'annule, et remet la
@@ -62,23 +85,37 @@ les licences.
 | Source | Ce qu'on en tire | Licence |
 |---|---|---|
 | [WikDict](https://www.wikdict.com/) (TEI + SQLite) | 106 000 entrées : mot, phonétique, nature, **genre**, formes, définitions, traductions | CC BY-SA 3.0 |
+| [Wiktionnaire](https://www.wiktionary.org/) intégral, via [wiktextract](https://kaikki.org/) | définitions, **exemples par sens**, synonymes, tableaux de formes | CC BY-SA + GFDL |
 | [Tatoeba](https://tatoeba.org/) | phrases allemand/français alignées, et la mesure de fréquence d'usage | CC BY 2.0 FR |
 | `build/grammaire.py` | sept mots-outils français absents du dictionnaire source | écrits pour l'application |
 
 Origine commune du dictionnaire : le Wiktionnaire, via
-[DBnary](http://kaiko.getalp.org/about-dbnary/).
+[DBnary](http://kaiko.getalp.org/about-dbnary/) pour WikDict et directement pour
+les exemples.
+
+**Le Dictionnaire de l'Académie française et le Duden sont absents, et ce n'est
+pas un oubli** : les conditions du premier interdisent l'extraction automatisée
+et la redistribution, le second est purement commercial. Le Wiktionnaire rend le
+même service et se laisse redistribuer.
 
 Deux paquets sont produits :
 
-- **noyau** — 18 000 mots, 8 Mo, livré avec l'application et pré-caché : elle
-  est utilisable hors ligne dès l'installation ;
-- **complet** — 106 000 mots, 30 Mo, téléchargé depuis les Réglages sur
+- **noyau** — 24 000 mots, 21 Mo, livré avec l'application et pré-caché : elle
+  est utilisable hors ligne dès l'installation. Il est passé de 9 000 à 12 000
+  mots par langue en version 2, parce qu'un mot cliquable absent du paquet ne
+  mène nulle part ;
+- **complet** — 106 000 mots, 70 Mo, téléchargé depuis les Réglages sur
   décision de l'utilisateur.
+
+**95,7 % des sens allemands et 84,9 % des sens français du noyau** portent au
+moins un exemple. `build/verifier.py` mesure ce chiffre à chaque construction et
+échoue en dessous de 60 %.
 
 ## Construire les données
 
 ```bash
-python build/telecharger.py    # ~160 Mo de sources, une seule fois
+python build/telecharger.py    # ~1,6 Go de sources, une seule fois
+python build/wiktionnaire.py   # extrait les 2 Go de dumps, ~2 minutes
 python build/construire.py     # produit data/, environ deux minutes
 python build/verifier.py       # contrôle tout, et écrit build/rapport.txt
 ```
@@ -137,14 +174,24 @@ js/paquets.js    téléchargement et installation du dictionnaire complet
 js/installer.js  installation sur l’appareil, et partage du lien
 js/miseajour.js  bandeau de mise à jour, et vérification à la demande
 js/voix.js       synthèse vocale du système, sans réseau
-js/revision.js   planificateur SM-2
-js/exercices.js  les huit exercices et la correction tolérante
-js/fiche.js      affichage d'une entrée
-js/seance.js     déroulé d'une séance
+js/revision.js   planificateur SM-2, et les cartes par direction
+js/exercices.js  les douze exercices et la correction tolérante
+js/motsvifs.js   le mot cliquable, et son cartouche
+js/fiche.js      affichage d'une entrée, sens par sens
+js/seance.js     déroulé d'une séance — deux régimes, un seul moteur
+js/atelier.js    le choix de l'exercice, sans effet sur l'échéancier
 js/progres.js    statistiques
 js/suivis.js     la liste des mots suivis, et leur retrait
 js/app.js        onglets, recherche, réglages
 js/demarrage.js  amorçage
+```
+
+Côté construction, la version 2 ajoute trois modules :
+
+```
+build/wiktionnaire.py  extraction en flux des dumps wiktextract
+build/alignement.py    rapprochement des sens WikDict / Wiktionnaire
+build/phrases.py       + répartition des paires Tatoeba par signification
 ```
 
 ## Trois pièges, pour qui reprendrait le code
@@ -169,10 +216,16 @@ dernier champ, et l'application cherche le lemme `gehen\r`. C'est pourquoi
 ## Cas de contrôle
 
 ```bash
-node build/essais.mjs      # correction des réponses, planification des révisions
-python build/commun.py     # normalisation des clés
-python build/verifier.py   # tout le reste, y compris les deux ci-dessus
+node build/essais.mjs             # correction, choix de l'exercice, planification
+python build/essais_alignement.py # appariement des sens
+python build/commun.py            # normalisation des clés
+python build/verifier.py          # tout le reste, y compris les trois ci-dessus
 ```
+
+`build/mesurer_alignement.py` répond à la seule question dont dépend la
+version 2 : combien de significations ont vraiment leur exemple. Il affiche un
+échantillon reproductible d'appariements, à relire — aucun programme ne sait
+juger si une phrase illustre bien un sens.
 
 ## Licence
 

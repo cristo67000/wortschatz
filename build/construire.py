@@ -23,14 +23,41 @@ Format d'une entrée, en tableau plutôt qu'en objet — à 107 000 entrées, le
 des clés répété pèse plus que ce qu'il apporte :
 
     [ mot, bande, lectures, phrases, voisins ]
-      lectures = [ [ nature, genre, prononciation, [formes], sens ], … ]
-        sens   = [ [ définition, [traductions] ], … ]
-      phrases  = [ numéro, … ]   → dans phrases-NNN.json du même paquet
+      lectures = [ [ nature, genre, prononciation, [formes], sens,
+                     flexion, synonymes ], … ]
+        sens   = [ [ définition, [traductions], [citations], [phrases] ], … ]
+          citations = [ [ texte, [début, fin] du mot en gras, référence ], … ]
+          phrases   = [ numéro, … ]   → dans phrases-NNN.json du même paquet
+        flexion   = [ [ code, graphie, article ], … ] → pluriel, temps primitifs
+        synonymes = [ mot, … ]
+      phrases  = [ numéro, … ]   → celles qu'aucun sens n'a réclamées
       voisins  = [ mot, … ]      → « autour de ce mot », même langue
 
 Une « lecture » est une façon de lire le mot : « See » masculin (le lac) et
 « See » féminin (la mer) sont deux lectures d'une même vedette, réunies sur une
 seule fiche parce que c'est ainsi qu'on les apprend — par contraste.
+
+Flexion et synonymes pendent de la **lecture**, non de la vedette, et c'est le
+même exemple qui l'impose : la mer n'a pas de pluriel et fait « der See » au
+génitif, le lac fait « des Sees ». Rassemblés sur l'entrée, ils mêlaient les
+deux et enseignaient un génitif faux sous le bon mot.
+
+── Ce qui change en version 2 ─────────────────────────────────────────────
+
+Les exemples se rangent sous **chaque signification**, et non plus sous le mot
+entier. « abbauen » veut dire extraire, atténuer ou démanteler ; trois phrases
+posées sous le mot en illustraient une, et l'apprenant devait deviner laquelle.
+Deux sources s'en chargent, chacune pour ce qu'elle fait de mieux :
+
+  citations  le Wiktionnaire, dans la langue du mot, rattachées au sens par
+             `alignement.py` — nombreuses, mais non traduites ;
+  phrases    Tatoeba, paires traduites, rattachées au sens par la traduction
+             qui figure en face (`phrases.attribuer_aux_sens`).
+
+Les citations voyagent **dans l'entrée**, sans vivier séparé : contrairement aux
+paires Tatoeba, qu'une même phrase fait servir jusqu'à huit mots, une citation
+n'illustre qu'un sens d'un mot. Un vivier ne dédoublonnerait rien et coûterait
+une requête de plus au moment précis où l'on veut lire.
 """
 
 import argparse
@@ -41,6 +68,7 @@ import time
 from collections import Counter, defaultdict
 from pathlib import Path
 
+import alignement
 import commun
 import familles
 import grammaire
@@ -48,6 +76,7 @@ import formes_fr
 import phrases
 import corpus
 import tei
+import wiktionnaire
 
 RACINE = Path(__file__).resolve().parent
 SOURCES = RACINE / "sources"
@@ -56,7 +85,13 @@ DATA = RACINE.parent / "data"
 # --- Réglages de la construction --------------------------------------------
 
 # Combien d'entrées par langue dans le noyau livré avec l'application.
-TAILLE_NOYAU = 9000
+#
+# Passé de 9 000 à 12 000 en version 2. La raison n'est pas la recherche — 9 000
+# mots couvrent l'essentiel de ce qu'on cherche — mais le fait que **tout mot
+# affiché est désormais cliquable**. Un mot rencontré dans une citation et
+# absent du paquet ne mène nulle part ; en dessous de ce seuil, trop de clics
+# tombaient à vide, et un lien mort décourage plus qu'il n'enseigne.
+TAILLE_NOYAU = 12000
 
 # Bornes des bandes de fréquence, en rang. Ce ne sont pas des niveaux du CECRL :
 # les listes officielles sont sous droits (voir SOURCES.md). Ce sont des rangs
@@ -70,10 +105,26 @@ DEFINITION_MAX = 130    # signes, coupés au mot
 FORMES_MAX = 6
 ENTREES_PAR_TRANCHE = 900
 
+# Combien de citations du Wiktionnaire par signification. Deux suffisent à
+# montrer le mot en emploi ; au-delà, la fiche devient une anthologie et le sens
+# suivant passe sous la ligne de flottaison.
+#
+# Le noyau n'en garde qu'une. Il est **précaché à l'installation** : chaque
+# méga-octet y est payé par tout le monde, avant même d'avoir ouvert une fiche.
+# La seconde citation est un confort ; elle arrive avec le paquet complet, que
+# l'on télécharge en connaissance de cause.
+CITATIONS_PAR_SENS = 2
+CITATIONS_NOYAU = 1
+CITATION_MAX = 200      # signes ; au-delà, la phrase n'aide plus personne
+
 # Budgets, en octets. Dépassement = échec : mieux vaut rogner ici que découvrir
 # sur le téléphone que l'application pèse trop.
-BUDGET_NOYAU = 12 * 1024 * 1024
-BUDGET_COMPLET = 40 * 1024 * 1024
+#
+# La version 2 embarque les citations et les tableaux de flexion : les budgets
+# montent en conséquence, mais restent très en deçà des 200 Mo autorisés. Le
+# noyau est celui qui compte vraiment — c'est le poids installé.
+BUDGET_NOYAU = 22 * 1024 * 1024
+BUDGET_COMPLET = 130 * 1024 * 1024
 
 
 # --- Lecture et mise en forme -----------------------------------------------
@@ -97,6 +148,22 @@ def couper(texte, limite=DEFINITION_MAX):
         return texte
     coupe = texte[:limite].rsplit(" ", 1)[0].rstrip(" ,;:—-")
     return (coupe or texte[:limite]) + "…"
+
+
+def elaguer_citations(entree):
+    """Ne garde, par sens, que les citations qu'on montrera.
+
+    `wiktionnaire.py` en retient six, classées de la plus lisible à la moins :
+    de quoi choisir ici sans avoir à relire deux gigaoctets. On coupe donc dans
+    l'ordre reçu, et les phrases trop longues pour tenir sur un écran de
+    téléphone tombent avec le reste.
+    """
+    for lecture in entree["lectures"]:
+        for bloc in lecture[4]:
+            if len(bloc) < 3:
+                continue
+            gardees = [c for c in bloc[2] if len(c[0]) <= CITATION_MAX]
+            bloc[2] = gardees[:CITATIONS_PAR_SENS]
 
 
 def charger_dictionnaire(fichier):
@@ -324,9 +391,9 @@ def reordonner_par_utilite(dictionnaires, positions):
 
 def premiere_traduction(entree):
     for lecture in entree["lectures"]:
-        for _definition, traductions in lecture[4]:
-            if traductions:
-                return traductions[0]
+        for bloc in lecture[4]:
+            if bloc[1]:
+                return bloc[1][0]
     return ""
 
 
@@ -343,8 +410,8 @@ def apercu(entree):
     """Les premières traductions, pour la liste de résultats."""
     vues = []
     for lecture in entree["lectures"]:
-        for _definition, traductions in lecture[4]:
-            for traduction in traductions:
+        for bloc in lecture[4]:
+            for traduction in bloc[1]:
                 if traduction not in vues:
                     vues.append(traduction)
                 if len(vues) >= 3:
@@ -424,7 +491,36 @@ def ecrire_vivier(dossier, vivier):
     return fichiers, octets
 
 
-def ecrire_paquet(dossier, langue, selection, positions, phrases, voisins, formes=None):
+SANS_PHRASES = {"sens": {}, "libres": []}
+
+
+def entree_ecrite(entree, rang_de_bande, attribution, voisins, citations_max):
+    """Une entrée dans sa forme définitive, phrases de Tatoeba réparties.
+
+    Le rang du sens dans la liste aplatie fait le lien entre ce qu'a décidé
+    `phrases.attribuer_aux_sens` et ce qu'on écrit ici. Les deux parcourent les
+    lectures puis les sens dans le même ordre, et c'est la seule chose qui les
+    accorde : changer l'ordre d'un côté rattacherait silencieusement les
+    phrases aux mauvaises significations.
+    """
+    par_sens = attribution["sens"]
+    lectures = []
+    rang = 0
+    for lecture in entree["lectures"]:
+        sens = []
+        for bloc in lecture[4]:
+            citations = bloc[2][:citations_max] if len(bloc) > 2 else []
+            sens.append([bloc[0], bloc[1], citations, par_sens.get(rang, [])])
+            rang += 1
+        lectures.append([lecture[0], lecture[1], lecture[2], lecture[3], sens,
+                         lecture[5] if len(lecture) > 5 else [],
+                         lecture[6] if len(lecture) > 6 else []])
+
+    return [entree["mot"], rang_de_bande, lectures, attribution["libres"], voisins]
+
+
+def ecrire_paquet(dossier, langue, selection, positions, phrases, voisins,
+                  citations_max, formes=None):
     """Index + tranches d'une langue, dans un dossier de paquet."""
     dossier.mkdir(parents=True, exist_ok=True)
     triees = sorted(selection, key=lambda e: (commun.cle(e["mot"]), e["mot"]))
@@ -435,8 +531,9 @@ def ecrire_paquet(dossier, langue, selection, positions, phrases, voisins, forme
         indice = depart // ENTREES_PAR_TRANCHE
         contenu = {
             "l": langue,
-            "e": [[e["mot"], bande(positions[e["mot"]]), e["lectures"],
-                   phrases.get(e["mot"], []), voisins.get(e["mot"], [])]
+            "e": [entree_ecrite(e, bande(positions[e["mot"]]),
+                                phrases.get(e["mot"], SANS_PHRASES),
+                                voisins.get(e["mot"], []), citations_max)
                   for e in tranche],
         }
         texte = json.dumps(contenu, ensure_ascii=False, separators=(",", ":"))
@@ -492,6 +589,20 @@ def main():
         print(f"  + {len(journal_grammaire['ajoutees'])} entrées grammaticales "
               f"écrites pour l'application : {', '.join(journal_grammaire['ajoutees'])}")
 
+    print("\nGreffe du Wiktionnaire — définitions, exemples et flexions par sens")
+    for langue in ("de", "fr"):
+        par_mot = wiktionnaire.charger(langue)
+        journal_wikt = {}
+        for mot, entree in dictionnaires[langue].items():
+            alignement.enrichir(entree, par_mot.get(mot, []), journal_wikt)
+            elaguer_citations(entree)
+        part = 100 * journal_wikt["avec_exemple"] / max(journal_wikt["sens"], 1)
+        print(f"  {langue} : {journal_wikt['apparies']} sens sur "
+              f"{journal_wikt['sens']} appariés, {journal_wikt['avec_exemple']} "
+              f"avec citation ({part:.1f} %)")
+        print(f"       {journal_wikt['sens_ajoutes']} sens ajoutés, "
+              f"{journal_wikt['sans_entree']} lectures sans entrée Wiktionnaire")
+
     print("\nLecture du corpus Tatoeba")
     paires_alignees, allemandes, francaises = corpus.paires()
     textes = {"de": allemandes.values(), "fr": francaises.values()}
@@ -544,12 +655,22 @@ def main():
     print(f"  {journal_phrases['mots_de']} mots allemands et "
           f"{journal_phrases['mots_fr']} mots français illustrés")
 
+    journal_repartition = {}
+    attributions_completes = phrases.attribuer_aux_sens(
+        vivier_complet, attributions_completes, dictionnaires, index_formes,
+        journal_repartition)
+    rangees = journal_repartition["rangees"]
+    total_phrases = max(journal_repartition["phrases"], 1)
+    print(f"  {rangees} rattachées à une signification précise "
+          f"({100 * rangees / total_phrases:.0f} %), "
+          f"{journal_repartition['libres']} gardées au niveau du mot")
+
     if DATA.exists():
         shutil.rmtree(DATA)
     DATA.mkdir(parents=True)
 
     manifeste = {
-        "version": 1,
+        "version": 2,
         "construit": time.strftime("%Y-%m-%d"),
         "moutures": moutures,
         "bandes": NOMS_BANDES,
@@ -557,9 +678,9 @@ def main():
     }
 
     print("\nÉcriture des paquets")
-    for nom, borne, budget in (
-        ("noyau", TAILLE_NOYAU, BUDGET_NOYAU),
-        ("complet", None, BUDGET_COMPLET),
+    for nom, borne, budget, citations_max in (
+        ("noyau", TAILLE_NOYAU, BUDGET_NOYAU, CITATIONS_NOYAU),
+        ("complet", None, BUDGET_COMPLET, CITATIONS_PAR_SENS),
     ):
         dossier = DATA / nom
         selections = {langue: (ordres[langue][:borne] if borne else ordres[langue])
@@ -583,7 +704,7 @@ def main():
             }
             liste, poids, nombre = ecrire_paquet(
                 dossier, langue, selections[langue], positions[langue],
-                attributions[langue], voisins, formes=formes,
+                attributions[langue], voisins, citations_max, formes=formes,
             )
             fichiers += [f"{nom}/{x}" for x in liste]
             octets += poids

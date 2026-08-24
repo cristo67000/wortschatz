@@ -36,8 +36,19 @@ LONGUEUR_MIN = 3
 LONGUEUR_MAX = 16
 
 # Combien de phrases par mot, et combien de mots une phrase peut illustrer.
-PAR_MOT = 3
-REUTILISATION_MAX = 6
+#
+# Trois suffisaient tant que les phrases se rangeaient sous le mot entier. Elles
+# se rangent désormais sous **chaque signification** : « abbauen » en a cinq, et
+# trois phrases n'en servaient qu'une ou deux. On en retient donc davantage, et
+# `attribuer_aux_sens()` les répartit ensuite ; celles qu'aucun sens ne réclame
+# restent au niveau du mot, comme avant.
+PAR_MOT = 8
+REUTILISATION_MAX = 8
+
+# Une fois réparties : combien par signification, et combien de « passe-partout »
+# qu'aucun sens n'a su réclamer.
+PAR_SENS = 3
+SANS_SENS_MAX = 2
 
 # Un mot est « courant » s'il est dans les N premiers du classement.
 SEUIL_COURANT = 6000
@@ -177,20 +188,134 @@ def choisir(paires, dictionnaires, index_formes, ordres, journal=None):
     return vivier, retenues
 
 
-def sous_ensemble(vivier, retenues, mots_de, mots_fr):
+# --- Répartition par signification -------------------------------------------
+
+def sens_plats(entree):
+    """Les sens d'une entrée, à plat, dans l'ordre où l'application les lira.
+
+    Une entrée a des lectures, chaque lecture a des sens ; l'application les
+    affiche les uns sous les autres. Le rang dans cette liste aplatie est donc
+    l'identifiant naturel d'une signification, et `construire.py` la reparcourt
+    dans le même ordre. Changer l'ordre d'un côté sans l'autre rattacherait les
+    phrases aux mauvais sens, sans que rien ne le signale.
+    """
+    plat = []
+    for lecture in entree["lectures"]:
+        for bloc in lecture[4]:
+            plat.append(bloc)
+    return plat
+
+
+def cles_presentes(texte, langue, formes):
+    """Les clés des mots d'une phrase, lemmes compris.
+
+    « il a extrait » doit permettre de reconnaître la traduction « extraire » :
+    on ajoute donc, à côté de chaque forme rencontrée, les lemmes auxquels elle
+    peut remonter.
+    """
+    presentes = set()
+    for k in corpus.mots(texte, langue):
+        if not k:
+            continue
+        presentes.add(k)
+        presentes.update(formes.get(k, ()))
+    return presentes
+
+
+def sens_illustre(traductions_par_sens, presentes):
+    """Quelle signification cette paire illustre-t-elle ? None si on ne sait pas.
+
+    Le raisonnement tient en une phrase : une paire alignée montre le mot
+    allemand d'un côté et sa traduction française de l'autre ; **la traduction
+    qui figure réellement en face désigne le sens employé**. « Im Mittelalter
+    wurde hier Silber abgebaut. » traduit par « on extrayait de l'argent »
+    illustre *extraire*, pas *démanteler*.
+
+    On s'abstient dès que deux sens répondent. Deux traductions présentes dans
+    la même phrase, c'est soit une coïncidence, soit deux sens voisins : dans
+    les deux cas, choisir serait deviner.
+    """
+    trouves = []
+    for rang, traductions in enumerate(traductions_par_sens):
+        for traduction in traductions:
+            morceaux = commun.cle(traduction).split()
+            if morceaux and all(m in presentes for m in morceaux):
+                trouves.append(rang)
+                break
+        if len(trouves) > 1:
+            return None
+    return trouves[0] if len(trouves) == 1 else None
+
+
+def attribuer_aux_sens(vivier, retenues, dictionnaires, index_formes, journal=None):
+    """Range les phrases retenues sous les significations qu'elles illustrent.
+
+    Renvoie `{langue: {vedette: {"sens": {rang: [numéros]}, "libres": [numéros]}}}`.
+    Les « libres » sont celles qu'aucun sens n'a réclamées : elles restent
+    rattachées au mot entier, ce qui vaut mieux que de les jeter — une phrase
+    d'exemple sans étiquette reste une phrase d'exemple.
+    """
+    compteur = journal if journal is not None else {}
+    for cle in ("phrases", "rangees", "libres"):
+        compteur.setdefault(cle, 0)
+
+    sortie = {"de": {}, "fr": {}}
+    for langue in ("de", "fr"):
+        autre = "fr" if langue == "de" else "de"
+        formes_autre = index_formes[autre]
+        for mot, numeros in retenues[langue].items():
+            entree = dictionnaires[langue].get(mot)
+            if not entree:
+                continue
+            traductions_par_sens = [bloc[1] for bloc in sens_plats(entree)]
+
+            par_sens = {}
+            libres = []
+            for numero in numeros:
+                compteur["phrases"] += 1
+                texte_autre = vivier[numero][1 if langue == "de" else 0]
+                presentes = cles_presentes(texte_autre, autre, formes_autre)
+                rang = sens_illustre(traductions_par_sens, presentes)
+                if rang is None:
+                    if len(libres) < SANS_SENS_MAX:
+                        libres.append(numero)
+                        compteur["libres"] += 1
+                    continue
+                lot = par_sens.setdefault(rang, [])
+                if len(lot) < PAR_SENS:
+                    lot.append(numero)
+                    compteur["rangees"] += 1
+
+            sortie[langue][mot] = {"sens": par_sens, "libres": libres}
+    return sortie
+
+
+def sous_ensemble(vivier, attributions, mots_de, mots_fr):
     """Restreint le vivier aux phrases utiles à une sélection de vedettes.
 
-    Le paquet noyau ne contient que 9 000 mots par langue : lui livrer les
+    Le paquet noyau ne contient que 12 000 mots par langue : lui livrer les
     phrases des 106 000 le ferait peser plus que le dictionnaire lui-même.
+
+    Les numéros sont renumérotés au passage, la répartition par sens comprise :
+    ce qui compte est que chaque signification retrouve *ses* phrases dans le
+    vivier réduit, et non les numéros qu'elles portaient dans le grand.
     """
     gardes = {}
+
+    def garder(numeros):
+        return [gardes.setdefault(n, len(gardes)) for n in numeros]
+
     petites = {"de": {}, "fr": {}}
     for langue, mots in (("de", mots_de), ("fr", mots_fr)):
         for mot in mots:
-            liste = retenues[langue].get(mot)
-            if not liste:
+            attribution = attributions[langue].get(mot)
+            if not attribution:
                 continue
-            petites[langue][mot] = [gardes.setdefault(n, len(gardes)) for n in liste]
+            petites[langue][mot] = {
+                "sens": {rang: garder(liste)
+                         for rang, liste in attribution["sens"].items()},
+                "libres": garder(attribution["libres"]),
+            }
 
     petit_vivier = [None] * len(gardes)
     for ancien, nouveau in gardes.items():

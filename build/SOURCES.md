@@ -46,7 +46,63 @@ Ce que nous en tirons : des paires de phrases allemand/français réellement
 alignées, qui servent d'exemples sur les fiches, de matière aux exercices
 « phrase à trou » et de corpus consultable pour les expressions.
 
-## 3. Sept entrées écrites pour l'application
+## 3. Wiktionnaire intégral — définitions, exemples et flexions par sens
+
+- **Site** : <https://kaikki.org/> — extraction *wiktextract* de Tatu Ylonen
+  (<https://github.com/tatuylonen/wiktextract>)
+- **Fichiers utilisés**
+  - `https://kaikki.org/dewiktionary/raw-wiktextract-data.jsonl.gz` — 288 Mo,
+    édition allemande du Wiktionnaire, mouture du 2026-08-04
+  - `https://kaikki.org/frwiktionary/raw-wiktextract-data.jsonl.gz` — 682 Mo,
+    édition française, mouture du 2026-05-01
+- **Licence** : celles du Wiktionnaire, **CC BY-SA** et GFDL.
+  <https://en.wiktionary.org/wiki/Wiktionary:Copyrights>
+- **Citation académique** : Tatu Ylonen, *Wiktextract: Wiktionary as
+  Machine-Readable Structured Data*, LREC 2022, p. 1317-1325.
+
+Ce que nous en tirons, et que WikDict ne porte pas :
+
+- la **définition de chaque sens** dans la langue du mot ;
+- une ou deux **phrases d'exemple par sens**, avec la position du mot vedette
+  et la référence de la citation ;
+- les **synonymes** ;
+- les **formes qu'on apprend par cœur** — pluriel et génitif des noms
+  allemands, temps primitifs des verbes, comparatif et superlatif, féminin et
+  pluriel des adjectifs français, conjugaison du présent et de l'imparfait.
+
+Deux éditions et non une : l'édition allemande décrit les mots allemands **en
+allemand**, la française les mots français **en français**. L'édition anglaise
+aurait tenu en un fichier et donné des définitions en anglais, inutilisables ici.
+
+L'appariement des sens avec ceux de WikDict est décrit dans
+`build/alignement.py` et mesuré par `build/verifier.py` : **95,7 % des sens
+allemands et 84,9 % des sens français du noyau** portent au moins un exemple.
+
+## 4. Ce que nous ne pouvons pas utiliser
+
+Deux dictionnaires ont été demandés, envisagés, et écartés — non par choix
+technique mais parce que leurs conditions l'interdisent.
+
+**Le Dictionnaire de l'Académie française.** Ses conditions générales
+d'utilisation interdisent explicitement « d'utiliser un système automatisé pour
+aspirer ou extraire les données du site », et ne concèdent aucune licence de
+réutilisation : l'Académie conserve l'intégralité de ses droits. La 8ᵉ édition
+(1932-1935) est, elle, dans le domaine public, mais décrit un français de
+quatre-vingt-dix ans — d'un intérêt historique certain et d'un intérêt nul pour
+qui apprend la langue d'aujourd'hui.
+
+**Le Duden.** Ressource entièrement commerciale, sans jeu de données libre.
+
+Le Wiktionnaire remplit le même office et se laisse redistribuer : c'est
+pourquoi il est ici. Nous préférons le dire plutôt que de laisser croire à un
+oubli.
+
+Les listes de vocabulaire officielles des certifications (Goethe-Institut, telc,
+DELF/DALF) sont également protégées. L'application n'affiche donc **aucun niveau
+A1/A2/B1** : elle classe le vocabulaire par fréquence d'usage constatée, ce qui
+est mesurable, vérifiable et libre.
+
+## 5. Sept entrées écrites pour l'application
 
 WikDict ne retient que les entrées dotées d'une traduction bien attestée, et
 quelques mots-outils français passent au travers. Sept d'entre eux sont donc
@@ -62,17 +118,10 @@ pas question de le retoucher mot à mot — on ne saurait plus ce qui vient d'o�
 
 Le côté allemand est complet ; *mein*, *dieser*, *nicht*, *kein* y sont tous.
 
-## 4. Ce que nous ajoutons
+## 6. Ce que nous ajoutons
 
 Le code de l'application, les regroupements par famille de mots, les listes
 thématiques et les bandes de fréquence sont notre travail. Les familles de mots
 sont calculées par un procédé automatique décrit dans `familles.py`, corrigé à la
 main dans `exclusions.txt` : ce sont des **voisinages utiles**, pas des assertions
 étymologiques, et l'interface les présente comme tels.
-
-## 5. Ce que nous ne pouvons pas utiliser
-
-Les listes de vocabulaire officielles des certifications (Goethe-Institut, telc,
-DELF/DALF) sont protégées. L'application n'affiche donc **aucun niveau A1/A2/B1** :
-elle classe le vocabulaire par fréquence d'usage constatée, ce qui est mesurable,
-vérifiable et libre.

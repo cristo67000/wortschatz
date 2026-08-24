@@ -38,6 +38,7 @@
   let bilan = null;
   let quota = 10;
   let exigerArticle = true;
+  let regime = { enregistrer: true, type: null };
 
   function element(balise, classe, texte) {
     const noeud = document.createElement(balise);
@@ -83,22 +84,43 @@
 
   // ── Cycle de vie d'une séance ─────────────────────────────────────────────
 
-  async function commencer() {
-    file = await Revision.file(quota);
+  /* Le moteur, commun aux deux régimes.
+   *
+   *   séance du jour  `enregistrer: true`  — les réponses notent les cartes et
+   *                   déplacent les échéances. C'est la mémorisation.
+   *   atelier         `enregistrer: false` — rien n'est noté, aucune échéance
+   *                   ne bouge. C'est l'entraînement.
+   *
+   * Un seul et même code affiche, corrige et commente : dupliquer la séance
+   * pour les ateliers aurait fait deux corrections à maintenir, qui auraient
+   * fini par juger différemment la même faute.
+   */
+  async function lancer(cartes, options) {
+    regime = Object.assign({ enregistrer: true, type: null }, options || {});
+    file = cartes;
     position = 0;
     bilan = { justes: 0, presque: 0, faux: 0, total: file.length, mots: new Set() };
     if (!file.length) { await rafraichir(); return; }
     elements.accueil.hidden = true;
     elements.bilan.hidden = true;
     elements.seance.hidden = false;
+    elements.seance.classList.toggle('libre', !regime.enregistrer);
+    elements.libre.hidden = regime.enregistrer;
     if (racine.Suivis) Suivis.reinitialiser();
     await poser();
+  }
+
+  async function commencer() {
+    await lancer(await Revision.file(quota), { enregistrer: true });
   }
 
   function arreter() {
     elements.seance.hidden = true;
     elements.bilan.hidden = true;
     elements.accueil.hidden = false;
+    elements.seance.classList.remove('libre');
+    elements.libre.hidden = true;
+    regime = { enregistrer: true, type: null };
     Voix.taire();
     rafraichir();
   }
@@ -118,23 +140,29 @@
       return poser();
     }
 
-    question = await Exercices.preparer(carte, entree, { exigerArticle });
+    question = await Exercices.preparer(carte, entree,
+      { exigerArticle, type: regime.type });
     elements.verdict.hidden = true;
     afficher(question);
   }
 
   // ── Affichage d'une question ──────────────────────────────────────────────
 
-  function consignePour(type, langue) {
-    const autre = langue === 'de' ? 'fr' : 'de';
-    return I18n.t('exercice.consigne.' + type, {
-      langue: I18n.t('langue.' + langue),
+  /* La consigne nomme **la langue de la réponse**, jamais celle du mot affiché.
+   * « Que veut dire ce mot ? » devant « maison » alors qu'on attend « Haus »
+   * n'est pas une formulation maladroite : c'est une consigne fausse, et
+   * l'apprenant répond dans la mauvaise langue avant de comprendre pourquoi. */
+  function consignePour(q) {
+    const reponse = q.langueReponse || q.carte.langue;
+    const autre = reponse === 'de' ? 'fr' : 'de';
+    return I18n.t('exercice.consigne.' + q.type, {
+      langue: I18n.t('langue.' + reponse),
       autre: I18n.t('langue.' + autre),
     });
   }
 
   function afficher(q) {
-    elements.consigne.textContent = consignePour(q.type, q.carte.langue);
+    elements.consigne.textContent = consignePour(q);
     const enonce = vider(elements.enonce);
     const zone = vider(elements.zone);
 
@@ -150,6 +178,9 @@
       if (q.indice) enonce.appendChild(element('p', 'enonce-indice', q.indice));
     } else {
       enonce.appendChild(element('p', 'enonce-mot', q.enonce));
+      // La conjugaison demande une forme précise : sans l'indice, la question
+      // n'aurait pas de réponse déterminée.
+      if (q.indice) enonce.appendChild(element('p', 'enonce-indice', q.indice));
     }
 
     if (q.type === 'genre') {
@@ -184,13 +215,13 @@
      * d'une langue sont les mêmes pour tous ses noms : les montrer ne souffle
      * rien du mot, mais dit ce qu'on réclame. */
     if (q.articleExige) {
-      const table = Exercices.ARTICLES[q.carte.langue] || {};
+      const table = Exercices.ARTICLES[q.langueReponse || q.carte.langue] || {};
       champ.placeholder = Object.values(table).join(' / ') + ' …';
     }
     zone.appendChild(champ);
 
     const touches = element('div', 'touches');
-    for (const signe of CLAVIERS[q.carte.langue] || []) {
+    for (const signe of CLAVIERS[q.langueReponse || q.carte.langue] || []) {
       const touche = element('button', 'touche', signe);
       touche.type = 'button';
       touche.tabIndex = -1;
@@ -235,8 +266,12 @@
       verdict = { verdict: saisie === q.attendu ? 'juste' : 'faux',
                   attendu: q.attendu, remarque: null };
     } else {
+      /* La langue de la réponse n'est pas toujours celle du mot : « écrivez la
+       * traduction » attend du français en face d'une entrée allemande.
+       * Corriger avec les règles de l'allemand reprocherait alors une majuscule
+       * que le français ne met pas. */
       verdict = Exercices.corriger(saisie, q.attendus || [q.attendu], {
-        langue: q.carte.langue, estNom: q.estNom,
+        langue: q.langueReponse || q.carte.langue, estNom: q.estNom,
         articleExige: q.articleExige, genres: q.genres,
       });
     }
@@ -248,7 +283,22 @@
       : (verdict.verdict === 'presque' ? 'presque' : 'faux')] += 1;
     bilan.mots.add(q.carte.langue + ' ' + q.carte.mot);
 
-    await Revision.noter(q.carte, qualite, q.type);
+    if (regime.enregistrer) {
+      await Revision.noter(q.carte, qualite, q.type);
+    } else {
+      /* L'atelier ne touche pas au planificateur : ni intervalle, ni facilité,
+       * ni échéance. Marteler un exercice ne doit pas faire croire au
+       * planificateur qu'un mot est su, ni le rendre dû plus tôt.
+       *
+       * La réponse est tout de même journalisée, marquée `libre`. Rien n'est
+       * perdu — l'onglet Progrès peut en rendre compte à part — et les
+       * compteurs de mémorisation, eux, l'ignorent. */
+      await Store.noter({
+        quand: Date.now(), carte: q.carte.id || null,
+        langue: q.carte.langue, mot: q.carte.mot, type: q.carte.type,
+        exercice: q.type, qualite, etatAvant: q.carte.etat || null, libre: true,
+      }).catch(() => {});
+    }
     montrerVerdict(q, verdict, qualite);
   }
 
@@ -278,7 +328,7 @@
     suivant.addEventListener('click', () => avancer());
     boutons.appendChild(suivant);
 
-    if (qualite === Revision.CORRECT) {
+    if (qualite === Revision.CORRECT && regime.enregistrer) {
       const facile = element('button', 'bouton-discret', I18n.t('exercice.facile'));
       facile.type = 'button';
       facile.addEventListener('click', async () => {
@@ -344,6 +394,13 @@
     }
     elements.bilanMot.textContent = I18n.n('reviser.bilan.mots', bilan.mots.size);
 
+    if (!regime.enregistrer) {
+      /* En atelier, « continuer » n'a pas de sens : il n'y a pas de file du
+       * jour à reprendre. On propose de refaire le même atelier, ce que le
+       * bouton de reprise sait faire. */
+      elements.continuer.hidden = !regime.reprendre;
+      return;
+    }
     const comptes = await Revision.compter();
     const faites = await Revision.nouveautesDuJour();
     const reste = comptes.dues + Math.max(0, Math.min(quota - faites, comptes.nouvelles));
@@ -357,6 +414,7 @@
     exigerArticle = reglages.exigerArticle !== false;
     Object.assign(elements, {
       accueil: $('#revision-accueil'),
+      libre: $('#seance-libre'),
       compteurs: $('#revision-compteurs'),
       commencer: $('#b-commencer'),
       vide: $('#revision-vide'),
@@ -382,12 +440,15 @@
 
     elements.commencer.addEventListener('click', commencer);
     elements.arreter.addEventListener('click', arreter);
-    elements.continuer.addEventListener('click', commencer);
+    elements.continuer.addEventListener('click', () => {
+      if (!regime.enregistrer && regime.reprendre) regime.reprendre();
+      else commencer();
+    });
     elements.terminerBouton.addEventListener('click', arreter);
     elements.versRecherche.addEventListener('click', () => App.basculer('chercher'));
   }
 
-  racine.Seance = { brancher, rafraichir, commencer, arreter,
+  racine.Seance = { brancher, rafraichir, commencer, lancer, arreter,
                     get quota() { return quota; },
                     set quota(v) { quota = v; },
                     get exigerArticle() { return exigerArticle; },
