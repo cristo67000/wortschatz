@@ -61,11 +61,13 @@
 
   // ── Le bandeau ────────────────────────────────────────────────────────────
 
+  /* Les textes du bandeau portent leur clé dans le HTML plutôt que d'être
+   * écrits ici : `I18n.appliquer()` les reprend alors à chaque changement de
+   * langue, bandeau affiché compris. Écrits en JavaScript, ils restaient dans
+   * la langue précédente à côté d'un « Später » traduit, lui. */
   function annoncer() {
     brancher();
     if (!elements.bandeau || ecarte) return;
-    elements.texte.textContent = I18n.t('maj.prete');
-    elements.appliquer.textContent = I18n.t('maj.bouton');
     elements.appliquer.disabled = false;
     elements.bandeau.hidden = false;
     // Le bandeau doit être posé avant d'être animé, sinon il apparaît d'un bloc.
