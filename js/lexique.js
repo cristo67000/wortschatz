@@ -261,6 +261,12 @@
    */
   function ordonner(a, b) {
     if (a.rang !== b.rang) return a.rang - b.rang;
+    /* À rang égal, ce qu'on a ajouté soi-même passe devant. On n'ajoute pas un
+     * mot au hasard : on l'ajoute parce qu'on veut le retrouver, et le voir
+     * arriver derrière quatre composés du dictionnaire donnerait le sentiment
+     * que l'application ne l'a pas gardé. Ils sont peu nombreux — la liste
+     * n'en est pas encombrée. */
+    if (!!a.perso !== !!b.perso) return a.perso ? -1 : 1;
     if (a.bande !== b.bande) return a.bande - b.bande;
     if (a.cle.length !== b.cle.length) return a.cle.length - b.cle.length;
     return a.cle < b.cle ? -1 : (a.cle > b.cle ? 1 : 0);
@@ -276,11 +282,18 @@
 
     function ajouter(lot, rang, via) {
       for (const resultat of lot) {
-        const empreinte = resultat.langue + ' ' + resultat.mot;
+        /* L'empreinte distingue un mot personnel d'une vedette homographe : on
+         * peut très bien avoir ajouté « Zug » à soi, avec sa propre traduction,
+         * alors que le dictionnaire le connaît. Les deux fiches existent, les
+         * deux doivent s'afficher. */
+        const empreinte = resultat.perso
+          ? 'perso ' + resultat.perso
+          : resultat.langue + ' ' + resultat.mot;
         if (vus.has(empreinte)) continue;
         vus.add(empreinte);
         resultat.rang = resultat.exact ? 0 : rang;
-        resultat.via = via;
+        // Un mot personnel atteint par sa traduction porte déjà son « via ».
+        resultat.via = via || resultat.via || null;
         resultats.push(resultat);
       }
     }
@@ -317,6 +330,13 @@
       ajouter(lot, 2, null);
     }
 
+    /* 4. Les mots qu'on a ajoutés soi-même — par leur vedette et par leurs
+     *    traductions, ce qui les rend trouvables dans les deux sens sans
+     *    qu'il ait fallu les saisir deux fois. Ils sont peu nombreux et vivent
+     *    en mémoire : un parcours linéaire suffit là où le dictionnaire réclame
+     *    une dichotomie. */
+    if (racine.Perso) ajouter(Perso.chercher(k, limite), 2, null);
+
     resultats.sort(ordonner);
     return resultats.slice(0, limite);
   }
@@ -348,7 +368,16 @@
     return carte;
   }
 
+  /* Ouvre une entrée, du dictionnaire ou de soi.
+   *
+   * Les deux sortes rendent le même objet — mêmes lectures, mêmes sens, mêmes
+   * traductions. C'est ce qui permet à la fiche, aux exercices et aux ateliers
+   * de ne pas savoir qu'il en existe deux sortes. */
   async function ouvrir(resultat) {
+    if (!resultat) return null;
+    if (resultat.perso) {
+      return (racine.Perso && Perso.entree(resultat.perso)) || null;
+    }
     const carte = await tranche(resultat.langue, resultat.tranche);
     return carte.get(resultat.mot) || null;
   }

@@ -689,10 +689,13 @@ button { font: inherit; color: inherit; }
 
 #mots-suivis { margin-top: 2.2rem; }
 #mots-suivis[hidden] { display: none; }
-#mots-suivis h3 { display: flex; align-items: baseline; gap: .5rem; margin: 0 0 .7rem; }
-#mots-suivis h3 .compte { color: var(--encre-tres-douce); font-size: .85rem; font-weight: 400; }
+#mots-suivis h3,
+#vue-mesmots .bloc h3 { display: flex; align-items: baseline; gap: .5rem; margin: 0 0 .7rem; }
+#mots-suivis h3 .compte,
+#vue-mesmots .bloc h3 .compte { color: var(--encre-tres-douce); font-size: .85rem; font-weight: 400; }
 
-#suivis-filtre {
+#suivis-filtre,
+#perso-filtre {
   width: 100%;
   padding: .55rem .8rem;
   margin-bottom: .3rem;
@@ -702,16 +705,20 @@ button { font: inherit; color: inherit; }
   color: inherit;
   font: inherit;
 }
-#suivis-filtre[hidden] { display: none; }
+#suivis-filtre[hidden],
+#perso-filtre[hidden] { display: none; }
 
-#suivis-liste { list-style: none; margin: 0; padding: 0; }
-#suivis-liste li {
+#suivis-liste,
+#perso-liste { list-style: none; margin: 0; padding: 0; }
+#suivis-liste li,
+#perso-liste li {
   display: flex;
   align-items: center;
   gap: .4rem;
   border-bottom: 1px solid var(--trait);
 }
-#suivis-liste li:last-child { border-bottom: 0; }
+#suivis-liste li:last-child,
+#perso-liste li:last-child { border-bottom: 0; }
 
 /* Le mot occupe toute la place restante ; `min-width: 0` autorise la
    traduction à se laisser couper plutôt qu'à pousser la croix hors de l'écran. */
@@ -889,3 +896,177 @@ button.suivi-mot:hover, button.suivi-mot:focus-visible { background: var(--accen
   background: var(--accent-clair);
   border-radius: 8px;
 }
+
+
+/* ————— Mes notes ————— */
+
+/* Une note se lit telle qu'elle a été tapée : `pre-wrap` rend les sauts de
+   ligne sans qu'on ait à fabriquer du balisage à partir du texte de
+   l'utilisateur. C'est la seule façon d'afficher des retours à la ligne sans
+   jamais interpréter ce qui est écrit. */
+.mes-notes {
+  margin: 1.75rem 0 1rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--trait);
+}
+.mes-notes h3 {
+  margin: 0 0 .5rem;
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--encre-tres-douce);
+  font-weight: 600;
+}
+.note-texte {
+  margin: 0 0 .6rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: .7rem .85rem;
+  background: var(--papier-releve);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  line-height: 1.5;
+}
+.note-saisie {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: .5rem;
+  padding: .7rem .85rem;
+  font: inherit;
+  line-height: 1.5;
+  color: var(--encre);
+  background: var(--papier-releve);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  resize: vertical;
+  min-height: 5rem;
+}
+.note-saisie:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.note-etat { display: inline-block; margin-top: .35rem; font-size: .8rem; }
+.note-retrait { margin: 0 0 .5rem; display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+
+/* Le rappel d'une note pendant une révision : après la réponse, jamais avant. */
+.rappel-note {
+  margin-top: .8rem;
+  padding-top: .7rem;
+  border-top: 1px dashed var(--trait);
+  text-align: left;
+}
+.rappel-note-titre {
+  display: block;
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--encre-tres-douce);
+  margin-bottom: .3rem;
+}
+.rappel-note .note-texte { margin: 0; font-size: .92rem; }
+
+/* ————— Mes mots ————— */
+
+/* « Personnel » se lit à côté de « DE » et « FR » : même forme de pastille,
+   couleur d'accent, pour qu'on sache d'un coup d'œil qu'on lit sa propre
+   entrée et non le dictionnaire. */
+.pastille.perso {
+  background: var(--accent-clair);
+  color: var(--accent);
+  border-color: transparent;
+}
+
+/* `display: block` sur une classe l'emporte sur la règle `[hidden]` du
+   navigateur, qui n'a aucune spécificité : sans la ligne qui suit, le bouton
+   reste affiché alors que le JavaScript le croit caché. C'est la même
+   précaution que `#fiche[hidden]` plus haut. */
+.ajouter-mot { display: block; margin: 1rem auto 0; }
+.ajouter-mot[hidden] { display: none; }
+#rien .bouton-principal { margin-top: 1rem; }
+
+#panneau-perso {
+  position: fixed;
+  inset: 0;
+  z-index: 32;
+  background: var(--papier);
+  overflow-y: auto;
+  padding: 0 1rem calc(2rem + env(safe-area-inset-bottom));
+  -webkit-overflow-scrolling: touch;
+}
+#panneau-perso[hidden] { display: none; }
+#formulaire-perso { max-width: 44rem; margin: 0 auto; }
+
+.formulaire-perso { display: flex; flex-direction: column; gap: 1.1rem; }
+.champ-perso { display: flex; flex-direction: column; gap: .35rem; }
+/* Le bloc du genre se cache quand la nature n'est pas « nom » : sans cette
+   ligne, `display: flex` l'emporterait sur l'attribut `hidden`. */
+.champ-perso[hidden] { display: none; }
+.champ-perso > span:first-child { font-weight: 600; font-size: .92rem; }
+.champ-perso .discret { font-size: .8rem; }
+.saisie-perso {
+  width: 100%;
+  box-sizing: border-box;
+  padding: .65rem .8rem;
+  font: inherit;
+  color: var(--encre);
+  background: var(--papier-releve);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+}
+.saisie-perso:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+textarea.saisie-perso { resize: vertical; line-height: 1.5; }
+
+/* Onze natures grammaticales ne tiennent pas sur une ligne de téléphone : ce
+   groupe-là passe à la ligne, contrairement aux segments à deux ou trois choix
+   du reste de l'application. */
+.segments-souples { flex-wrap: wrap; }
+.segments-souples button { flex: 0 1 auto; }
+
+.perso-details { margin: 0; }
+.perso-details > summary {
+  cursor: pointer;
+  padding: .5rem 0;
+  font-weight: 600;
+  font-size: .92rem;
+  color: var(--accent);
+}
+.perso-details[open] > summary { margin-bottom: .8rem; }
+.perso-details > *:not(summary) { margin-bottom: 1rem; }
+
+.perso-avis {
+  margin: 0;
+  padding: .6rem .8rem;
+  background: var(--accent-clair);
+  border-radius: var(--rayon);
+  color: var(--encre-douce);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .5rem;
+}
+.perso-avis[hidden] { display: none; }
+.perso-actions { margin-top: 1.5rem; justify-content: flex-start; }
+
+#perso-liste { margin-top: .6rem; }
+
+/* Sur un téléphone, la traduction d'un mot personnel passe à la ligne plutôt
+   que de se laisser rogner jusqu'à une lettre. C'est elle qu'on vient lire —
+   « Baustellenlärm b… » ne dit rien, et une ligne de plus ne coûte rien. */
+@media (max-width: 30rem) {
+  #perso-liste .suivi-mot { flex-wrap: wrap; }
+  #perso-liste .suivi-mot .traduction { flex-basis: 100%; white-space: normal; }
+}
+
+/* ————— Sauvegarde ————— */
+
+.sauvegarde-avis { margin-top: .8rem; }
+.sauvegarde-avis p { margin: .4rem 0; }
+.sauvegarde-bilan {
+  margin: .4rem 0 .8rem;
+  padding-left: 1.1rem;
+  font-size: .9rem;
+  color: var(--encre-douce);
+}
+.sauvegarde-bilan li { margin: .15rem 0; }
+.sauvegarde-echec { color: var(--die); }
+
+.dictionnaire-detail { margin: .2rem 0 .8rem; }
+.etat-installe { color: var(--das); font-weight: 600; }

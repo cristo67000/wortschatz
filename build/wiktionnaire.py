@@ -50,6 +50,7 @@ from pathlib import Path
 
 import commun
 import tei
+import traductions
 
 RACINE = Path(__file__).resolve().parent
 SOURCES = RACINE / "sources"
@@ -322,17 +323,29 @@ def compacter(entree, langue):
     """Une entrée wiktextract → l'enregistrement compact qu'on garde.
 
     Renvoie None si l'entrée n'apporte rien : pas un seul sens utile.
+
+    Chaque sens porte désormais ses traductions vers l'autre langue (`tr`),
+    lues dans la table « Übersetzungen » ou « traductions » et rattachées par le
+    numéro de sens que le Wiktionnaire y inscrit. C'est ce champ qui permet
+    ensuite deux choses distinctes : donner une traduction à un sens que WikDict
+    ignorait, et faire entrer au dictionnaire une vedette qu'il n'avait pas.
     """
+    cible = traductions.CIBLE.get(langue, "")
+    table = traductions.par_indice(entree, cible) if cible else {}
+    libres = table.get("", [])
+
     sens = []
     for brut in entree.get("senses", ()):
         if not sens_utile(brut):
             continue
+        indice = brut.get("sense_index") or ""
         sens.append({
             "d": brut["glosses"][0].strip(),
             "x": exemples_de(brut),
             "th": [t for t in brut.get("topics", ())][:3],
             "t": [t for t in brut.get("tags", ())][:4],
-            "i": brut.get("sense_index") or "",
+            "i": indice,
+            "tr": traductions.pour_le_sens(table, indice, libres),
         })
         if len(sens) >= SENS_MAX:
             break
@@ -378,12 +391,19 @@ def motif_de_langue(chemin, langue):
 def extraire(chemin, langue, vedettes, journal=None):
     """Parcourt le dump et rend les enregistrements compacts à garder.
 
-    `vedettes` est l'ensemble des clés du dictionnaire WikDict : on ne retient
-    que ce qui a déjà une fiche. Le Wiktionnaire allemand décrit 966 000 formes,
-    dont la quasi-totalité ne sera jamais cherchée par un apprenant.
+    `vedettes` est l'ensemble des clés du dictionnaire WikDict. On retient :
+
+      — ce qui a déjà une fiche, pour l'enrichir : définitions, exemples,
+        flexions, et désormais les traductions que WikDict ne portait pas ;
+      — ce qui n'en a pas mais porte une traduction attestée, marqué `n`, et
+        qui deviendra une entrée bilingue à part entière.
+
+    Le reste est écarté : le Wiktionnaire allemand décrit 966 000 formes, dont
+    la quasi-totalité ne sera jamais cherchée par un apprenant, et dont la
+    plupart ne traduisent rien.
     """
     motif = motif_de_langue(chemin, langue)
-    lues = retenues = 0
+    lues = retenues = neuves = 0
     debut = time.time()
 
     with gzip.open(chemin, "rt", encoding="utf-8", errors="replace") as flux:
@@ -398,13 +418,22 @@ def extraire(chemin, langue, vedettes, journal=None):
             if entree.get("lang_code") != langue:
                 continue
             mot = entree.get("word") or ""
-            if not mot or commun.cle(mot) not in vedettes:
+            if not mot:
                 continue
             if entree.get("pos") in NATURES_ECARTEES:
                 continue
+            connue = commun.cle(mot) in vedettes
             compact = compacter(entree, langue)
             if compact is None:
                 continue
+            if not connue:
+                # Une vedette absente de WikDict ne mérite d'être gardée que si
+                # le Wiktionnaire la traduit : ceci est un dictionnaire
+                # bilingue, pas une encyclopédie.
+                if not any(bloc["tr"] for bloc in compact["s"]):
+                    continue
+                compact["n"] = 1
+                neuves += 1
             retenues += 1
             yield compact
 
@@ -412,6 +441,7 @@ def extraire(chemin, langue, vedettes, journal=None):
                 vitesse = lues / max(time.time() - debut, 0.001)
                 sys.stdout.write(
                     f"\r  … {lues:>10,} lignes lues, {retenues:>7,} retenues"
+                    f" dont {neuves:>6,} nouvelles"
                     f"  ({vitesse:,.0f}/s)   ".replace(",", " "))
                 sys.stdout.flush()
 
@@ -419,6 +449,7 @@ def extraire(chemin, langue, vedettes, journal=None):
     if journal is not None:
         journal["lues"] = lues
         journal["retenues"] = retenues
+        journal["neuves"] = neuves
 
 
 def vedettes_de(fichier_tei):
@@ -428,6 +459,25 @@ def vedettes_de(fichier_tei):
 
 def chemin_extrait(langue):
     return SOURCES / f"wikt-{langue}.jsonl"
+
+
+def moutures():
+    """La date de chaque dump, telle que kaikki.org l'annonce.
+
+    Elle vient de `build/sources/moutures.json`, écrit par telecharger.py à
+    partir de l'en-tête HTTP. Les dumps eux-mêmes ne portent aucune date, et
+    celle du fichier sur le disque est celle du téléchargement — ce qui ne dit
+    rien de l'âge des données. Le manifeste et SOURCES.md citent celle-ci.
+    """
+    chemin = SOURCES / "moutures.json"
+    if not chemin.exists():
+        return {}
+    try:
+        table = json.loads(chemin.read_text(encoding="utf-8"))
+    except ValueError:
+        return {}
+    return {langue: table.get(f"wiktionnaire-{langue}.jsonl.gz", "")
+            for langue in ("de", "fr")}
 
 
 def charger(langue):
@@ -489,7 +539,8 @@ def main():
 
         duree = time.time() - debut
         print(f"  ✓ {journal['lues']:,} lignes lues, {journal['retenues']:,} retenues"
-              f" en {duree:.0f} s".replace(",", " "))
+              f" dont {journal['neuves']:,} vedettes neuves traduites"
+              f", en {duree:.0f} s".replace(",", " "))
         print(f"  → {sortie.name}, {commun.humain(sortie.stat().st_size)}")
 
     print("\nÉtape suivante : python build/construire.py")

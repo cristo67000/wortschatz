@@ -230,6 +230,11 @@ def choisir_enregistrement(nature_lecture, genre_lecture, enregistrements):
 # davantage noierait les sens traduits, qui sont ceux qu'on vient chercher.
 SENS_SUPPLEMENTAIRES_MAX = 2
 
+# Combien de traductions on greffe sur un sens qui n'en avait pas. Le même
+# plafond que WikDict : au-delà de six, la ligne des traductions cesse d'être
+# une réponse et devient une liste à trier.
+TRADUCTIONS_MAX = 6
+
 
 def enrichir(entree, enregistrements, journal=None):
     """Greffe le Wiktionnaire sur une entrée WikDict. Modifie `entree` en place.
@@ -243,7 +248,9 @@ def enrichir(entree, enregistrements, journal=None):
     """
     compteur = journal if journal is not None else {}
     for cle in ("lectures", "sans_entree", "sens", "apparies", "avec_exemple",
-                "sens_ajoutes"):
+                "sens_ajoutes", "traduits", "sens_ajoutes_traduits",
+                "sens_ajoutes_illustres",
+                "sens_sans_traduction"):
         compteur.setdefault(cle, 0)
 
     for lecture in entree["lectures"]:
@@ -284,20 +291,73 @@ def enrichir(entree, enregistrements, journal=None):
             if exemples:
                 compteur["avec_exemple"] += 1
 
+            # Une traduction attestée, là où WikDict n'en connaissait aucune.
+            #
+            # C'est le gain le moins spectaculaire et le plus utile de la
+            # version 3 : ces sens-là s'affichaient avec la mention « sens sans
+            # traduction connue », c'est-à-dire une définition à déchiffrer et
+            # rien à apprendre. Le Wiktionnaire les traduit dans sa propre table
+            # « Übersetzungen » ; il suffisait de la lire.
+            if not bloc[1]:
+                trouvees = list(enregistrement["s"][rang].get("tr", ()))
+                if trouvees:
+                    bloc[1] = trouvees[:TRADUCTIONS_MAX]
+                    compteur["traduits"] += 1
+
         # Les sens que WikDict ne connaît pas, quand ils apportent un exemple.
         deja = {r for r in appariement if r is not None}
         ajoutes = 0
-        for rang, sens_wikt in enumerate(enregistrement["s"]):
+        #
+        # Un sens du Wiktionnaire vaut d'être ajouté s'il apporte quelque chose :
+        # une traduction, un exemple, mieux encore les deux. Sans l'un ni
+        # l'autre, c'est une définition de plus sur une fiche qui en a déjà.
+        #
+        # L'ordre du choix compte, et c'est le seul point délicat. Les deux
+        # places disponibles doivent aller d'abord aux sens complets, puis à
+        # ceux qui ont un exemple, et seulement ensuite à ceux qui n'ont qu'une
+        # traduction. Prendre les sens dans l'ordre du Wiktionnaire laissait un
+        # sens traduit-mais-sans-exemple occuper la place d'un sens illustré, et
+        # faisait baisser d'un coup la part des sens illustrés — la mesure même
+        # dont dépend l'intérêt des fiches.
+        def utilite(couple):
+            _rang, bloc_wikt = couple
+            aTraduction = bool(bloc_wikt.get("tr"))
+            aExemple = bool(bloc_wikt["x"])
+            if aExemple and aTraduction:
+                return 0
+            if aExemple:
+                return 1
+            return 2
+
+        candidats = [(rang, bloc_wikt)
+                     for rang, bloc_wikt in enumerate(enregistrement["s"])
+                     if rang not in deja
+                     and (bloc_wikt.get("tr") or bloc_wikt["x"])]
+        candidats.sort(key=lambda couple: (utilite(couple), couple[0]))
+
+        for _rang, sens_wikt in candidats:
             if ajoutes >= SENS_SUPPLEMENTAIRES_MAX:
                 break
-            if rang in deja or not sens_wikt["x"]:
-                continue
-            sens.append([sens_wikt["d"], [], [list(x) for x in sens_wikt["x"]]])
+            trouvees = list(sens_wikt.get("tr", ()))[:TRADUCTIONS_MAX]
+            sens.append([sens_wikt["d"], trouvees,
+                         [list(x) for x in sens_wikt["x"]]])
             ajoutes += 1
             compteur["sens_ajoutes"] += 1
+            if trouvees:
+                compteur["sens_ajoutes_traduits"] += 1
+            if sens_wikt["x"]:
+                compteur["sens_ajoutes_illustres"] += 1
 
         lecture[5] = [list(f) for f in enregistrement.get("f", ())]
         lecture[6] = [m for m in enregistrement.get("syn", ())
                       if m != entree["mot"]]
+
+    # Ce qui reste sans traduction après la greffe. Le chiffre est publié : il
+    # dit ce que l'entrée sait vraiment faire, et l'application l'affiche
+    # sens par sens plutôt que de laisser croire à une donnée perdue.
+    for lecture in entree["lectures"]:
+        for bloc in lecture[4]:
+            if not bloc[1]:
+                compteur["sens_sans_traduction"] += 1
 
     return compteur

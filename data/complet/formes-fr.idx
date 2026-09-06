@@ -374,6 +374,7 @@ abrasions	8,
 abrasive	6,f
 abrasives	6,f
 abrasivites	10,
+abreagi	7,r
 abregeaient	6,r
 abregeais	6,r
 abregeait	6,r
@@ -438,7 +439,7 @@ absences	7,
 absentaient	6,er
 absentais	6,er
 absentait	6,er
-absente	6,|7,r
+absente	6,|7,r|0,s'absenter
 absentee	7,r
 absentees	7,r
 absenteismes	11,
@@ -470,6 +471,7 @@ absorbees	7,r
 absorbements	11,
 absorbent	7,r
 absorbes	7,r
+absorbeur-neutralisateurs	24,
 absoute	5,s
 absoutes	5,s
 abstentionnismes	15,
@@ -487,6 +489,7 @@ abstraits	8,
 absurdes	7,
 absurdites	9,
 abswurmbachites	14,
+aburaages	8,
 abusa	4,er
 abusait	4,er
 abusant	4,er
@@ -731,6 +734,7 @@ accordions	6,er
 accordoirs	9,
 accordons	6,er
 accords	6,
+accords-cadres	6,-cadre
 accostee	7,|7,r
 accostees	7,
 accostent	7,r
@@ -1348,6 +1352,7 @@ adversative	9,f
 adversatives	9,f
 adversites	9,
 adynatons	8,
+adytes	5,
 adytons	6,
 adytums	6,
 aedes	4,
@@ -1548,11 +1553,13 @@ affuteras	7,
 affutes	6,r
 affutez	6,r
 affuts	5,
+afghanes	7,
 afghanis	7,
 afghanites	9,
 africaine	8,
 africaines	8,
 africains	8,
+africanisations	14,
 africanites	10,
 afrikaners	9,
 afriques	7,
@@ -2050,9 +2057,11 @@ alcalins	7,
 alcalis	6,
 alcaloides	9,
 alcaloidiques	12,
+alcanols	7,
 alcaptones	9,
 alcazars	7,
 alcenes	6,
+alcenols	7,
 alchemilles	10,
 alchimies	8,
 alchimistes	10,
@@ -2066,6 +2075,7 @@ alcools	6,
 alcootests	9,
 alcoves	6,
 alcynes	6,
+alcynols	7,
 aldehydes	8,
 aleas	4,
 aleatoires	9,
@@ -2094,6 +2104,7 @@ alexandrine	10,
 alexandrines	10,
 alexandrins	10,
 alexies	6,
+alexithymies	11,
 alezane	6,
 alezanes	6,
 alezans	6,
@@ -2132,6 +2143,9 @@ aliphatiques	11,
 alises	5,
 alisiers	7,
 alismes	6,
+alizee	5,
+alizees	5,
+alizes	5,
 alkekenges	9,
 alkydes	6,
 alkyles	6,
@@ -2175,6 +2189,7 @@ allemandes	8,
 allemands	8,
 aller-retours	12,
 allerent	5,
+allergenes	9,
 allergies	8,
 allergiques	10,
 allergologies	12,
@@ -2280,6 +2295,7 @@ alopecies	8,
 aloses	5,
 alostoise	8,
 alostoises	8,
+alouates	7,
 alouettes	8,
 alourdi	7,r
 alourdira	8,
@@ -2298,6 +2314,7 @@ alourdissiez	7,r
 alourdissions	7,r
 alourdissons	7,r
 alourdit	7,r
+aloyaux	6,
 alpagas	6,
 alpages	6,
 alpenglows	9,
@@ -2315,6 +2332,7 @@ alpines	5,
 alpinismes	9,
 alpinistes	9,
 alpins	5,
+alsacianites	11,
 alsacienne	8,
 alsaciennes	8,
 alsaciens	8,
@@ -2366,7 +2384,9 @@ amaigries	7,r
 amaigris	7,r
 amaigrissant	7,r
 amaigrit	7,r
+amakihis	7,
 amalgames	8,
+amanderaies	10,
 amandes	6,
 amandiers	8,
 amandons	7,
@@ -2645,6 +2665,7 @@ amusez	5,r
 amusiez	4,er
 amusions	4,er
 amusons	4,er
+amygdalectomies	14,
 amygdales	8,
 amyloides	8,
 amyloidoses	10,
@@ -2791,6 +2812,7 @@ angelologies	11,
 angelots	7,
 anges	4,
 angines	6,
+angiomes	7,
 angiospermes	11,
 anglaise	7,
 anglaises	7,|8,
@@ -2856,6 +2878,7 @@ anisotropes	10,
 anisotropies	11,
 ankerites	8,
 ankhs	4,
+ankyloglossies	13,
 ankylosee	8,
 ankylosees	8,
 ankyloses	8,
@@ -2923,6 +2946,7 @@ anomales	6,
 anomaloscopes	12,
 anomalures	9,
 anomaux	5,l
+anomoures	8,
 anons	4,
 anonymats	8,
 anonymes	7,
@@ -3059,7 +3083,11 @@ anticonvulsive	12,f
 anticonvulsives	12,f
 anticyclones	11,
 antidatages	10,
+antidate	8,r
 antidepresseurs	14,
+antiderapante	12,
+antiderapantes	12,
+antiderapants	12,
 antidetonante	12,
 antidetonantes	12,
 antidetonants	12,
@@ -3242,13 +3270,16 @@ apoplectiques	12,
 apoplexies	9,
 apoptoses	8,
 apories	6,
+aposexuels	9,
 apostasia	8,er
 apostasies	9,
 apostate	7,
 apostates	7,|8,
 apostats	7,
 apostoliques	11,
-apostrophes	10,
+apostrophe	10,r
+apostrophees	10,r
+apostrophes	10,|10,r
 apothecies	9,
 apotheoses	9,
 apothicaires	11,
@@ -3265,10 +3296,12 @@ apparats	7,
 appareillages	12,
 appareils	8,
 apparences	9,
-apparente	8,
-apparentee	9,
-apparentees	9,
-apparentes	8,|9,
+apparentait	8,er
+apparente	8,|9,r
+apparentee	9,|9,r
+apparentees	9,|9,r
+apparentent	9,r
+apparentes	8,|9,|9,r
 apparents	8,
 apparieuses	10,
 appariteurs	10,
@@ -3307,6 +3340,7 @@ appelions	5,er
 appellations	11,
 appelons	5,er
 appels	5,
+appendicectomies	15,
 appendices	9,
 appendicites	11,
 appesantissements	16,
@@ -3380,6 +3414,7 @@ apportez	7,r
 apportiez	6,er
 apportions	6,er
 apportons	6,er
+apports	6,
 appose	6,r
 apposee	6,r
 apposent	6,r
@@ -3524,6 +3559,7 @@ aprotiques	9,
 apsaras	6,
 apsides	6,
 aptameres	8,
+apteres	6,
 aptes	4,
 aptitudes	8,
 aqiqahs	6,
@@ -4024,6 +4060,7 @@ artisans	7,
 artistes	7,
 artistiques	10,
 artolithes	9,
+artotheques	10,
 arts	3,
 artworks	7,
 arums	4,
@@ -4112,8 +4149,9 @@ assaillira	9,
 assaillis	8,r
 assainissements	14,
 assainit	7,r
-assaisonne	10,r
-assaisonnee	10,r
+assaisonnee	10,|10,r
+assaisonnees	10,
+assaisonnes	10,
 assaisonnez	10,r
 assaisonnons	9,er
 assamaise	8,
@@ -4328,6 +4366,7 @@ asterosismologies	16,
 asters	5,
 asthenies	8,
 asthenospheres	13,
+asthenozoospermies	17,
 asthmatiques	11,
 asthmes	6,
 asticote	8,r
@@ -4338,6 +4377,7 @@ astrakans	8,
 astrances	8,
 astres	5,
 astrilds	7,
+astroblemes	10,
 astrocytes	9,
 astrolabes	9,
 astrologies	10,
@@ -4429,6 +4469,7 @@ attachez	7,r
 attachiez	6,er
 attachions	6,er
 attachons	6,er
+attalisations	12,
 attaqua	6,er
 attaquaient	6,er
 attaquais	6,er
@@ -4503,6 +4544,7 @@ attentions	6,er|9,
 attentive	7,f
 attentives	7,f
 attenuant	6,er
+attenuations	11,
 attenue	7,r
 attenuee	7,r
 attenuent	7,r
@@ -4676,6 +4718,7 @@ augmentais	7,er
 augmentait	7,er
 augmentant	7,er
 augmentatifs	11,
+augmentations	12,
 augmentative	10,f
 augmentatives	10,f
 augmente	8,r
@@ -4849,6 +4892,7 @@ autopolyploidies	15,
 autoportraits	12,
 autoproductions	14,
 autopsies	8,
+autopublicites	13,
 autoradios	9,
 autorails	8,
 autorats	7,
@@ -4887,6 +4931,7 @@ autosatisfaits	13,
 autosexualites	13,
 autostoppeurs	12,
 autosuggestions	14,
+autotheories	11,
 autotrophies	11,
 autours	6,
 autres	5,
@@ -4952,6 +4997,7 @@ avancons	5,er
 avanies	6,
 avant-centres	12,
 avant-contrats	13,
+avant-cours	10,
 avant-derniere	13,
 avant-dernieres	13,
 avant-derniers	13,
@@ -4978,6 +5024,7 @@ avariee	6,
 avariees	6,
 avaries	6,
 avars	4,
+avatars	6,
 avenante	7,
 avenantes	7,
 avenants	7,
@@ -5135,6 +5182,7 @@ azotures	7,
 azteques	7,
 azukis	5,
 azulejos	7,
+azurants	7,
 azurites	7,
 azurs	4,
 azymes	5,
@@ -5178,6 +5226,7 @@ babysitteuses	12,
 baccalaureats	12,
 baccaras	7,
 bacchantes	9,
+bacchees	7,
 bacciformes	10,
 bacheliere	9,
 bachelieres	9,
@@ -5203,6 +5252,8 @@ bacteriologies	13,
 bacteriologistes	15,
 bacteriophages	13,
 bacterioplanctons	16,
+bacteriospermies	15,
+bactoprenols	11,
 baculums	7,
 badaude	6,|7,r
 badaudent	7,r
@@ -5329,6 +5380,7 @@ baisent	5,r
 baiserais	6,
 baisers	6,
 baises	5,|5,r
+baiseurs	7,
 baisez	5,r
 baissa	5,er
 baissai	5,er
@@ -5435,11 +5487,13 @@ balistes	7,
 balistiques	10,
 balivernes	9,
 balkanisations	13,
+balkanise	9,r
 ballades	7,
 ballasts	7,
 ballerines	9,
 ballerins	8,
 balles	5,
+balletomanes	11,
 ballets	6,
 ballonnistes	11,
 ballons	6,
@@ -5456,6 +5510,7 @@ balneotherapies	14,
 balourde	7,
 balourdes	7,
 balourds	7,
+baloutches	9,
 balrogs	6,
 bals	3,
 balsamaires	10,
@@ -5652,6 +5707,7 @@ barmans	6,
 barmen	4,an
 barns	4,
 barochories	10,
+barodontalgies	13,
 barometres	9,
 barometriques	12,
 baronnes	7,
@@ -5715,6 +5771,7 @@ barytons-basses	7,-basse
 barzois	6,
 bas-cotes	8,
 bas-fonds	8,
+bas-mats	7,
 bas-reliefs	10,
 bas-sorabes	10,
 bas-ventres	10,
@@ -5723,12 +5780,18 @@ basaltes	7,
 basaltiques	10,
 basanee	6,r
 basanes	6,
+basant	3,er
 basculee	7,r
 basculent	7,r
 bascules	7,
+base	4,r
 baseballs	8,
+basee	4,r
+basees	4,r
 baselles	7,
-bases	4,
+basent	4,r
+bases	4,|4,r
+basez	4,r
 basides	6,
 basilectes	9,
 basileions	9,
@@ -5742,6 +5805,7 @@ basitonies	9,
 basket-balls	11,
 basketteurs	10,
 basketteuses	11,
+basons	3,er
 basques	6,
 basse	3,
 basses	3,|5,
@@ -5753,6 +5817,7 @@ bassins	6,
 bassistes	8,
 bassonistes	10,
 bassons	6,
+bastarniques	11,
 bastides	7,
 bastingages	10,
 bastions	7,
@@ -5792,6 +5857,7 @@ baths	4,
 bathyergues	10,
 bathymetries	11,
 bathyscaphes	11,
+bathyspheres	11,
 bati	4,r
 batie	4,r
 baties	4,r
@@ -6098,6 +6164,7 @@ bernoises	7,
 berolinismes	11,
 berriasiens	10,
 berserks	7,
+berthas	6,
 berthollides	11,
 berthons	7,
 bertillonnages	13,
@@ -6249,6 +6316,7 @@ biformes	7,
 biftecks	7,
 bifurcations	11,
 bigamies	7,
+bigamiques	9,
 bigarades	8,
 bigarree	7,
 bigarrees	7,
@@ -6336,6 +6404,7 @@ biogeochimies	12,
 biogeographies	13,
 biographes	9,
 biographies	10,
+bioimpedances	12,
 bioinformatiques	15,
 biologies	8,
 biologiques	10,
@@ -6436,6 +6505,7 @@ bissextils	9,
 bistables	8,
 bistres	6,
 bistroquets	10,
+bistros	6,
 bistrots	7,
 bitcoins	7,
 bitoniaux	8,
@@ -6682,6 +6752,7 @@ bondieusards	11,
 bondieuseries	12,
 bongares	7,
 bongos	5,
+bongs	4,
 bonheurs	7,
 bonifiaient	6,er
 bonifie	7,r
@@ -6725,6 +6796,7 @@ bords	4,
 bordures	7,
 boreale	6,
 boreales	6,
+borealismes	10,
 boreaux	5,l
 boreks	5,
 borelienne	8,
@@ -6953,6 +7025,7 @@ bourgmestres	11,
 bourgs	5,
 bourkas	6,
 bournonites	10,
+bourracans	9,
 bourraches	9,
 bourrait	5,er
 bourrasques	10,
@@ -7056,6 +7129,7 @@ braconne	8,r
 braconnent	8,r
 braconnes	8,r
 braconniers	10,
+bracteates	9,
 bractees	7,
 bradypes	7,
 bradypnees	9,
@@ -7133,6 +7207,7 @@ bredouille	10,r
 bredouillent	10,r
 bredouilles	10,r
 brefs	4,
+bregmas	6,
 breil-sur-merize	0,le breil-sur-merize
 breithauptites	13,
 brelans	6,
@@ -7232,6 +7307,7 @@ britanniques	11,
 britanniums	10,
 brittoniques	11,
 brizes	5,
+brocante	8,r
 brocanteuses	11,
 brocarts	7,
 brochee	6,
@@ -7412,6 +7488,7 @@ bulldozers	9,
 bulles	5,|5,r
 bullionismes	11,
 bullmastiffs	11,
+bungarotoxines	13,
 buralistes	9,
 bureaucrates	11,
 bureaucraties	12,
@@ -7510,6 +7587,9 @@ cabrerites	9,
 cabris	5,
 cacahuetes	9,
 cacaos	5,
+cacaoyere	8,
+cacaoyeres	8,
+cacaoyers	8,
 cacas	4,
 cacha	4,er
 cachai	4,er
@@ -7524,6 +7604,7 @@ cache-caches	11,
 cache-cols	9,
 cache-cous	9,
 cache-flammes	12,
+cache-oeils	10,
 cache-pots	9,
 cache-poussieres	15,
 cache-sexes	10,
@@ -7605,6 +7686,7 @@ cafeiers	7,
 cafeines	7,
 cafes	4,
 cafes-bars	4,-bar
+cafes-restaurants	4,-restaurant
 cafeterias	9,
 cafetieres	9,
 cafetiers	8,
@@ -7715,6 +7797,7 @@ calligraphies	12,
 callimicos	9,
 callipyges	9,
 callistemons	11,
+callitrics	9,
 callunes	7,
 calma	4,er
 calmaient	4,er
@@ -7794,15 +7877,28 @@ campagnardes	10,|11,
 campagnards	10,
 campagnes	8,
 campagnols	9,
+campai	4,er
+campaient	4,er
+campais	4,er
+campait	4,er
+campames	4,er
 campaniformes	12,
 campanologies	12,
 campanules	9,
+campe	5,r
 campeches	8,
+campent	5,r
+camperent	6,
+camperons	6,
+campes	5,r
 camphres	7,
 camping-cars	11,
 campings	7,
+campions	4,er
+campons	4,er
 camps	4,
 canadas	6,
+canadianisations	15,
 canadienne	8,
 canadiennes	8,
 canadiens	8,
@@ -7857,6 +7953,7 @@ cannelles	8,
 cannes	5,
 cannes-epees	5,-epee
 cannibales	9,
+cannibalise	11,r
 cannibalismes	12,
 canoeistes	9,
 canoes	5,
@@ -7904,6 +8001,7 @@ capacites	8,
 caparacons	9,
 capelans	7,
 capes	4,
+capetiens	8,
 capibaras	8,
 capillaires	10,
 capilliformes	12,
@@ -7997,6 +8095,9 @@ caquettes	8,
 caquilliers	10,
 carabines	8,
 caracals	7,
+caracolait	7,er
+caracole	8,r
+caracolent	8,r
 caracteres	9,
 caracteristiques	15,
 caracterologies	14,
@@ -8048,10 +8149,12 @@ cardai	4,er
 cardaient	4,er
 cardais	4,er
 cardait	4,er
+cardamines	9,
 cardamomes	9,
 cardans	6,
 cardes	5,|5,r
 cardiaques	9,
+cardiectomies	12,
 cardiez	4,er
 cardigans	8,
 cardinale	8,
@@ -8072,6 +8175,7 @@ cardos	5,
 caremes	6,
 carenages	8,
 carences	7,
+carene	6,r
 carenes	6,
 caressa	6,er
 caressaient	6,er
@@ -8245,6 +8349,7 @@ catafalques	10,
 cataires	7,
 catalane	7,
 catalanes	7,|8,
+catalanismes	11,
 catalans	7,
 catalogages	10,
 catalogues	9,|9,r
@@ -8266,6 +8371,7 @@ catatonies	9,
 catchs	5,
 catechines	9,
 catecholamines	13,
+catechumenes	11,
 categorielle	10,
 categorielles	10,
 categoriels	10,
@@ -8300,6 +8406,7 @@ cauchemars	9,
 cauchoise	8,
 cauchoises	8,
 caudillismes	11,
+cauliflores	10,
 cauliformes	10,
 caurales	7,
 causa	4,er
@@ -8350,6 +8457,7 @@ cds	0,cd
 ceanothes	8,
 cebettes	7,
 cecidies	7,
+cecilies	7,
 cecites	6,
 cecogrammes	10,
 cecums	5,
@@ -8471,6 +8579,8 @@ centrages	8,
 centrale	7,
 centrales	7,
 centralisations	14,
+centralise	10,r
+centralisee	10,r
 centralismes	11,
 centraux	6,l
 centree	6,r
@@ -8485,6 +8595,7 @@ centrines	8,
 centrosomes	10,
 cents	4,
 centuries	8,
+cenures	6,
 cepees	5,
 cepes	4,
 cephalalgies	11,
@@ -8493,6 +8604,7 @@ cephales	7,
 cephaliques	10,
 cephalophes	10,
 cephalopodes	11,
+cephalorhynques	14,
 cepolides	8,
 ceps	3,
 ceramiques	9,
@@ -8545,6 +8657,7 @@ ces	0,ce
 cesariennes	10,
 cesarismes	9,
 cesaro-papismes	14,
+cesars	5,
 cesates	6,
 cessa	4,er
 cessaient	4,er
@@ -8664,9 +8777,11 @@ chamelieres	9,
 chameliers	9,
 chamelles	8,
 chamottes	8,
+champacs	7,
 champagnes	9,
 champetres	9,
 champignons	10,
+champignons-pieuvre	10,-pieuvre
 championnats	11,
 championne	8,
 championnes	8,
@@ -8683,11 +8798,12 @@ chancelleries	12,
 chances	6,
 chanciques	9,
 chancissures	11,
+chancres	7,
 chandails	8,
 chandeliers	10,
 chandelles	9,
 chanfreins	9,
-change	6,r
+change	6,r|0,se changer
 changea	6,r
 changeaient	6,r
 changeais	6,r
@@ -8996,6 +9112,7 @@ chavire	7,r
 chavirees	7,r
 chavirent	7,r
 chavots	6,
+chayotes	7,
 chebecs	6,
 checklists	9,
 checkpoints	10,
@@ -9009,6 +9126,12 @@ cheiks	5,
 chelems	6,
 cheliceres	9,
 cheloides	8,
+cheloue	6,
+cheloues	6,
+chelous	6,
+chelouse	6,
+chelouses	6,
+cheloux	6,
 cheminees	8,
 cheminote	8,
 cheminotes	8,
@@ -9141,6 +9264,9 @@ chiantis	7,
 chiants	6,
 chiasmes	7,
 chiasse	3,er
+chibanienne	9,
+chibaniennes	9,
+chibaniens	9,
 chicane	7,r
 chicanent	7,r
 chicanes	7,r
@@ -9183,6 +9309,8 @@ chiites	6,
 chileites	8,
 chiliennes	9,
 chiliens	7,
+chille	6,r
+chillers	7,
 chimborazites	12,
 chimeres	7,
 chimeriques	10,
@@ -9286,6 +9414,8 @@ choisissons	6,r
 choisit	6,r
 choisites	6,r
 choit	4,sir
+cholecystostomies	16,
+cholents	7,
 choleras	7,
 cholesteatomes	13,
 cholesterols	11,
@@ -9307,6 +9437,7 @@ choquees	6,r
 choquent	6,r
 choques	6,r
 chorales	7,
+chordes	6,
 chorees	6,
 choregraphes	11,
 choregraphies	12,
@@ -9375,6 +9506,7 @@ chrysalides	10,
 chrysanthemes	12,
 chrysoberyls	11,
 chrysobulles	11,
+chrysochlores	12,
 chrysolites	10,
 chrysomeles	10,
 chrysopes	8,
@@ -9552,6 +9684,7 @@ citronnelles	11,
 citronniers	10,
 citrons	6,
 citrouilles	10,
+citrullines	10,
 civettes-loutres	7,-loutre
 civieres	7,
 civile	5,
@@ -9632,6 +9765,7 @@ claviers	7,
 clavinets	8,
 clayonnages	10,
 clebards	7,
+cleidectomies	12,
 clematites	9,
 clemente	7,
 clementes	7,
@@ -9701,7 +9835,9 @@ cliques	6,r
 cliquets	7,
 cliquez	6,r
 clitocybes	9,
-clivant	4,er
+clivante	7,
+clivantes	7,
+clivants	7,
 clive	5,r
 clochardes	9,
 clochardise	11,r
@@ -9747,6 +9883,7 @@ clysteres	8,
 cnemides	7,
 cnidaires	8,
 co-inculpees	11,
+co-responsables	14,
 coachings	8,
 coadjuteurs	10,
 coagulations	11,
@@ -9755,6 +9892,7 @@ coassaient	5,er
 coasse	6,r
 coassements	10,
 coassent	6,r
+coasseuses	9,
 coatis	5,
 coauteurs	8,
 coautrices	9,
@@ -9772,6 +9910,7 @@ cocards	6,
 cocas	4,
 coccinelles	10,
 coccolites	9,
+coccygectomies	13,
 cochaines	8,
 cochant	4,er
 cochenilles	10,
@@ -9866,6 +10005,7 @@ coheritiers	10,
 cohomologies	11,
 cohortes	7,
 cohues	5,
+cohyponymes	10,
 coiffa	5,er
 coiffaient	5,er
 coiffait	5,er
@@ -9878,6 +10018,7 @@ coiffeurs	8,
 coiffeuses	9,
 coiffez	6,r
 coiffures	8,
+coihues	6,
 coin-coins	9,
 coincaient	5,er
 coincais	5,er
@@ -9902,6 +10043,7 @@ coits	4,
 cokes	4,
 colchicines	10,
 colchiques	9,
+colectomies	10,
 coleopteres	10,
 coleres	6,|6,r
 coleriques	9,
@@ -9919,6 +10061,7 @@ collabore	9,r
 collaborent	9,r
 collaborez	9,r
 collaborons	8,er
+collabos	7,
 collages	7,
 collais	4,er
 collait	4,er
@@ -10517,6 +10660,7 @@ concevons	7,ir
 conchages	8,
 conchylicultures	15,
 concierges	9,
+conciles	7,
 conciliables	11,
 conciliabules	12,
 conciliante	10,
@@ -10768,6 +10912,8 @@ conges	5,
 conglobations	12,
 conglomerats	11,
 congoides	8,
+congolaise	9,
+congolaises	9,
 congos	5,
 congratule	10,r
 congregations	12,
@@ -11112,6 +11258,7 @@ contacteurs	10,
 contactez	8,r
 contactions	7,er
 contacts	7,
+contagie	8,r
 contagiosites	12,
 contait	4,er
 contaminations	13,
@@ -11281,6 +11428,7 @@ contre-intuitifs	15,
 contre-intuitive	14,f
 contre-intuitives	14,f
 contre-jours	11,
+contre-mesures	13,
 contre-offensives	16,
 contre-productifs	16,
 contre-productive	15,f
@@ -11309,6 +11457,7 @@ contremarches	12,
 contreparties	12,
 contrepeteries	13,
 contreplaques	12,
+contrepoisons	12,
 contrepropositions	17,
 contres	6,
 contrevenez	9,ir
@@ -11417,10 +11566,12 @@ cooperaient	6,er
 cooperait	6,er
 cooperant	6,er
 cooperat	6,er
+cooperateurs	11,
 cooperatifs	10,
 cooperations	11,
 cooperative	9,f
 cooperatives	9,f|11,
+cooperatrices	12,
 coopere	7,r
 cooperent	7,r
 coopererai	8,
@@ -11527,6 +11678,7 @@ corbillards	10,
 corbillons	9,
 corbs	4,
 cordages	7,
+cordectomies	11,
 corderies	8,
 cordes	5,
 cordiale	7,
@@ -11547,6 +11699,7 @@ coreennes	6,|8,
 coreens	6,
 corees	5,
 coregones	8,
+coresponsables	13,
 corfiotes	8,
 corindons	8,
 cormes	5,
@@ -11554,7 +11707,9 @@ cormiers	7,
 cormorans	8,
 cornacs	6,
 cornalines	9,
+cornamuses	9,
 corned-beefs	11,
+cornees	6,
 corneilles	9,
 cornemuses	9,
 cornemuseurs	11,
@@ -11571,6 +11726,7 @@ cornouillers	11,
 cornouilles	10,
 cornucopias	10,
 cornues	6,
+cornules	7,
 corollaires	10,
 coronarites	10,
 coroniformes	11,
@@ -11803,6 +11959,7 @@ coupas	4,er
 coupat	4,er
 coupe-batteries	14,
 coupe-faims	10,
+coupe-ficelles	13,
 coupe-vents	10,
 coupee	5,r
 coupees	5,r
@@ -12193,6 +12350,7 @@ criant	3,er
 criblant	5,er
 crible	6,r
 criblee	6,r
+cricoidectomies	14,
 crics	4,
 crie	3,|4,r
 criees	5,
@@ -12225,6 +12383,7 @@ cris	3,
 crises	5,
 cristallieres	12,
 cristalliers	11,
+cristallisations	15,
 cristallisoirs	13,
 cristallites	11,
 cristallographes	15,
@@ -12336,6 +12495,9 @@ croupiers	8,
 croupions	8,
 croups	5,
 croustillances	13,
+croustillante	12,
+croustillantes	12,
+croustillants	12,
 croustillons	11,
 croutes	6,
 croutonne	7,
@@ -12400,7 +12562,9 @@ cryptomanes	10,
 cryptomnesies	12,
 cryptomonnaies	13,
 cryptonymes	10,
+cryptospermies	13,
 cryptozoologies	14,
+cryptozoospermies	16,
 cuartines	8,
 cubaine	6,
 cubaines	6,
@@ -12461,7 +12625,9 @@ cuisses	6,
 cuissons	7,
 cuistres	7,
 cuit-vapeurs	11,
-cuites	5,
+cuite	4,
+cuites	4,|5,
+cuits	4,
 cuivreries	9,
 cuivres	6,
 cujus	0,de cujus
@@ -12477,6 +12643,7 @@ culottee	7,
 culottees	7,
 culottes	7,
 culpabilites	11,
+culpeaux	7,
 culs	3,
 culs-bruns	3,-brun
 culs-de-basse-fosse	3,-de-basse-fosse
@@ -12512,6 +12679,7 @@ culturelles	8,
 culturels	8,
 cultures	7,
 culturistes	10,
+culturologies	12,
 cumins	5,
 cummingtonites	13,
 cumulards	8,
@@ -12563,6 +12731,7 @@ cyanines	7,
 cyanoacrylates	13,
 cyanobacteries	13,
 cyanographies	12,
+cyanometres	10,
 cyanophtalmes	12,
 cyanotrichites	13,
 cyanotypes	9,
@@ -12575,6 +12744,7 @@ cyberattaques	12,
 cybercensures	12,
 cybercitoyens	12,
 cyberdelinquances	16,
+cyberfeminismes	14,
 cyberguerres	11,
 cyberharcelements	16,
 cybernetiques	12,
@@ -12583,16 +12753,19 @@ cyberphobies	11,
 cyberpunks	9,
 cybersecurites	13,
 cybersexes	9,
+cyberterrorismes	15,
 cyborgs	6,
 cychres	6,
 cycladiques	10,
 cyclamates	9,
+cyclamens	8,
 cyclecars	8,
 cycles	5,
 cyclicites	9,
 cyclines	7,
 cycliques	8,
 cyclistes	8,
+cycloartenols	12,
 cyclobutanes	11,
 cyclohexanols	12,
 cyclohexylamines	15,
@@ -12638,6 +12811,7 @@ cytidines	8,
 cytochromes	10,
 cytogenetiques	13,
 cytokines	8,
+cytolyses	8,
 cytopenies	9,
 cytoplasmes	10,
 cytosines	8,
@@ -12680,6 +12854,7 @@ dangerosites	11,
 dangers	6,
 danoise	6,
 danoises	6,|7,
+danophobies	10,
 dansa	4,er
 dansables	8,
 dansai	4,er
@@ -12712,6 +12887,7 @@ daphnes	6,
 daphnies	7,
 daphnites	8,
 dapifers	7,
+dapsones	7,
 darmstadtiums	12,
 darses	5,
 darwinienne	9,
@@ -12740,13 +12916,16 @@ datives	4,f
 datolites	8,
 dattes	5,
 dattiers	7,
+daturas	6,
 daubes	5,
+dauphinats	9,
 dauphine	7,
 dauphinelles	11,
 dauphines	7,
 dauphinites	10,
 dauphins	7,
 daviesites	9,
+de-electronations	16,
 dealeurs	7,
 dealeuses	8,
 deambulait	7,er
@@ -12828,6 +13007,7 @@ debordee	7,r
 debordent	7,r
 deborderent	8,
 debordes	7,r
+debossages	9,
 debouchais	7,er
 debouchames	7,er
 debouchant	7,er
@@ -12873,6 +13053,7 @@ debrouillez	10,r
 debrouilliez	9,er
 debrouillions	9,er
 debrouillons	9,er
+debugueurs	9,
 debusqua	7,er
 debusque	8,r
 debuta	5,er
@@ -12898,6 +13079,7 @@ decadente	8,
 decadentes	8,
 decadents	8,
 decadis	6,
+decadmiations	12,
 decafarads	9,
 decafeinations	13,
 decafeinee	9,
@@ -13010,6 +13192,7 @@ dechiffre	9,r
 dechiffree	9,r
 dechiffrements	13,
 dechiffrent	9,r
+dechiquete	10,r
 dechiqueteurs	12,
 dechiqueteuses	13,
 dechira	6,er
@@ -13096,6 +13279,9 @@ declarez	7,r
 declarons	6,er
 declencha	8,er
 declenchait	8,er
+declenchante	11,
+declenchantes	11,
+declenchants	11,
 declenche	9,r
 declenchee	9,r
 declenchees	9,r
@@ -13162,6 +13348,9 @@ deconcertee	10,r
 deconcertent	10,r
 deconcertes	10,r
 deconfitures	11,
+decongele	9,r
+decongelent	9,r
+decongelez	9,r
 deconnais	6,er
 deconnait	6,er
 deconnant	6,er
@@ -13373,6 +13562,7 @@ defensives	7,f
 defeque	7,r
 defequent	7,r
 deferences	9,
+defeuille	9,r
 defia	4,er
 defiaient	4,er|4,nir
 defiait	4,er|4,nir
@@ -13381,6 +13571,7 @@ defiant	4,er|4,nir
 defibrillateurs	14,
 defibrillations	14,
 deficitaires	11,
+deficits	7,
 defie	5,r|4,nir
 defiees	5,r
 defient	5,r|4,nir
@@ -13465,6 +13656,7 @@ degaine	7,r
 degainee	7,r
 degaines	7,r
 degats	5,
+degazages	8,
 degele	6,r
 degelees	7,
 degels	5,
@@ -13541,10 +13733,12 @@ deguisements	11,
 deguisent	7,r
 deguises	7,r
 deguns	5,
+degustations	11,
 deguste	7,r
 degusterez	8,
 degustions	6,er
 degustons	6,er
+deigos	5,
 deismes	6,
 deistes	6,
 deites	5,
@@ -13583,6 +13777,7 @@ delaisses	8,r
 delassements	11,
 delatifs	7,
 deleaturs	8,
+delectations	11,
 delegations	10,
 deleguee	7,
 deleguees	7,|8,
@@ -13741,6 +13936,9 @@ demente	6,|6,ir
 dementent	6,ir
 dementes	6,|6,ir
 dementi	7,r
+dementielle	9,
+dementielles	9,
+dementiels	9,
 dementit	7,r
 dements	6,
 demerdarde	9,
@@ -13749,6 +13947,7 @@ demerdards	9,
 demerde	7,r
 demerdes	7,r
 demerdez	7,r
+demes	4,
 demesuree	8,
 demesurees	8,
 demesures	8,
@@ -14336,6 +14535,7 @@ descentes	8,
 descloizites	11,
 descriptions	11,
 desempilables	12,
+desenchantements	15,
 desenchevetrements	17,
 desendettements	14,
 desendoctrinements	17,
@@ -14455,6 +14655,9 @@ desobeissances	13,
 desobeissante	12,
 desobeissantes	12,
 desobeissants	12,
+desobligeante	12,
+desobligeantes	12,
+desobligeants	12,
 desoccupations	13,
 desodorante	10,
 desodorantes	10,
@@ -14495,9 +14698,9 @@ dessableurs	10,
 dessacheuses	11,
 dessecha	7,er
 dessechais	7,er
-desseche	8,r
-dessechee	8,r
-dessechees	8,r
+dessechee	8,|8,r
+dessechees	8,|8,r
+desseches	8,
 desseins	7,
 desserra	7,er
 desserre	8,r
@@ -14677,8 +14880,10 @@ detourneurs	10,
 detournez	8,r
 detours	6,
 detracteurs	10,
+detraqueurs	10,
 detrempes	8,
 detresses	8,
+detrognoteurs	12,
 detroits	7,
 detronait	6,er
 detrone	7,r
@@ -14866,6 +15071,7 @@ diacs	4,
 diademes	7,
 diadoques	8,
 diagnoses	8,
+diagnosticiens	13,
 diagnostics	10,
 diagnostique	12,r
 diagnostiquee	12,r
@@ -15046,6 +15252,7 @@ diminuera	8,
 diminuerai	8,
 diminuez	7,r
 diminuiez	6,er
+diminuteurs	10,
 diminutifs	9,
 diminutions	10,
 diminutive	8,f
@@ -15054,6 +15261,9 @@ dinandieres	10,
 dinandiers	9,
 dinars	5,
 dindes	5,
+dindonne	6,
+dindonnes	6,
+dindons	6,
 diners	5,
 dinettes	7,
 dingos	5,
@@ -15066,6 +15276,7 @@ dinucleotides	12,
 dioceses	7,
 diodes	5,
 diodons	6,
+diols	4,
 dionees	6,
 diopsides	8,
 dioptases	8,
@@ -15149,6 +15360,7 @@ disant	0,dire
 discale	6,
 discales	6,
 discaux	5,l
+discectomies	11,
 discernant	7,er
 discerne	8,r
 discernements	12,
@@ -15239,6 +15451,7 @@ dispenserent	9,
 dispenses	8,r
 dispensez	8,r
 dispensons	7,er
+dispermies	9,
 dispersant	7,er
 disperse	8,r
 dispersee	8,r
@@ -15308,7 +15521,9 @@ dissequames	7,er
 disseque	8,r
 dissequent	8,r
 dissertations	12,
-dissidentes	10,
+dissidente	9,
+dissidentes	9,|10,
+dissidents	9,
 dissimilations	13,
 dissimula	8,er
 dissimulai	8,er
@@ -15447,6 +15662,7 @@ divergeait	7,r
 divergences	10,
 divergent	7,r
 divers	5,tir
+diversifications	15,
 diversions	9,
 diversites	9,
 diverti	7,r
@@ -15529,6 +15745,7 @@ doctrines	8,
 docu-fictions	12,
 documentaires	12,
 documentalistes	14,
+documentaristes	14,
 documentations	13,
 documente	9,r
 documentee	9,r
@@ -15536,6 +15753,7 @@ documentes	9,r
 documenteure	11,
 documenteures	11,
 documenteurs	11,
+documentologies	14,
 documents	8,
 dodecadodecaedres	16,
 dodecahemicosaedres	18,
@@ -15774,6 +15992,7 @@ douees	4,
 douelles	7,
 doues	4,
 douglasites	10,
+douglassectomies	15,
 douilles	7,
 douillettes	10,
 doulas	5,
@@ -15932,6 +16151,9 @@ dugongs	6,
 dulses	5,
 dunes	4,
 dunks	4,
+duodenale	8,
+duodenales	8,
+duodenaux	7,l
 duodenums	8,
 duodis	5,
 duos	3,
@@ -15986,6 +16208,7 @@ duveteuse	7,x
 duveteuses	7,x
 duvets	5,
 dvandvas	7,
+dyades	5,
 dyarchies	8,
 dynamiques	9,
 dynamites	8,
@@ -16000,10 +16223,12 @@ dysenteries	10,
 dysfonctionnelle	14,
 dysfonctionnelles	14,
 dysfonctionnels	14,
+dysgueusies	10,
 dyshidroses	10,
 dyshidrosiques	13,
 dyslexies	8,
 dysmelies	8,
+dysmenorrhees	12,
 dysmorphophobies	15,
 dysostoses	9,
 dyspareunies	11,
@@ -16176,6 +16401,7 @@ echiquetee	9,
 echiquetees	9,
 echiquetes	9,
 echiquiers	9,
+echo-endoscopies	15,
 echocardiographies	17,
 echographies	11,
 echolalies	9,
@@ -16260,6 +16486,7 @@ eclateurs	8,
 eclateuse	7,r
 eclateuses	7,r
 eclatez	6,r
+eclatons	5,er
 eclats	5,
 eclectes	7,
 eclectiques	10,
@@ -16472,6 +16699,7 @@ ecroulera	8,
 ecrous	5,
 ecstasys	7,
 ectogeneses	10,
+ectomies	7,
 ectoparasites	12,
 ectothermes	10,
 ecubiers	7,
@@ -16485,6 +16713,7 @@ ecumeuse	6,x
 ecumeuses	6,x
 ecumoires	8,
 ecureuils	8,
+ecureuils-antilopes	8,-antilope
 ecuries	6,
 ecuroducs	8,
 ecus	3,
@@ -16492,6 +16721,7 @@ ecuyere	6,
 ecuyeres	6,|7,
 ecuyers	6,
 eczemas	6,
+edamames	7,
 edentee	6,
 edentees	6,
 edentes	6,
@@ -16506,6 +16736,7 @@ ediles	5,
 edingtonites	11,
 edinites	7,
 edisonites	9,
+editabilites	11,
 edite	5,r
 editees	5,r
 editent	5,r
@@ -16542,6 +16773,7 @@ eduqueront	7,
 eduques	6,r
 eduquez	6,r
 eduquons	5,er
+efendis	6,
 effaca	5,er
 effacais	5,er
 effacait	5,er
@@ -16682,6 +16914,7 @@ egoismes	7,
 egoistes	7,
 egoites	6,
 egomanies	8,
+egopodes	7,
 egorge	6,r
 egorgea	6,r
 egorgeais	6,r
@@ -16723,6 +16956,7 @@ eidonomies	9,
 einsteiniums	11,
 einsteins	8,
 eisenkiesels	11,
+eisoptrophobies	14,
 eisspaths	8,
 eitlandites	10,
 ejacula	6,er
@@ -16792,6 +17026,7 @@ electroantennographies	21,
 electrocardiogrammes	19,
 electrocardiographies	20,
 electrochimies	13,
+electrochimiotherapies	21,
 electrochromiques	16,
 electrodes	9,
 electrodynamiques	16,
@@ -16809,6 +17044,7 @@ electromecaniciens	17,
 electromecaniques	16,
 electromigrations	16,
 electromobilites	15,
+electronations	13,
 electroniques	12,
 electrons	8,
 electronvolts	12,
@@ -16816,6 +17052,9 @@ electroscopes	12,
 electrostatiques	15,
 electrotechniques	16,
 electrums	8,
+elegante	7,
+elegantes	7,
+elegants	7,
 elegies	6,
 elektrons	8,
 elements	7,
@@ -17070,6 +17309,13 @@ emergerais	7,
 emerges	6,r
 emeris	5,
 emerites	7,
+emerveilla	9,er
+emerveillait	9,er
+emerveille	10,r
+emerveillee	10,r
+emerveillent	10,r
+emerveillerent	11,
+emerveilles	10,r
 emesenienne	9,
 emeseniennes	9,|11,
 emeseniens	9,
@@ -17193,6 +17439,7 @@ emparerent	7,
 empares	6,r
 emparez	6,r
 empathies	8,
+empathogenes	11,
 empattements	11,
 empecha	6,er
 empechaient	6,er
@@ -17379,6 +17626,9 @@ encaisseront	9,
 encaisseurs	10,
 encarts	6,
 encastre	8,r
+enceinte	7,
+enceintes	7,
+enceints	7,
 encensieres	10,
 encensoirs	9,
 encephalites	11,
@@ -17465,10 +17715,9 @@ endeuille	9,r
 endeuillee	9,r
 endeuillees	9,r
 endiguee	7,r
-endimanche	10,r
-endimanchee	10,r
-endimanchees	10,r
-endimanches	10,r
+endimanchee	10,|10,r
+endimanchees	10,|10,r
+endimanches	10,|10,r
 endives	6,
 endocardites	11,
 endoctrinements	14,
@@ -17478,6 +17727,7 @@ endogenes	8,
 endolori	8,r
 endolorie	8,r
 endoloris	8,r
+endometrectomies	15,
 endometrites	11,
 endommage	9,r
 endommagea	9,r
@@ -17533,6 +17783,7 @@ endossera	8,
 endosses	7,r
 endostes	7,
 endotheliums	11,
+endothermiques	13,
 endroits	7,
 enduie	5,re
 enduirai	6,e
@@ -17848,6 +18099,9 @@ enrichit	7,r
 enrola	5,er
 enrole	6,r
 enrolements	10,
+enrouee	6,
+enrouees	6,
+enroues	6,
 enroula	6,er
 enroulaient	6,er
 enroulant	6,er
@@ -17862,6 +18116,8 @@ ensanglantee	11,
 ensanglantees	11,
 ensanglantes	11,
 ensauvagements	13,
+enscene	7,r
+enscenements	11,
 enseigna	7,er
 enseignaient	7,er
 enseignais	7,er
@@ -17909,6 +18165,8 @@ ensorceles	9,r
 ensouples	8,
 enstatites	9,
 entablements	11,
+entache	7,r
+entachee	7,r
 entama	5,er
 entamaient	5,er
 entame	6,r
@@ -17995,6 +18253,7 @@ enthousiasmes	12,|12,r
 enthousiastes	12,
 entiere	6,
 entieres	6,
+entieretes	9,
 entiers	6,
 entites	6,
 entolomes	8,
@@ -18275,6 +18534,7 @@ epaules	6,
 epaulettes	9,
 epaves	5,
 epeautres	8,
+epedonculations	14,
 epees	4,
 epelais	4,er
 epele	5,r
@@ -18385,6 +18645,7 @@ epluchent	7,r
 epluches	7,r
 epluchez	7,r
 epoches	6,
+epomophores	10,
 epongea	6,r
 eponges	6,|6,r
 eponymes	7,
@@ -18614,6 +18875,7 @@ escherites	9,
 esches	5,
 escients	7,
 esclavages	9,
+esclavagisations	15,
 esclaves	7,
 esclavesses	10,
 escobarderies	12,
@@ -18634,6 +18896,7 @@ escroque	8,r
 escroquee	8,r
 escroqueries	11,
 escroqueront	9,
+escroques	8,r
 eserines	7,
 espaces	6,
 espaces-temps	6,-temps
@@ -19125,6 +19388,9 @@ euphorbes	8,
 euphories	8,
 euphotiques	10,
 euphraises	9,
+euphrateenne	10,
+euphrateennes	10,
+euphrateens	10,
 eupiones	7,
 eupyrchroites	12,
 eurasiers	8,
@@ -19138,6 +19404,8 @@ eurocrates	9,
 eurodeputes	10,
 europarlementaires	17,
 europates	8,
+europeanisations	15,
+europeanise	11,r
 europeenne	8,
 europeennes	8,
 europeens	8,
@@ -19188,6 +19456,7 @@ evaluent	6,r
 evaluera	7,
 evalues	6,r
 evaluez	6,r
+evanescences	11,
 evanescente	10,
 evanescentes	10,
 evanescents	10,
@@ -19234,6 +19503,7 @@ evidentialites	13,
 evidents	7,
 eviers	5,
 evita	4,er
+evitables	8,
 evitaient	4,er
 evitais	4,er
 evitait	4,er
@@ -19367,6 +19637,7 @@ excellents	9,
 excentricites	12,
 excentriques	11,
 exceptee	7,r
+exceptionnalismes	16,
 exceptionnelle	12,
 exceptionnelles	12,
 exceptionnels	12,
@@ -19549,6 +19820,7 @@ exorcistes	9,
 exosquelettes	12,
 exostoses	8,
 exotariums	9,
+exothermiques	12,
 exotiques	8,
 expatriee	8,
 expatriees	8,
@@ -19756,6 +20028,9 @@ extournes	8,
 extra-professionnelle	19,
 extra-professionnelles	19,
 extra-professionnels	19,
+extraconjugale	13,
+extraconjugales	13,
+extraconjugaux	12,l
 extractions	10,
 extractivismes	13,
 extraditions	11,
@@ -19932,6 +20207,7 @@ faites	4,|3,re
 faitieres	8,
 faits	4,|3,re
 faits-divers	4,-divers
+fajitas	6,
 fakirs	5,
 falaises	7,
 falbalas	7,
@@ -19980,10 +20256,9 @@ fanons	5,
 fans	3,
 fantaisies	9,
 fantasmagories	13,
-fantasme	8,r
 fantasmee	8,r
 fantasment	8,r
-fantasmes	8,r
+fantasmes	8,|8,r
 fantassine	9,
 fantassines	9,
 fantassins	9,
@@ -20017,6 +20292,7 @@ farines	6,
 farineuse	7,x
 farineuses	7,x
 farotages	8,
+faroucheries	11,
 farouches	8,
 fasces	5,
 fascias	6,
@@ -20031,6 +20307,7 @@ fascinee	7,r
 fascinees	7,r
 fascinent	7,r
 fascines	7,|7,r
+fasciotomies	11,
 fascismes	8,
 fascistes	8,
 fascistoides	11,
@@ -20166,6 +20443,7 @@ fedoras	6,
 fedorovites	10,
 feedbacks	8,
 feeries	6,
+feeriques	8,
 fees	3,
 feetauds	7,
 feijoas	6,
@@ -20622,6 +20900,9 @@ flambons	5,er
 flamboyante	10,
 flamboyantes	10,
 flamboyants	10,
+flamboye	8,r
+flamines	7,
+flaminiques	10,
 flammes	6,
 flana	4,er
 flanages	7,
@@ -20743,7 +21024,10 @@ flots	4,
 flottages	8,
 flottes	6,
 flottilles	9,
+floue	4,
 floueries	8,
+floues	4,
+flous	4,
 flouves	6,
 flouzes	6,
 fluages	6,
@@ -20776,6 +21060,7 @@ focs	3,
 foehns	5,
 foenes	5,
 foetalisations	13,
+foetoscopies	11,
 foggaras	7,
 foies	4,
 foins	4,
@@ -20827,6 +21112,7 @@ fonceuses	6,r
 foncez	5,r
 foncons	4,er
 foncteurs	8,
+fonctifs	7,
 fonctionna	9,er
 fonctionnaient	9,er
 fonctionnaires	13,
@@ -20842,8 +21128,11 @@ fonctionneront	11,
 fonctionnes	10,r
 fonctionnons	9,er
 fonctions	8,
+fonctive	6,f
+fonctives	6,f
 fonda	4,er
 fondait	4,er|4,re
+fondamentales	12,
 fondante	7,
 fondantes	7,
 fondants	7,
@@ -20873,6 +21162,7 @@ fondu	4,re
 fondue	4,re
 fondues	4,re
 fondus	4,re
+fongicides	9,
 fongicultures	12,
 font	0,faire
 fontaines	8,
@@ -21231,6 +21521,7 @@ frapperons	7,
 frappes	6,|6,r
 frappez	6,r
 frappiez	5,er
+frasques	7,
 fraternelle	9,
 fraternelles	9,
 fraternels	9,
@@ -21265,6 +21556,7 @@ freinages	8,
 freinais	5,er
 freinant	5,er
 freine	6,r
+freinectomies	12,
 freinees	6,r
 freinez	6,r
 freins	5,
@@ -21281,6 +21573,9 @@ fremissant	5,r
 fremit	5,r
 frenaies	7,
 frenes	5,
+frenulectomies	13,
+frenuloplasties	14,
+frenulums	8,
 frequencemetres	14,
 frequences	9,
 frequenta	8,er
@@ -21465,6 +21760,7 @@ fruticuleuses	10,x
 fuchsias	7,
 fuchsines	8,
 fucks	4,
+fugacites	8,
 fugitifs	7,
 fugitive	6,f
 fugitives	6,f
@@ -21523,6 +21819,8 @@ funestes	7,
 funiculaires	11,
 funiformes	9,
 furent	0,etre|4,r
+fureta	5,er
+furete	6,r
 furets	5,
 fureurs	6,
 furibarde	8,
@@ -21546,6 +21844,7 @@ fuselages	8,
 fusels	5,
 fuseurs	6,
 fusibles	7,
+fusidates	8,
 fusiformes	9,
 fusiliers	8,
 fusillades	9,
@@ -21594,6 +21893,7 @@ gabardines	9,
 gabares	6,
 gabarits	7,
 gabbers	6,
+gabiers	6,
 gables	5,
 gacha	4,er
 gachames	4,er
@@ -21741,6 +22041,7 @@ gamuts	5,
 ganaches	7,
 gandins	6,
 gangliformes	11,
+ganglionites	11,
 ganglions	8,
 gangrenes	8,
 ganivelles	9,
@@ -21934,6 +22235,7 @@ gelaient	3,er
 gelait	3,er
 gelames	3,er
 gelant	3,er
+gelasines	8,
 gelatines	8,
 gelatineuse	9,x
 gelatineuses	9,x
@@ -21981,6 +22283,7 @@ genante	6,
 genantes	6,
 genants	6,
 gencives	7,
+gendarmeries	11,
 gendarmes	8,
 genderqueers	11,
 gendres	6,
@@ -21988,6 +22291,7 @@ genee	4,|4,r
 genees	4,|4,r
 genent	4,r
 genera	5,
+generables	9,
 generait	5,
 generale	7,
 generales	7,
@@ -22006,6 +22310,7 @@ generez	5,
 generiques	9,
 generosites	10,
 genes	4,
+geneticiennes	12,
 geneticiens	10,
 genetiques	9,
 genets	5,
@@ -22047,6 +22352,7 @@ gentillesses	11,
 gentils	6,
 gentlemans	9,
 gentlemen	7,an
+gentrifications	14,
 geo-zoos	7,
 geocachings	10,
 geocentriques	12,
@@ -22128,6 +22434,7 @@ germanismes	10,
 germanistiques	13,
 germanites	9,
 germaniums	9,
+germano-namibiens	16,
 germanomanies	12,
 germe	5,r
 germees	5,r
@@ -22220,6 +22527,7 @@ giletiers	8,
 gilets	5,
 gin-tonics	9,
 gingembres	9,
+ginkgolides	10,
 ginkgos	6,
 gins	3,
 ginsengs	7,
@@ -22234,6 +22542,7 @@ gironnee	7,
 gironnees	7,
 gironnes	7,
 girons	5,
+giros	4,
 girouettes	9,
 gisante	6,
 gisantes	6,
@@ -22269,6 +22578,7 @@ gladiateurs	10,
 gladiatrices	11,
 glaglas	6,
 glaieuls	7,
+glaires	6,
 glaireuse	7,x
 glaireuses	7,x
 glaises	6,
@@ -22326,6 +22636,7 @@ globalises	9,r
 globaux	5,l
 globes	5,
 globicephales	12,
+globozoospermies	15,
 globules	7,
 glockenspiels	12,
 gloires	6,
@@ -22341,6 +22652,7 @@ glossaires	9,
 glossateurs	10,
 glossatrice	7,eur
 glossatrices	7,eur
+glossectomies	12,
 glossematiques	13,
 glossophobies	12,
 glossotheques	12,
@@ -22367,6 +22679,7 @@ gloutonneries	12,
 gloutonnes	7,
 gloutons	7,
 glucides	7,
+gluciniums	9,
 glucoses	7,
 glucosidases	11,
 gluons	5,
@@ -22379,10 +22692,15 @@ glyceraldehydes	14,
 glyceries	8,
 glycerines	9,
 glycines	7,
+glycobiologies	13,
 glycocolles	10,
 glycogenines	11,
 glycogenogeneses	15,
+glycogenolytiques	16,
+glycogenoses	11,
 glycols	6,
+glycomes	7,
+glycomiques	10,
 glycoproteines	13,
 glyphes	6,
 glyphosates	10,
@@ -22420,6 +22738,7 @@ golems	5,
 golfes	5,
 golfs	4,
 gommes	5,|5,r
+gommettes	8,
 gonades	6,
 gondoles	7,|7,r
 gondolieres	10,
@@ -22440,7 +22759,6 @@ gongs	4,
 gonnelles	8,
 gonosomiques	11,
 googlant	5,er
-google	6,r
 googlee	6,r
 googlees	6,r
 gords	4,
@@ -22450,6 +22768,7 @@ gorges	5,
 gorgones	7,
 gorilles	7,
 goshenites	9,
+gosiers	6,
 goslarites	9,
 gospels	6,
 gosses	5,
@@ -22460,6 +22779,7 @@ gothiques	8,
 goths	4,
 gouapes	6,
 goubelins	8,
+goudous	6,
 goudronnee	9,r
 goudronnees	9,r
 goudrons	7,
@@ -22572,11 +22892,13 @@ grainetiers	10,
 grains	5,
 graissa	6,er
 graisses	7,|7,r
+graissets	8,
 graisseuse	8,x
 graisseuses	8,x
 grales	5,
 grallaires	9,
 graminiformes	12,
+grammages	8,
 grammaires	9,
 grammaticale	11,
 grammaticales	11,
@@ -22611,6 +22933,8 @@ grandiloquente	13,
 grandiloquentes	13,
 grandiloquents	13,
 grandimes	6,r
+grandioses	9,
+grandiosites	11,
 grandira	7,
 grandirai	7,
 grandiras	7,
@@ -22971,6 +23295,7 @@ gruppettos	9,
 grutiers	7,
 gruyeres	7,
 guacamoles	9,
+guacharacas	10,
 guamiens	7,
 guanacos	7,
 guanidines	9,
@@ -23031,6 +23356,9 @@ guetterent	7,
 guettions	5,er
 guettons	5,er
 gueulait	5,er
+gueularde	8,
+gueulardes	8,
+gueulards	8,
 gueulent	6,r
 gueules	6,|6,r
 gueules-de-lion	6,-de-lion
@@ -23093,6 +23421,7 @@ gujaratis	8,
 guppys	5,
 gurnards	7,
 gustometries	11,
+gusukus	6,
 gutturales	9,
 guyanaise	8,
 guyanaises	8,
@@ -23107,11 +23436,13 @@ gymnastes	8,
 gymnastiques	11,
 gymnospermes	11,
 gymnoures	8,
+gynandromorphes	14,
 gynecologies	11,
 gynecologues	11,
 gynocentrismes	13,
 gypaetes	7,
 gypses	5,
+gyrins	5,
 gyromagnetiques	14,
 gyrophares	9,
 gyrorectors	10,
@@ -23285,6 +23616,7 @@ hammams	6,
 hampes	5,
 hamsters	7,
 hanafudas	8,
+hanamis	6,
 hanches	6,
 handballeurs	11,
 handballeuses	12,
@@ -23347,6 +23679,7 @@ haridelles	9,
 harissas	7,
 harles	5,
 harmonicas	9,
+harmonicordes	12,
 harmonies	8,
 harmonieuse	9,x
 harmonieuses	9,x
@@ -23358,6 +23691,7 @@ harmoniums	9,
 harmonogrammes	13,
 harnache	8,r
 harpagons	8,
+harpagosides	11,
 harpes	5,
 harpies	6,
 harpistes	8,
@@ -23480,6 +23814,7 @@ heliospheres	11,
 heliotropes	10,
 heliports	8,
 heliums	6,
+helldivers	9,
 hellebores	9,
 hellenes	7,
 hellenistiques	13,
@@ -23487,17 +23822,20 @@ hellers	6,
 helophytes	9,
 helvelles	8,
 helvetes	7,
+helveticites	11,
 helvetiques	10,
 hematites	8,
 hematochezies	12,
 hematomes	8,
 hematophages	11,
+hematospermies	13,
 hemeralopes	10,
 hemeralopies	11,
 hemerocalles	11,
 hemianopsies	11,
 hemicryptophytes	15,
 hemidactyles	11,
+hemidesmosomes	13,
 hemimorphites	12,
 hemioles	7,
 hemiones	7,
@@ -23515,6 +23853,7 @@ hemolymphes	10,
 hemophilies	10,
 hemoproteines	12,
 hemorragies	10,
+hemorroidectomies	16,
 hemorroides	10,
 hennes	5,
 hennins	6,
@@ -23571,6 +23910,7 @@ heritez	6,r
 heritiers	8,
 heritons	5,er
 hermaphrodites	13,
+hermeneutes	10,
 hermeneutiques	13,
 hermeticites	11,
 hermetiques	10,
@@ -23580,6 +23920,7 @@ herminettes	10,
 hermitienne	9,
 hermitiennes	9,
 hermitiens	9,
+hernandies	9,
 herniaires	9,
 hernies	6,
 hernutes	7,
@@ -23628,6 +23969,7 @@ heteroclites	11,
 heterodactylies	14,
 heterodoxes	10,
 heteroecies	10,
+heterogeneites	13,
 heterogenes	10,
 heterogenites	12,
 heteromerites	12,
@@ -23686,6 +24028,7 @@ hidalgos	7,
 hiddenites	9,
 hideuse	5,x
 hideuses	5,x
+hidroses	7,
 hiebles	6,
 hierarchies	10,
 hierarchiques	12,
@@ -23696,6 +24039,7 @@ hierogamies	10,
 hieroglyphes	11,
 hierophantesses	14,
 hierophantides	13,
+hieroscopies	11,
 hierosolymitains	15,
 hierosolymites	13,
 hiers	4,
@@ -23915,6 +24259,9 @@ hosties	6,
 hostiles	7,
 hostilites	9,
 hot-dogs	7,
+hoteliere	8,
+hotelieres	8,
+hoteliers	8,
 hotels	5,
 hotes	4,
 hotesses	7,
@@ -24031,6 +24378,7 @@ huttes	5,
 hyacinthines	11,
 hybridations	11,
 hybrides	7,
+hybristophilies	14,
 hyceenne	6,
 hyceennes	6,
 hyceens	6,
@@ -24055,6 +24403,7 @@ hydrocephalies	13,
 hydrocheres	10,
 hydrochories	11,
 hydrocotyles	11,
+hydrocultures	12,
 hydrocureurs	11,
 hydrocyanites	12,
 hydrodynamiques	14,
@@ -24074,6 +24423,7 @@ hydronymes	9,
 hydronymies	10,
 hydrophobes	10,
 hydrophobies	11,
+hydrophytes	10,
 hydropiques	10,
 hydropisies	10,
 hydroponies	10,
@@ -24143,6 +24493,7 @@ hyperlectures	12,
 hyperliens	9,
 hyperlordoses	12,
 hypermarches	11,
+hypermenorrhees	14,
 hypermetropies	13,
 hypermimies	10,
 hypermnesies	11,
@@ -24156,6 +24507,7 @@ hyperonymes	10,
 hyperonymies	11,
 hyperoodons	10,
 hyperphagies	11,
+hyperscalers	11,
 hypersexualisations	18,
 hypersialorrhees	15,
 hypersomnies	11,
@@ -24163,6 +24515,7 @@ hypersoniques	12,
 hyperspectrale	13,
 hyperspectrales	13,
 hyperspectraux	12,l
+hyperspermies	12,
 hypertensions	12,
 hypertextes	10,
 hyperthermies	12,
@@ -24186,6 +24539,7 @@ hypoactivites	12,
 hypoallergeniques	16,
 hypocaustes	10,
 hypocentres	10,
+hypochondres	11,
 hypochromes	10,
 hypochromies	11,
 hypochromiques	13,
@@ -24195,6 +24549,10 @@ hypocoristiques	14,
 hypocrateriformes	16,
 hypocrisies	10,
 hypocrites	9,
+hypoglycemiante	14,
+hypoglycemiantes	14,
+hypoglycemiants	14,
+hypoglycemies	12,
 hypologies	9,
 hypomanies	9,
 hypomimies	9,
@@ -24202,6 +24560,7 @@ hyponymes	8,
 hyponymies	9,
 hypophyses	9,
 hypopions	8,
+hypospermies	11,
 hyposphenes	10,
 hypostases	9,
 hypotaxes	8,
@@ -24244,6 +24603,7 @@ icteres	6,
 icteriques	9,
 ideale	5,
 ideales	5,
+idealistes	9,
 idealites	8,
 ideals	5,
 idealtypes	9,
@@ -24270,6 +24630,7 @@ identifiez	9,r
 identiques	9,
 identites	8,
 ideogrammes	10,
+ideologemes	10,
 ideologies	9,
 ideologiques	11,
 ideologisations	14,
@@ -24418,6 +24779,9 @@ imamzadehs	9,
 imbeciles	8,
 imberbes	7,
 imberbites	9,
+imbibe	6,r
+imbibee	6,r
+imbibes	6,r
 imbiffables	10,
 imbouffables	11,
 imbuvables	9,
@@ -24723,6 +25087,9 @@ inacceptables	12,
 inaccessibilites	15,
 inaccessibles	12,
 inaccomplissements	17,
+inachevee	8,
+inachevees	8,
+inacheves	8,
 inactive	8,r
 inactivites	10,
 inadequate	9,
@@ -24733,6 +25100,7 @@ inalienables	11,
 inanimee	7,
 inanimees	7,
 inanimes	7,
+inanites	7,
 inanitions	9,
 inapercue	8,
 inapercues	8,
@@ -24859,6 +25227,7 @@ incombinables	12,
 incombustibles	13,
 incommensurabilites	18,
 incommensurables	15,
+incommodites	11,
 incomparables	12,
 incompatibilites	15,
 incompatibles	12,
@@ -24963,6 +25332,7 @@ indeterminees	11,
 indetermines	11,
 indexe	6,r
 indexees	6,r
+indianistes	10,
 indicateurs	10,
 indicatifs	9,
 indications	10,
@@ -24987,9 +25357,11 @@ indigenes	8,
 indigente	8,
 indigentes	8,
 indigents	8,
+indigestions	11,
 indignations	11,
 indignes	7,
 indignites	9,
+indigos	6,
 indigotiere	10,
 indigotieres	10,
 indigotiers	10,
@@ -25019,6 +25391,7 @@ indisciplines	12,
 indispensables	13,
 indispose	9,r
 indisposee	9,r
+indispositions	13,
 indissociables	13,
 individualismes	14,
 individualites	13,
@@ -25261,9 +25634,12 @@ ininteressants	13,
 ininterrompue	12,
 ininterrompues	12,
 ininterrompus	12,
+initiale	7,
+initiales	7,
 initiants	8,
 initiations	10,
 initiatives	10,
+initiaux	6,l
 initie	6,r
 initiee	6,r
 initierent	7,
@@ -25535,6 +25911,7 @@ insultez	7,r
 insultiez	6,er
 insultions	6,er
 insultons	6,er
+insupportables	13,
 insurge	7,r
 insurgeait	7,r
 insurgeant	7,r
@@ -25651,6 +26028,7 @@ interinstitutionnelles	19,
 interinstitutionnels	19,
 interiorise	11,r
 interjections	12,
+interleukines	12,
 interlinguistiques	17,
 interlocuteurs	13,
 interlocutrices	14,
@@ -25759,6 +26137,7 @@ interviews	9,
 intestine	8,
 intestines	8,
 intestins	8,
+intifadas	8,
 intimes	6,
 intimida	7,er
 intimidaient	7,er
@@ -25811,9 +26190,13 @@ introits	7,
 introjections	12,
 intronise	9,r
 introns	6,
+intruismes	9,
 intruses	7,
 intrusions	9,
 intubations	10,
+intuitifs	8,
+intuitive	7,f
+intuitives	7,f
 intumescences	12,
 inules	5,
 inusables	8,
@@ -25878,6 +26261,7 @@ investissons	7,r
 investit	7,r
 invincibilites	13,
 invincibles	10,
+inviscides	9,
 invisibles	9,
 invita	5,er
 invitai	5,er
@@ -26000,6 +26384,8 @@ irreversibilites	15,
 irreversibles	12,
 irrevocables	11,
 irrigations	10,
+irrigue	7,r
+irrigues	7,r
 irrita	5,er
 irritables	9,
 irritaient	5,er
@@ -26046,11 +26432,10 @@ isolations	9,
 isolatrice	6,eur
 isolatrices	6,eur
 isolats	6,
-isole	5,r
-isolee	5,r
-isolees	5,r
+isolee	5,|5,r
+isolees	5,|5,r
 isolements	9,
-isoles	5,r
+isoles	5,|5,r
 isolexismes	10,
 isolez	5,r
 isoloirs	7,
@@ -26101,6 +26486,26 @@ ivrognes	7,
 ivrognesses	10,
 iwans	4,
 ixes	3,
+j'abreagis	0,abreagir
+j'abreagissais	0,abreagir
+j'antidatais	0,antidater
+j'antidate	0,antidater
+j'apostrophais	0,apostropher
+j'apostrophe	0,apostropher
+j'apparentais	0,apparenter
+j'apparente	0,apparenter
+j'emerveillais	0,emerveiller
+j'emerveille	0,emerveiller
+j'enscenais	0,enscener
+j'enscene	0,enscener
+j'entachais	0,entacher
+j'entache	0,entacher
+j'europeanisais	0,europeaniser
+j'europeanise	0,europeaniser
+j'imbibais	0,imbiber
+j'imbibe	0,imbiber
+j'irriguais	0,irriguer
+j'irrigue	0,irriguer
 jables	5,
 jabots	5,
 jacamars	7,
@@ -26110,6 +26515,7 @@ jacquards	8,
 jacqueries	9,
 jactances	8,
 jacuzzis	7,
+jadeites	7,
 jades	4,
 jaglus	5,
 jaguarondis	10,
@@ -26154,6 +26560,7 @@ jappa	4,er
 jappaient	4,er
 jappe	5,r
 jappent	5,r
+jaquettes	8,
 jaquiers	7,
 jardinait	6,er
 jardinant	6,er
@@ -26164,12 +26571,16 @@ jardinieres	9,|10,
 jardiniers	9,
 jardins	6,
 jargons	6,
+jarosites	8,
 jarovisations	12,
 jarretelles	10,
 jarrets	6,
 jasames	3,er
 jase	4,r
 jaserent	5,
+jaseurs	6,
+jaseuse	5,r
+jaseuses	5,r
 jasmins	6,
 jaspes	5,
 jattes	5,
@@ -26326,6 +26737,8 @@ jouit	4,r
 joujoux	6,
 joules	5,
 jouons	3,er|3,ir
+joupanies	8,
+joupans	6,
 jouquine	7,
 jouquines	7,
 jouquins	7,
@@ -26343,6 +26756,8 @@ jours-homme	4,-homme
 jours-hommes	4,-homme
 joutes	5,
 jouteurs	7,
+jouxte	6,r
+jouxtent	6,r
 joviale	6,
 joviales	6,
 joviaux	5,l
@@ -26350,6 +26765,7 @@ joyaux	5,
 joyeuse	5,x
 joyeuses	5,x
 jubes	4,
+jubilations	10,
 jubilee	6,
 jubilees	6,
 jubiles	6,
@@ -26390,6 +26806,7 @@ juive	3,f
 juiveries	8,
 juives	3,f|5,
 jujubes	6,
+juke-boxes	8,
 julienne	6,
 juliennes	6,|8,
 juliens	6,
@@ -26456,6 +26873,8 @@ jutes	4,
 juteuse	5,x
 juteuses	5,x
 juvenats	7,
+juveniles	8,
+juxtacrines	10,
 kabbales	7,
 kabukis	6,
 kabutos	6,
@@ -26471,6 +26890,7 @@ kainites	7,
 kaisers	6,
 kakapos	6,
 kakemonos	8,
+kakemphatons	11,
 kakie	4,
 kakies	4,
 kakis	4,
@@ -26527,6 +26947,7 @@ kelps	4,
 kelvins	6,
 kenafs	5,
 kepis	4,
+keratectomies	12,
 keratines	8,
 keratoacanthomes	15,
 keratocones	10,
@@ -26541,6 +26962,9 @@ ketoupas	7,
 keufs	4,
 khagans	6,
 khanats	6,
+khazare	6,
+khazares	6,
+khazars	6,
 khedives	7,
 khi-carres	9,
 khis	3,
@@ -26582,6 +27006,7 @@ kinesines	8,
 kinesiques	9,
 kinesitherapies	14,
 kings	4,
+kinines	6,
 kinkajous	8,
 kioekkenmoeddings	16,
 kiosques	7,
@@ -26612,8 +27037,10 @@ kleroterions	11,
 klingonne	7,
 klingonnes	7,
 klingons	7,
+knauties	7,
 knouts	5,
 koalas	5,
+kobolds	6,
 kobzari	6,
 kobzars	6,
 kodachromes	10,
@@ -26627,6 +27054,7 @@ konjacs	6,
 kontakions	9,
 konzerns	7,
 kopecks	6,
+koras	4,
 korats	5,
 korrigans	8,
 kosovare	7,
@@ -26677,6 +27105,9 @@ labialisations	13,
 labidometres	11,
 labiles	6,
 labimetres	9,
+labio-palatine	13,
+labio-palatines	13,
+labio-palatins	13,
 labiodentale	11,
 labiodentales	11,|12,
 labiodentaux	10,l
@@ -26736,6 +27167,7 @@ lactogeneses	11,
 lactometres	10,
 lactones	7,
 lactoses	7,
+lactostimulines	14,
 lacunaires	9,
 lacunes	6,
 ladanums	7,
@@ -26892,6 +27324,7 @@ languissons	6,r
 languit	6,r
 lanieres	7,
 laniides	7,
+lanosterols	10,
 lansquenets	10,
 lanternes	8,
 lanthanates	10,
@@ -26925,12 +27358,14 @@ larguerai	7,
 larguerent	7,
 larguez	6,r
 larmes	5,
+larmichettes	11,
 larmoyante	9,
 larmoyantes	9,
 larmoyants	9,
 larronnes	8,
 larronnesses	11,
 larves	5,
+laryngectomies	13,
 las	0,la
 lasagnes	7,
 lascifs	6,
@@ -26980,6 +27415,7 @@ lavai	3,er
 lavaient	3,er
 lavais	3,er
 lavait	3,er
+lavallieres	10,
 lavandes	7,
 lavandieres	10,
 lavant	3,er
@@ -27035,6 +27471,7 @@ lecheuse	6,r
 lecheuses	6,r
 lechiez	4,er
 lechions	4,er
+lecithines	9,
 leckerlis	8,
 lecons	5,
 lectes	5,
@@ -27118,6 +27555,7 @@ lepricones	9,
 lepta	4,on
 leptokurtiques	13,
 leptons	6,
+leptosperines	12,
 lerotins	7,
 lerots	5,
 les	0,la|0,le
@@ -27154,6 +27592,7 @@ leucismes	8,
 leucocytes	9,
 leucodystrophies	15,
 leucorrhees	10,
+leucospermies	12,
 leur	0,lui|0,la leur|0,le leur
 leurraient	5,er
 leurres	6,|6,r
@@ -27220,11 +27659,14 @@ lia	0,lier
 liais	0,lier
 liaisons	7,
 liait	0,lier
-liant	0,lier
+liante	5,
+liantes	5,
+liants	5,
 liards	5,
 liasses	6,
 libanaise	8,
-libanaises	8,
+libanaises	8,|9,
+libelle	7,r
 libellules	9,
 libera	5,er
 liberait	5,er
@@ -27352,6 +27794,7 @@ limites	6,|6,r
 limitez	6,r
 limitons	5,er
 limitrophes	10,
+limnologies	10,
 limnonymes	9,
 limoge	6,r
 limogeages	9,
@@ -27405,6 +27848,7 @@ lipogrammes	10,
 lipolyses	8,
 lipomatoses	10,
 lipophiles	9,
+liposolubles	11,
 liposuccions	11,
 lippes	5,
 lippue	5,
@@ -27449,6 +27893,7 @@ lises	0,lire
 lisez	0,lire
 lisibles	7,
 lisieres	7,
+lisiers	6,
 lisiez	0,lire
 lisions	0,lire
 lisons	0,lire
@@ -27469,6 +27914,7 @@ lithophages	10,
 lithospheres	11,
 lithospheriques	14,
 lithothamnes	11,
+lithotripsies	12,
 litieres	7,
 litiges	6,
 litigieuse	8,x
@@ -27525,6 +27971,7 @@ lobbies	4,y
 lobbyismes	9,
 lobbyistes	9,
 lobbys	5,
+lobectomies	10,
 lobes	4,
 lobotomies	9,
 lobotomisations	14,
@@ -27608,6 +28055,7 @@ long-courriers	13,
 long-jointee	11,
 long-jointees	11,
 long-jointes	11,
+long-termismes	13,
 longanes	7,
 longaniers	9,
 longanimites	11,
@@ -27651,6 +28099,9 @@ lorraines	7,|8,
 lorrains	7,
 losanges	7,
 loteries	7,
+lotharienne	9,
+lothariennes	9,
+lothariens	9,
 lotiers	6,
 lotions	6,
 lotissements	11,
@@ -27701,12 +28152,14 @@ lourdaudes	8,
 lourdauds	8,
 lourde	5,
 lourdes	5,
+lourdeurs	8,
 lourdingote	10,
 lourdingotes	10,
 lourdingots	10,
 lourdingues	10,
 lourds	5,
 loutres	6,
+louvards	7,
 louvareous	9,
 louves	5,
 louves-garous	5,-garou
@@ -27779,6 +28232,7 @@ lundis	5,
 lunes	4,
 lunettes	7,
 lunigeres	8,
+lunnites	7,
 lunules	6,
 lupine	5,
 lupines	5,
@@ -27917,6 +28371,8 @@ macrolangues	11,
 macromolecules	13,
 macronismes	10,
 macrons	6,
+macrophalles	11,
+macrophallies	12,
 macrophotographies	17,
 macroscopiques	13,
 maculatures	10,
@@ -27971,6 +28427,7 @@ magnats	6,
 magne	5,r
 magnesiums	9,
 magnetiques	10,
+magnetiseurs	11,
 magnetismes	10,
 magnetites	9,
 magnetocassettes	15,
@@ -27993,7 +28450,7 @@ magnifiques	10,
 magnitudes	9,
 magnons	6,
 magnums	6,
-magouilles	9,r
+magouilles	9,|9,r
 magyarisations	13,
 mah-jongs	8,
 maharajas	8,
@@ -28065,6 +28522,7 @@ maitrisees	8,r
 maitrisent	8,r
 maitrisera	9,
 maitriserai	9,
+maitriserez	9,
 maitriseront	9,
 maitrises	8,|8,r
 maitrisez	8,r
@@ -28084,6 +28542,7 @@ makondee	7,
 makondees	7,
 makondes	7,
 malabars	7,
+malacologies	11,
 malacons	7,
 malades	6,
 maladies	7,
@@ -28244,6 +28703,7 @@ mangabeys	8,
 mangakas	7,
 manganeses	9,
 manganines	9,
+manganodolomites	15,
 mangas	5,
 mange	5,r
 mangea	5,r
@@ -28274,9 +28734,13 @@ mangerons	6,
 mangeront	6,
 mangers	6,
 manges	5,r
+mangeurs	7,
+mangeuse	6,r
+mangeuses	6,r|8,
 mangez	5,r
 mangiez	4,er
 mangions	4,er
+mangles	6,
 mangonneaux	10,
 mangoustans	10,
 mangoustes	9,
@@ -28456,6 +28920,7 @@ mardis	5,
 marecages	8,
 marecageuse	9,x
 marecageuses	9,x
+marecanites	10,
 marechales-ferrantes	9,-ferrante
 marechaux	7,l
 marechaux-ferrants	7,l-ferrant
@@ -28496,6 +28961,7 @@ marierez	6,
 marierons	6,
 marieront	6,
 maries	5,|5,r
+maries-salopes	5,-salope
 marieurs	7,
 marieuses	8,
 mariez	5,r
@@ -28503,6 +28969,7 @@ mariiez	4,er
 mariions	4,er
 marijuanas	9,
 marimbas	7,
+marimbistes	10,
 marina	5,er
 marinades	8,
 marine	5,
@@ -28600,9 +29067,10 @@ martingales	10,
 martinis	7,
 martinophones	12,
 martins-pecheurs	6,-pecheur
+martites	7,
 martres	6,
 martyre	6,
-martyres	6,
+martyres	6,|7,
 martyrises	9,r
 martyrologies	12,
 martyrs	6,
@@ -28613,6 +29081,7 @@ maryses	6,
 masaie	5,
 masaies	5,
 masais	5,
+mascagnites	10,
 mascaras	7,
 mascarets	8,
 mascarons	8,
@@ -28653,6 +29122,7 @@ massive	5,f
 massives	5,f
 massoretiques	12,
 massues	6,
+mastabas	7,
 mastectomies	11,
 masters	6,
 mastics	6,
@@ -28679,6 +29149,7 @@ matelotes	7,|8,
 matelots	7,
 matent	4,r
 materialismes	12,
+materialistes	12,
 materiaux	8,
 materielle	8,
 materielles	8,
@@ -28719,6 +29190,7 @@ matrimoniaux	10,l
 mats	3,
 maturations	10,
 maturites	8,
+maucherites	10,
 maudira	6,e
 maudis	5,re
 maugreait	6,er
@@ -28766,6 +29238,12 @@ mazurkeurs	9,
 mazurkeuses	10,
 mcjobs	5,
 meandres	7,|7,r
+meatale	6,
+meatales	6,
+meatals	6,
+meatites	7,
+meatoplasties	12,
+meatotomies	10,
 mecaniciennes	12,
 mecaniciens	10,
 mecaniques	9,
@@ -28782,6 +29260,7 @@ mechants	7,
 mechas	5,
 meches	5,
 mechoacans	9,
+mechouis	7,
 mecklembourgeoises	17,
 meconnaissances	14,
 mecontente	9,
@@ -28835,7 +29314,10 @@ medita	5,er
 meditais	5,er
 meditait	5,er
 meditant	5,er
+meditatifs	9,
 meditations	10,
+meditative	8,f
+meditatives	8,f
 medite	6,r
 meditent	6,r
 meditez	6,r
@@ -28869,6 +29351,7 @@ megacoulombs	11,
 megadonnee	10,s
 megaelectronvolts	16,
 megafarads	9,
+megafaunes	9,
 megahenrys	9,
 megalithes	9,
 megalomanies	11,
@@ -28882,6 +29365,7 @@ megaphorbiaies	13,
 megateslas	9,
 megavolts	8,
 megawatts	8,
+megenre	7,r
 megeres	6,
 megisseries	10,
 megots	5,
@@ -28914,6 +29398,7 @@ melanocytes	10,
 melanomes	8,
 melanophtalmes	13,
 melant	3,er
+melanterites	11,
 melasses	7,
 melatonines	10,
 melchites	8,
@@ -28932,6 +29417,7 @@ melimelos	8,
 melioidoses	10,
 melions	3,er
 meliphages	9,
+meliphagides	11,
 melipones	8,
 melismes	7,
 melliflues	9,
@@ -28944,6 +29430,7 @@ melodiques	9,
 melodramatiques	14,
 melodrames	9,
 melons	3,er|5,
+melothesies	10,
 membranes	8,
 membranophones	13,
 membres	6,
@@ -28988,6 +29475,7 @@ mendigots	8,
 mendiiez	5,er
 mendiions	5,er
 mene	4,r|3,tir
+menechmes	8,
 menee	4,r
 menees	4,r
 menent	4,r|3,tir
@@ -29173,6 +29661,7 @@ merveilleuse	10,x
 merveilleuses	10,x
 mes	0,mon
 mesanges	7,
+mesangiums	9,
 mesas	4,
 mescluns	7,
 mesdames	0,madame|0,monsieur
@@ -29268,9 +29757,11 @@ metaphysiques	12,
 metaplasies	10,
 metapopulations	14,
 metaprogrammations	17,
+metasemiotiques	14,
 metastases	9,
 metatarses	9,
 metatheses	9,
+metatroches	10,
 metaux	4,l
 metayages	8,
 metayers	7,
@@ -29369,9 +29860,11 @@ meutes	5,
 mexicaine	8,
 mexicaines	8,|9,
 mexicains	8,
+mezoueds	7,
 mezouzahs	8,
 mezouzot	6,ah
 mezouzoth	6,ah
+mezweds	6,
 mezzanines	9,
 mezzes	5,
 mhos	3,
@@ -29430,6 +29923,7 @@ microfissures	12,
 microgals	8,
 microhenrys	10,
 microkinis	9,
+microlentilles	13,
 microlumens	10,
 micromammiferes	14,
 micrometres	10,
@@ -29437,6 +29931,8 @@ micromorgans	11,
 micronageurs	11,
 micronesiens	11,
 micronewtons	11,
+micronovae	9,
+micronovas	9,
 microondes	9,
 microorganismes	14,
 micropaiements	13,
@@ -29453,12 +29949,14 @@ microscopes	10,
 microscopies	11,
 microscopiques	13,
 microsecondes	12,
+microspermies	12,
 microteslas	10,
 microtomes	9,
 microtomies	10,
 microvoitures	12,
 microvolts	9,
 microwatts	9,
+mictionnels	10,
 midinettes	9,
 midis	4,
 midrashim	7,
@@ -29601,6 +30099,7 @@ ministeres	9,
 ministerielle	11,
 ministerielles	11,
 ministeriels	11,
+ministrables	11,
 ministres	8,
 ministres-presidents	8,-president
 miniums	6,
@@ -29608,6 +30107,7 @@ minorites	8,
 minoteries	9,
 minounes	7,
 minous	5,
+minrecordites	12,
 minuits	6,
 minuscules	9,
 minuteries	9,
@@ -29631,6 +30131,7 @@ mirent	4,r|0,mettre
 mires	4,
 miresses	7,
 mirgas	5,
+miriquidites	11,
 mirlitons	8,
 miroirs	6,
 miroitiere	9,
@@ -29656,6 +30157,7 @@ misericordieuses	13,x
 mises	4,|4,r|0,mettre
 misogynes	8,
 misogynies	9,
+misologies	9,
 misons	3,er
 missels	6,
 missiles	7,
@@ -29677,7 +30179,14 @@ mitigee	6,r
 mitiges	6,r
 mitigeurs	8,
 mitochondries	12,
+mitomycines	10,
+mitoribosomes	12,
 mitoses	6,
+mitosomale	9,
+mitosomales	9,
+mitosomaux	8,l
+mitosomes	8,
+mitospores	9,
 mitoyennetes	11,
 mitraillettes	12,
 mitrailleuses	12,
@@ -29835,6 +30344,7 @@ monachologies	12,
 monacos	6,
 monades	6,
 monadiques	9,
+monaires	7,
 monarchies	9,
 monarchiques	11,
 monarchismes	11,
@@ -29860,6 +30370,7 @@ mongoles	6,
 mongolies	8,
 mongoloides	10,
 mongols	6,
+monheimites	10,
 moniales	7,
 moniliformes	11,
 monismes	7,
@@ -29869,6 +30380,7 @@ monnayeurs	9,
 mono-elevages	12,
 monoamines	9,
 monoatomiques	12,
+monoblepsies	11,
 monocamerismes	13,
 monocausale	10,
 monocausales	10,
@@ -29894,6 +30406,7 @@ monogrammistes	13,
 monographies	11,
 monoides	7,
 monolectiques	12,
+monolithes	9,
 monologues	9,
 monomats	7,
 monomeres	8,
@@ -30022,6 +30535,7 @@ moqueras	6,
 moquerent	6,
 moqueront	6,
 moques	5,r
+moquettes	8,
 moqueurs	7,
 moqueuse	6,r
 moqueuses	6,r
@@ -30224,6 +30738,7 @@ mourut	4,ir
 mous	3,
 mousquetaires	12,
 mousqueteries	12,
+mousquetons	10,
 mousquets	8,
 moussages	8,
 mousselines	10,
@@ -30261,6 +30776,7 @@ moyeux	5,
 mozambicaine	11,
 mozambicaines	11,
 mozambicains	11,
+mozzarellas	10,
 mu-metaux	7,l
 mua	0,muer
 muait	0,muer
@@ -30279,6 +30795,13 @@ mufles	5,
 mufliers	7,
 muftis	5,
 mughams	6,
+mugi	4,r
+mugis	4,r
+mugissaient	4,r
+mugissait	4,r
+mugissant	4,r
+mugit	4,r
+mugs	3,ir
 muguets	6,
 mularde	6,
 mulardes	6,
@@ -30410,6 +30933,7 @@ musele	6,r
 museles	6,r
 muselieres	9,
 museologies	10,
+museologues	10,
 muses	4,
 musettes	7,
 mushers	6,
@@ -30441,6 +30965,7 @@ mutilee	6,r
 mutilez	6,r
 mutine	5,|6,r
 mutinerent	7,
+mutineries	9,
 mutines	5,
 mutins	5,
 mutismes	7,
@@ -30606,6 +31131,9 @@ narrations	9,
 narrative	7,f
 narratives	7,f
 narratologies	12,
+narre	5,r
+narrees	5,r
+narvalines	9,
 narvals	6,
 nasales	6,
 naseaux	6,
@@ -30620,6 +31148,7 @@ nasillions	6,er
 nasiques	7,
 nasons	5,
 nassaviens	9,
+nasses	5,
 nasties	6,
 natalites	8,
 natas	4,
@@ -30720,9 +31249,12 @@ necromancies	11,
 necrophages	10,
 necrophores	10,
 necropoles	9,
+necroptoses	10,
+necrospermies	12,
 nectaires	8,
 nectarines	9,
 nectars	6,
+nectines	7,
 neems	4,
 neerlandaise	11,
 neerlandaises	11,|12,
@@ -30807,7 +31339,9 @@ neonazis	7,
 neonazismes	10,
 neons	4,
 neopaganismes	12,
+neophobies	9,
 neophytes	8,
+neoplasmes	9,
 neoplatonismes	13,
 neoploides	9,
 neoploidies	10,
@@ -30825,9 +31359,11 @@ nepes	4,
 nepetes	6,
 nephelines	9,
 nephilims	8,
+nephrectomies	12,
 nephrites	8,
 nephroblastomes	14,
 nephrocalcinoses	15,
+nephrogeneses	12,
 nephrologues	11,
 nephrons	7,
 nepotismes	9,
@@ -30874,6 +31410,8 @@ neuro-endocrinologies	20,
 neuro-histologies	16,
 neuro-histologistes	18,
 neuro-imageries	14,
+neuro-oncologies	15,
+neuro-oncologues	15,
 neuroanatomies	13,
 neurobiologies	13,
 neuroblastes	11,
@@ -30889,6 +31427,7 @@ neurodiversites	14,
 neuroendocrinologies	19,
 neuroendocrinologiques	21,
 neuroendocrinologues	19,
+neuroethologies	14,
 neurofibrillaires	16,
 neurofibrilles	13,
 neurofilaments	13,
@@ -30900,9 +31439,11 @@ neurologues	10,
 neuromarketings	14,
 neurones	7,
 neuropathies	11,
+neuropathologies	15,
 neurophysiologies	16,
 neurophysiologistes	18,
 neurophysiques	13,
+neuropiles	9,
 neurosciences	12,
 neuroticismes	12,
 neurotrophines	13,
@@ -31169,6 +31710,7 @@ norvegiens	9,
 nos	0,no|0,notre
 noseanes	7,
 nosemoses	8,
+nosocomephobies	14,
 nosocomiale	10,
 nosocomiales	10,
 nosocomiaux	9,l
@@ -31193,6 +31735,7 @@ notees	4,r
 noterai	5,
 notes	4,r
 notez	4,r
+notifications	12,
 notions	3,er|6,
 notochordes	10,
 notoires	7,
@@ -31572,6 +32115,9 @@ odieuses	5,x
 odometres	8,
 odonatologies	12,
 odontalgies	10,
+odontoblastes	12,
+odontoblastiques	15,
+odontoclastes	12,
 odontologies	11,
 odontologistes	13,
 odontometres	11,
@@ -31594,10 +32140,12 @@ oeillettes	9,
 oeils	4,
 oeils-de-boeuf	4,-de-boeuf
 oeils-de-perdrix	4,-de-perdrix
+oenologies	9,
 oenologues	9,
 oenotheques	10,
 oenotherapies	12,
 oersteds	7,
+oesophagectomies	15,
 oesophages	9,
 oesophagostomies	15,
 oestres	6,
@@ -31688,11 +32236,15 @@ oisons	5,
 okapis	5,
 okinas	5,
 okrougs	6,
+oldowayenne	9,
+oldowayennes	9,
+oldowayens	9,
 oleagineuse	9,x
 oleagineuses	9,x
 oleates	6,
 olefines	7,
 oleoducs	7,
+oleums	5,
 olifants	7,
 oligarchies	10,
 oligarchiques	12,
@@ -31702,6 +32254,7 @@ oligopolistes	12,
 oligosides	9,
 oligotrichies	12,
 oligotriques	11,
+oligozoospermies	15,
 olingos	6,
 olinguitos	9,
 olivatres	8,
@@ -31709,6 +32262,7 @@ olives	5,
 oliviers	7,
 olivines	7,
 olmeques	7,
+oloides	6,
 ols	0,ol
 olympiades	9,
 olympionices	11,
@@ -31743,6 +32297,7 @@ omnisciente	10,
 omniscientes	10,
 omniscients	10,
 omoplates	8,
+omphalectomies	13,
 onagres	6,
 onanismes	8,
 onces	4,
@@ -32019,6 +32574,7 @@ organochloree	12,
 organochlorees	12,
 organochlores	12,
 organometalliques	16,
+organyles	8,
 orgasmes	7,
 orgasmiques	10,
 orgelets	7,
@@ -32118,6 +32674,7 @@ orthographies	12,r
 orthokeratologies	16,
 orthologies	10,
 orthologues	10,
+orthopedies	10,
 orthopedistes	12,
 orthophonies	11,
 orthophonistes	13,
@@ -32172,6 +32729,9 @@ osmoprotectrice	11,eur
 osmoprotectrices	11,eur
 osmoregulations	14,
 osmoses	6,
+osmotactiques	12,
+osmotactismes	12,
+osmotaxies	9,
 osmotherapies	12,
 osmotiques	9,
 osmotrophes	10,
@@ -32183,14 +32743,19 @@ ossements	8,
 ossetes	6,
 osseuse	5,x
 osseuses	5,x
+ossiculectomies	14,
 ossuaires	8,
 ostalgies	8,
 ostensibles	10,
 ostentations	11,
 osteochondrites	14,
+osteochondrodysplasies	21,
+osteocytes	9,
 osteomes	7,
 osteonecroses	12,
+osteonectines	12,
 osteopathes	10,
+osteophyses	10,
 osteoscleroses	13,
 osteosyntheses	13,
 ostphalienne	10,
@@ -32286,6 +32851,7 @@ oufs	3,
 ougrienne	7,
 ougriennes	7,
 ougriens	7,
+oui	3,r
 ouies	4,
 ouighoure	8,
 ouighoures	8,
@@ -32297,6 +32863,7 @@ oulipienne	8,
 oulipiennes	8,
 oulipiens	8,
 ouragans	7,
+ouraques	7,
 ourdi	5,r
 ourdit	5,r
 ourebis	6,
@@ -32356,6 +32923,7 @@ ovates	5,
 overdoses	8,
 oviductes	8,
 ovipares	7,
+oviparites	9,
 ovniologues	10,
 ovnis	4,
 ovogeneses	9,
@@ -32366,6 +32934,7 @@ ovulations	9,
 ovules	5,
 oxalates	7,
 oxfordiens	9,
+oxoles	5,
 oxoniums	7,
 oxydations	9,
 oxydes	5,
@@ -32389,6 +32958,7 @@ pacaranas	8,
 pacas	4,
 pacemakers	9,
 pachtous	7,
+pachycephalosaures	17,
 pachydermes	10,
 pacificateurs	12,
 pacificatrice	9,eur
@@ -32407,6 +32977,7 @@ padines	6,
 padoues	6,
 paellas	6,
 paesines	7,
+paffs	4,
 pafs	3,
 pagaies	6,
 pagailles	8,
@@ -32507,6 +33078,9 @@ palliatifs	9,
 palliative	8,f
 palliatives	8,f
 palliums	7,
+pallotine	8,
+pallotines	8,
+pallotins	8,
 palmes	5,
 palmiers	7,
 palmiers-dattiers	7,-dattier
@@ -32523,6 +33097,7 @@ palpe	5,r
 palpers	6,
 palplanches	10,
 pals	3,
+paluche	7,r
 paluches	7,r
 paludismes	9,
 palynologies	11,
@@ -32554,6 +33129,7 @@ pancartes	8,
 pancraces	8,
 pancreatites	11,
 pancytopenies	12,
+pandas	5,
 pandeismes	9,
 pandeistes	9,
 pandemies	8,
@@ -32647,6 +33223,7 @@ papetiers	8,
 papiers	6,
 papilles	7,
 papillomes	9,
+papillonneraies	14,
 papillons	8,
 papillotes	9,
 papinades	8,
@@ -32718,6 +33295,7 @@ paralleles	9,
 parallelismes	12,
 paralogismes	11,
 paralogites	10,
+paralogues	9,
 paralympiques	12,
 paralysait	7,er
 paralysant	7,er
@@ -32730,6 +33308,7 @@ parametriques	12,
 paramilitaires	13,
 paramimies	9,
 paramnesies	10,
+paraneiges	9,
 parangons	8,
 paranoias	8,
 paranormale	10,
@@ -32754,14 +33333,19 @@ parasite	8,r
 parasites	8,r
 parasitismes	11,
 parasitologies	13,
+parasociale	10,
+parasociales	10,
+parasociaux	9,l
 parasols	7,
 parataxes	8,
 paratextes	9,
 paratonnerres	12,
 paravents	8,
 paravirtualisations	18,
+paraxanthines	12,
 parcelles	8,
 parchemins	9,
+parcimonies	10,
 parcimonieuse	11,x
 parcimonieuses	11,x
 parcmetres	9,
@@ -32826,6 +33410,7 @@ parez	4,r|3,tir
 parfaite	7,
 parfaites	7,
 parfaits	7,
+parfumages	9,
 parfumais	6,er
 parfumait	6,er
 parfume	7,r
@@ -32922,6 +33507,7 @@ parpaigne	6,ng
 parpaignes	6,ng
 parpaings	8,
 parque	6,r|6,s
+parqueteurs	10,
 parquets	7,
 parrains	7,
 parrhesias	9,
@@ -32968,6 +33554,7 @@ partez	4,ir
 parthenogeneses	14,
 partiale	7,
 partiales	7,
+partialites	10,
 partiaux	6,l
 participa	8,er
 participaient	8,er
@@ -33213,6 +33800,7 @@ paturait	5,er
 patures	6,|6,r
 paturons	7,
 paucals	6,
+pauciels	7,
 paucites	7,
 pauliciens	9,
 paulownias	9,
@@ -33271,6 +33859,7 @@ paysanne	6,
 paysanneries	11,
 paysannes	6,|8,
 paysans	6,
+paywalls	7,
 peages	5,
 peausseries	10,
 peaussiere	9,
@@ -33318,6 +33907,9 @@ pediatres	8,
 pediatries	9,
 pedicures	8,
 pedocriminalites	15,
+pedocriminelle	12,
+pedocriminelles	12,
+pedocriminels	12,
 pedologies	9,
 pedophagies	10,
 pedophiles	9,
@@ -33339,7 +33931,7 @@ peignaient	5,er
 peignais	5,er|3,ndre
 peignait	5,er|3,ndre
 peignant	5,er|3,ndre
-peigne	3,ndre
+peigne	3,ndre|0,se peigner
 peignee	6,r
 peignees	6,r
 peignent	6,r|3,ndre
@@ -33452,6 +34044,7 @@ pendues	5,
 pendulaires	10,
 pendules	7,
 pendus	5,|4,re
+penectomies	10,
 penes	4,
 penetra	6,er
 penetrai	6,er
@@ -33488,6 +34081,8 @@ pennies	4,y
 pennipattes	10,
 pennys	5,
 penombres	8,
+penombreuse	9,x
+penombreuses	9,x
 pensa	4,er
 pensai	4,er
 pensaient	4,er
@@ -33595,6 +34190,7 @@ perches	6,
 perchoirs	8,
 percnopteres	11,
 percussionnistes	15,
+percussions	10,
 perdaient	4,re
 perdais	4,re
 perdait	4,re
@@ -33659,6 +34255,7 @@ performances	11,
 performatifs	11,
 performative	10,f
 performatives	10,f
+pergelisols	10,
 peri	4,r
 pericardes	9,
 pericardites	11,
@@ -33705,6 +34302,7 @@ perisse	4,r
 perissent	4,r
 perisses	4,r
 perissodactyles	14,
+peristyles	9,
 perit	4,r
 peritextes	9,
 peritheces	9,
@@ -33936,13 +34534,16 @@ petit-dejeunerons	14,
 petit-dejeunes	13,r
 petit-dejeunez	13,r
 petit-dejeunons	12,er
+petit-russes	11,
 petite	5,
 petite-allemande	5,-allemand
 petite-bourgeoise	5,-bourgeois
+petite-russe	5,-russe
 petites	5,|3,rir
 petites-allemandes	5,-allemand
 petites-bourgeoises	5,-bourgeois
 petites-filles	6,-fille
+petites-russes	5,-russe
 petitesses	9,
 petitions	8,
 petits	5,
@@ -33955,10 +34556,12 @@ petits-enfants	5,-enfant
 petits-fils	5,-fils
 petits-laits	5,-lait
 petits-neveux	5,-neveu
+petits-russes	5,-russe
 petoches	7,
 petoles	6,
 petoncles	8,
 petons	3,er|5,|3,rir
+petrels	6,
 petri	5,r
 petrichors	9,
 petrie	5,r
@@ -34041,6 +34644,7 @@ pharmacovigilances	17,
 pharyngale	9,
 pharyngales	9,
 pharyngaux	8,l
+pharyngectomies	14,
 pharyngites	10,
 phases	5,
 phasianelles	11,
@@ -34053,6 +34657,7 @@ phenomenologues	14,
 phenylethylamines	16,
 pheromones	9,
 phialides	8,
+philadelphiens	13,
 philanthropes	12,
 philatelies	10,
 philatelistes	12,
@@ -34070,6 +34675,7 @@ philosophies	11,
 philosophiques	13,
 philtrums	8,
 philumenies	10,
+phlebectomies	12,
 phlebites	8,
 phlebotomes	10,
 phlebotomies	11,
@@ -34145,6 +34751,7 @@ photoperiodismes	15,
 photophones	10,
 photophores	10,
 photopolymeres	13,
+photoresistances	15,
 photos	5,
 photosyntheses	13,
 phototaxies	10,
@@ -34167,7 +34774,9 @@ phylacteres	10,
 phylarques	9,
 phyletiques	10,
 phyllotaxies	11,
+phylogenomiques	14,
 phylums	6,
+physalies	8,
 physes	5,
 physicalismes	12,
 physicienne	9,
@@ -34182,6 +34791,7 @@ physiques	8,
 physostigmas	11,
 physostigmines	13,
 phytates	7,
+phytocannabinoides	17,
 phytocenoses	11,
 phytochelatines	14,
 phytochromes	11,
@@ -34203,12 +34813,15 @@ pianinos	7,
 pianistes	8,
 pianos	5,
 pians	4,
+piassavas	8,
+piastres	7,
 piaules	6,
 piccolos	7,
 pichenettes	10,
 pichets	6,
 pick-ups	7,
 pickpockets	10,
+picnics	6,
 picoamperes	10,
 picobecquerels	13,
 picocandelas	11,
@@ -34415,6 +35028,7 @@ piquettes	8,
 piquez	5,r
 piquiers	7,
 piqures	6,
+piranhas	7,
 pirateries	9,
 pirates	6,
 piratesses	9,
@@ -34586,6 +35200,7 @@ planent	5,r
 planerent	6,
 planes	4,|5,r
 planetaires	10,
+planetariums	11,
 planetes	7,
 planetes-oceans	7,-ocean
 planetologies	12,
@@ -34643,6 +35258,9 @@ plasmas	6,
 plasmons	7,
 plasticites	10,
 plastics	7,
+plastifiante	11,
+plastifiantes	11,
+plastifiants	11,
 plastifications	14,
 plastifie	9,r
 plastifiee	9,r
@@ -34880,6 +35498,7 @@ poesies	6,
 poetes	5,
 poetesses	8,
 poetiques	8,
+poetise	7,r
 pognons	6,
 pogos	4,
 pogroms	6,
@@ -35018,6 +35637,7 @@ politistes	9,
 polkas	5,
 polkas-mazurkas	5,-mazurka
 pollakiuries	11,
+pollakiuriques	13,
 pollens	6,
 pollinisateurs	13,
 pollinisations	13,
@@ -35031,6 +35651,9 @@ polluee	6,r
 polluees	6,r
 polluent	6,r
 pollues	6,r
+pollueurs	8,
+pollueuse	7,r
+pollueuses	7,r
 polluez	6,r
 pollutions	9,
 polochons	8,
@@ -35046,6 +35669,7 @@ poltronnes	7,
 poltrons	7,
 polyalcools	10,
 polyamides	9,
+polyamories	10,
 polyamoureuse	11,x
 polyamoureuses	11,x
 polyamours	9,
@@ -35078,6 +35702,7 @@ polylectiques	12,
 polylobes	8,
 polymathes	9,
 polymerases	10,
+polymeres	8,
 polymorphiques	13,
 polymorphismes	13,
 polynesiens	10,
@@ -35098,6 +35723,7 @@ polyploidies	11,
 polypodes	8,
 polypores	8,
 polyposes	8,
+polyprenols	10,
 polypropylenes	13,
 polypteres	9,
 polyptyques	10,
@@ -35121,10 +35747,13 @@ pomeranienne	10,
 pomeraniennes	10,
 pomeraniens	10,
 pommades	7,
+pommanders	9,
 pommeaux	7,
+pommeraies	9,
 pommes	5,
 pommettes	8,
 pommiers	7,
+pommiers-cannelles	7,-cannelle
 pomologies	9,
 pompa	4,er
 pompee	5,r
@@ -35225,8 +35854,10 @@ porte-crayons	12,
 porte-documents	14,
 porte-drapeaux	13,
 porte-fers	9,
+porte-gobelets	13,
 porte-greffes	12,
 porte-monnaies	13,
+porte-outils	11,
 porte-parapluies	15,
 porte-paroles	12,
 porte-pieces	11,
@@ -35288,6 +35919,9 @@ poseriez	5,
 poserons	5,
 poseront	5,
 poses	4,r
+poseurs	6,
+poseuse	5,r
+poseuses	5,r
 posez	4,r
 posiez	3,er
 posions	3,er
@@ -35356,6 +35990,7 @@ postes	5,
 postes-frontieres	5,-frontiere
 postfaces	8,
 postfascistes	12,
+posthectomies	12,
 postiere	7,
 postieres	7,
 postiers	7,
@@ -35385,6 +36020,7 @@ potamots	7,
 potasses	7,
 potassiums	9,
 poteaux	6,
+potees	5,
 potelets	7,
 potences	7,
 potentats	8,
@@ -35544,7 +36180,9 @@ pouvoirs	7,
 pouvons	5,ir
 poux	3,
 pouzzolanes	10,
+poviats	6,
 pow-wows	7,
+powershells	10,
 pragmatiques	11,
 pragmatismes	11,
 praires	6,
@@ -35620,6 +36258,7 @@ precipitaient	8,er
 precipitames	8,er
 precipitant	8,er
 precipitations	13,
+precipitats	10,
 precipitee	9,|9,r
 precipitees	9,|9,r
 precipitent	9,r
@@ -35675,6 +36314,7 @@ predicatives	9,f
 predicatrices	12,
 predicats	8,
 predictions	10,
+predikants	9,
 preeclampsies	12,
 preembarquements	15,
 preemptions	10,
@@ -35771,6 +36411,7 @@ prenions	4,dre
 prenne	4,dre
 prennent	4,dre
 prennes	4,dre
+prenols	6,
 prenoms	6,
 prenons	4,dre
 preoccupait	8,er
@@ -36059,7 +36700,7 @@ priez	4,r
 priiez	3,er
 priions	3,er
 primaires	8,
-primates	4,er
+primates	4,er|7,
 primatologues	12,
 primats	6,
 primautes	8,
@@ -36263,6 +36904,7 @@ programmees	9,r
 programmes	9,|9,r
 programmes-cadres	9,-cadre
 programmeurs	11,
+programmeuses	12,
 programmons	8,er
 progressaient	8,er
 progressais	8,er
@@ -36457,6 +37099,7 @@ propulsee	8,r
 propulsees	8,r
 propulsent	8,r
 propulserez	9,
+prorogations	11,
 proroge	7,r
 pros	3,
 prosaiques	9,
@@ -36483,6 +37126,7 @@ prosperiez	7,er
 prosperites	10,
 prosperons	7,er
 prostaglandines	14,
+prostatectomies	14,
 prostates	8,
 prosternations	13,
 prostituait	8,er
@@ -36653,6 +37297,7 @@ psaumes	6,
 psautiers	8,
 pseudo-sciences	14,
 pseudo-scientifiques	19,
+pseudomalachites	15,
 pseudonymes	10,
 pseudonymisations	16,
 pseudoscalaires	14,
@@ -36662,6 +37307,8 @@ psilocybes	9,
 psilocybines	11,
 psilophytes	10,
 psilures	7,
+psittacismes	11,
+psittacoses	10,
 psittacules	10,
 psychanalyses	12,
 psychanalystes	13,
@@ -36807,6 +37454,7 @@ punchs	5,
 puni	4,r
 punie	4,r
 punies	4,r
+puniques	7,
 punira	5,
 punirai	5,
 puniront	5,
@@ -36867,6 +37515,7 @@ putrefactions	12,
 putrefie	8,r
 putrefiee	8,r
 putrefions	7,er
+putschismes	10,
 putschistes	10,
 putti	4,o
 puttos	5,
@@ -36925,6 +37574,7 @@ pythonisses	10,
 pythons	6,
 pyxides	6,
 qanons	5,
+qatabaniques	11,
 qataris	6,
 qawwalis	7,
 qilins	5,
@@ -37022,7 +37672,10 @@ quebecoise	9,
 quebecoises	9,|10,
 quechquemitls	12,
 quechuas	7,
+queere	5,
+queeres	5,
 queerphobies	11,
+queers	5,
 quelconques	10,
 quelle	4,
 quelles	4,
@@ -37287,6 +37940,7 @@ radioactivites	13,
 radioamateurs	12,
 radioamatrices	13,
 radioastronomies	15,
+radiobiologistes	15,
 radiocassettes	13,
 radiodermites	12,
 radiogrammes	11,
@@ -37311,11 +37965,13 @@ radotent	6,r
 radotes	6,r
 radotez	6,r
 rafales	6,
-raffinee	7,
-raffinees	7,
+raffinages	9,
+raffine	7,r
+raffinee	7,|7,r
+raffinees	7,|7,r
 raffinements	11,
 raffineries	10,
-raffines	7,
+raffines	7,|7,r
 rafiots	6,
 rafistola	8,er
 rafistolages	11,
@@ -37589,6 +38245,7 @@ rapporteuses	9,r
 rapportez	8,r
 rapportons	7,er
 rapports	7,
+rapproche	0,se rapprocher
 rapts	4,
 raque	5,r
 raquettes	8,
@@ -37915,6 +38572,7 @@ rechargee	8,r
 rechargees	8,r
 recharges	8,|8,r
 rechargez	8,r
+rechauds	7,
 rechauffements	13,
 recherchables	12,
 recherchaient	8,er
@@ -38057,6 +38715,7 @@ reconnaitrez	11,
 reconnaitriez	10,e
 reconnaitront	10,e
 reconquetes	10,
+reconquis	7,erir
 reconstitua	10,er
 reconstituait	10,er
 reconstitue	11,r
@@ -38437,6 +39096,7 @@ regissant	4,r
 regissent	4,r
 regisseurs	9,
 registraires	11,
+registrateurs	12,
 registres	8,
 regit	4,r
 regla	4,er
@@ -38550,6 +39210,14 @@ rejetes	6,r
 rejetez	6,r
 rejetons	5,er
 rejets	5,
+rejoindra	8,e
+rejoindrai	8,e
+rejoindrais	8,e
+rejoindrait	8,e
+rejoindras	8,e
+rejoindrons	8,e
+rejoindront	8,e
+rejoint	6,dre
 rejouabilites	12,
 rejoue	5,ir
 rejouez	5,ir
@@ -38646,6 +39314,7 @@ reliques	7,
 relirai	5,e
 reliras	5,e
 relis	4,re
+relishs	6,
 reliures	7,
 relooke	7,r
 reloue	5,
@@ -38655,7 +39324,9 @@ reluquais	6,er
 reluquant	6,er
 reluques	7,r
 remanences	9,
+remanie	7,r
 remaniements	11,
+remanierait	8,
 remarqua	7,er
 remarquables	11,
 remarquai	7,er
@@ -38835,6 +39506,8 @@ remues	5,r
 remuez	5,r
 remunerations	12,
 renaissances	11,
+renaitra	7,e
+renaitrait	7,e
 renardeaux	9,
 renardes	7,
 renards	6,
@@ -38899,6 +39572,7 @@ rendu	4,re
 rendue	4,re
 rendues	4,re
 rendus	4,re
+rene	3,aitre
 renegociables	12,
 renegociations	13,
 renes	4,
@@ -39312,12 +39986,14 @@ reprocherent	9,
 reproches	8,|8,r
 reprochez	8,r
 reproducteurs	12,
+reproductibles	13,
 reproductions	12,
 reproductrice	9,eur
 reproductrices	9,eur
 reproduira	9,e
 reproduirait	9,e
 reproduiront	9,e
+reprotoxicites	13,
 reprouvait	7,er
 reprouve	8,r
 reprouverent	9,
@@ -39358,6 +40034,7 @@ requins-baleines	6,-baleine
 requins-citrons	6,-citron
 requins-crocodiles	6,-crocodile
 requins-ha	6,-ha
+requins-lutins	6,-lutin
 requins-marteaux	6,-marteau
 requins-taupes	6,-taupe
 requins-tigres	6,-tigre
@@ -39516,6 +40193,7 @@ ressemblez	9,r
 ressembliez	8,er
 ressemblions	8,er
 ressemblons	8,er
+ressemele	9,r
 ressens	6,tir
 ressent	7,ir
 ressentaient	7,ir
@@ -39745,6 +40423,7 @@ retournons	7,er
 retours	6,
 retracant	6,er
 retrace	7,r
+retractables	11,
 retractations	12,
 retractiles	10,
 retraite	7,
@@ -39893,7 +40572,7 @@ reveillaient	7,er
 reveillais	7,er
 reveillait	7,er
 reveillant	7,er
-reveille	8,r
+reveille	8,r|0,se reveiller
 reveille-matins	14,
 reveillee	8,r
 reveillees	8,r
@@ -40091,6 +40770,7 @@ ridoirs	6,
 ridules	6,
 rie	0,rire
 riebeckites	10,
+riels	4,
 riens	4,
 rient	0,rire
 ries	0,rire
@@ -40176,6 +40856,7 @@ rivages	6,
 rivalise	8,r
 rivalisent	8,r
 rivaliserait	9,
+rivalites	8,
 riveraine	8,
 riveraines	8,|9,
 riverains	8,
@@ -40190,6 +40871,7 @@ rizieres	7,
 rizottos	7,
 roberts	6,
 robes	4,|4,r
+robineraies	10,
 robinets	7,
 robinsonnades	12,
 roboratifs	9,
@@ -40233,6 +40915,7 @@ rodeuse	5,r
 rodeuses	5,r
 rodomontades	11,
 rodonticides	11,
+rodontologies	12,
 roentgeniums	11,
 rogne-pieds	10,
 rogues	5,
@@ -40321,6 +41004,7 @@ ronfle	6,r
 ronflent	6,r
 ronfleront	7,
 ronfles	6,r
+ronflettes	9,
 ronfleurs	8,
 ronfleuses	9,
 ronflez	6,r
@@ -40384,7 +41068,7 @@ rotit	4,r
 rotondes	7,
 rotondites	9,
 rotors	5,
-rots	3,ir
+rots	3,|3,ir
 rottweilers	10,
 rotules	6,
 roturiere	8,
@@ -40579,6 +41263,7 @@ rustiques	8,
 rustres	6,
 rutabagas	8,
 ruthenates	9,
+ruthenes	7,
 rutherfordites	13,
 rutherfordiums	13,
 rutilante	8,
@@ -40770,6 +41455,7 @@ salie	4,r
 salies	4,r
 saliez	3,er|4,r
 salinisations	12,
+salinites	8,
 salions	3,er|4,r
 salira	5,
 salirais	5,
@@ -40780,6 +41466,9 @@ salissais	4,r
 salissant	4,r
 salisse	4,r
 salissent	4,r
+salisseurs	9,
+salisseuse	8,r
+salisseuses	8,r|10,
 salissez	4,r
 salissiez	4,r
 salit	4,r
@@ -40794,6 +41483,7 @@ salopards	8,
 salopes	6,
 salopettes	9,
 salpetres	8,
+salpingectomies	14,
 salpingoplasties	15,
 salsepareilles	13,
 salt	3,ir
@@ -40815,6 +41505,7 @@ saluerent	6,
 salues	5,r
 saluez	5,r
 saluons	4,er
+salures	6,
 salutations	10,
 salutistes	9,
 saluts	5,
@@ -41012,6 +41703,7 @@ saurions	5,r|0,savoir
 saurisseries	11,
 saurons	4,ir|0,savoir
 sauront	0,savoir
+sauropodes	9,
 saurs	4,ir
 saurys	5,
 sauta	4,er
@@ -41203,8 +41895,11 @@ schizographies	13,
 schizoides	9,
 schizoidies	10,
 schizophrenies	13,
+schleiermacherianismes	21,
 schlichs	7,
 schlots	6,
+schnapsideen	11,
+schnapsidees	11,
 schnauzers	9,
 schnecks	7,
 schnitzels	9,
@@ -41249,12 +41944,15 @@ sciures	6,
 sclerenchymes	12,
 scleres	6,
 sclerodermies	12,
+sclerosteoses	12,
+sclerostines	11,
 scobiformes	10,
 scolaires	8,
 scolarise	9,r
 scolarisee	9,r
 scolarisees	9,r
 scolarises	9,r
+scolarques	9,
 scolecites	9,
 scolioses	8,
 scolytes	7,
@@ -41389,6 +42087,7 @@ sectorielles	9,
 sectoriels	9,
 secularisations	14,
 secularise	10,r
+secundogenitures	15,
 securiformes	11,
 securites	8,
 sedans	5,
@@ -41442,6 +42141,7 @@ sejourniez	7,er
 sejournions	7,er
 sejours	6,
 selaginelles	11,
+selagines	8,
 selectifs	8,
 selective	7,f
 selectives	7,f
@@ -41581,7 +42281,7 @@ sentent	4,ir
 sentes	4,ir
 senteurs	7,
 sentez	4,ir
-senti	5,r
+senti	5,r|0,se sentir
 sentie	5,r
 sentiente	8,
 sentientes	8,
@@ -41644,6 +42344,7 @@ sepiolites	9,
 seps	3,
 septagones	9,
 septains	7,
+septangulaires	13,
 septantiemes	11,
 septembres	9,
 septenions	9,
@@ -41842,6 +42543,9 @@ sextillions	10,
 sextines	7,
 sextuors	7,
 sexualites	9,
+sexuelle	6,
+sexuelles	6,
+sexuels	6,
 sgraffites	9,
 shabbats	7,
 shakers	6,
@@ -41867,6 +42571,7 @@ shoguns	6,
 shoppings	8,
 shorts	5,
 showdowns	8,
+shrapnels	8,
 shtetls	6,
 shtreimels	9,
 shuffleboards	12,
@@ -41897,6 +42602,7 @@ siderations	10,
 sideraux	6,l
 siderites	8,
 siderographies	13,
+siderurgiques	12,
 siecles	6,
 sieges	5,
 sien	0,le sien|0,la sienne|0,les siens
@@ -41921,6 +42627,7 @@ sifflez	6,r
 siffliez	5,er
 sifflions	5,er
 sigmatismes	10,
+sigmoidectomies	14,
 signa	4,er
 signais	4,er
 signait	4,er
@@ -42098,6 +42805,7 @@ sizerins	7,
 skarns	5,
 skateboardeurs	13,
 skateboards	10,
+skateparks	9,
 skats	4,
 sketchnotes	10,
 skeuomorphismes	14,
@@ -42121,6 +42829,7 @@ skoliosexuelles	12,
 skoliosexuels	12,
 skreis	5,
 skutterudites	12,
+skylines	7,
 skype	5,r
 slacktivismes	12,
 slaloms	6,
@@ -42159,6 +42868,7 @@ snobinarde	9,
 snobinardes	9,
 snobinards	9,
 snobismes	8,
+snowboarde	10,r
 snowboardeuses	13,
 snowshoes	8,
 sobolevskites	12,
@@ -42195,6 +42905,7 @@ sociolectes	10,
 sociolinguistiques	17,
 sociologies	10,
 sociologiques	12,
+sociologues	10,
 sociopathes	10,
 sociopathies	11,
 sociopolitiques	14,
@@ -42291,6 +43002,7 @@ solistes	7,
 solitaires	9,
 solitons	7,
 solitudes	8,
+solives	6,
 sollicita	8,er
 sollicitait	8,er
 sollicitations	13,
@@ -42321,7 +43033,17 @@ somalis	6,
 somatiques	9,
 somatostatines	13,
 somatotherapies	14,
-sombres	6,
+sombra	5,er
+sombrai	5,er
+sombrais	5,er
+sombrait	5,er
+sombre	6,r
+sombree	6,r
+sombrera	7,
+sombrerent	7,
+sombrerez	7,
+sombrerons	7,
+sombres	6,|6,r
 sommaires	8,
 sommations	9,
 sommee	5,r
@@ -42541,6 +43263,7 @@ soufies	5,
 soufis	5,
 soufismes	8,
 soufrages	8,
+soufre	6,r
 soufree	6,
 soufrees	6,
 soufres	6,
@@ -42633,6 +43356,7 @@ soumettrons	8,e
 soumettront	8,e
 soumise	6,
 soumises	6,
+soumissionnaires	15,
 soumissions	10,
 soundanaise	10,
 soundanaises	10,
@@ -42700,8 +43424,12 @@ sournoises	8,
 sous-alimentee	13,
 sous-alimentees	13,
 sous-alimentes	13,
+sous-arbres	10,
 sous-arbrisseaux	15,
 sous-continents	14,
+sous-corticale	13,
+sous-corticales	13,
+sous-corticaux	12,l
 sous-critiques	13,
 sous-diacres	11,
 sous-durale	10,
@@ -42789,6 +43517,7 @@ soutiens	7,
 soutiens-gorge	7,-gorge
 soutiers	7,
 souvenirs	8,
+souvenirs-ecrans	8,-ecran
 souveraine	9,
 souveraines	9,
 souverainetes	12,
@@ -42804,6 +43533,7 @@ spacieuses	7,x
 spadices	7,
 spaghetti	8,o
 spaghettis	9,
+spagyries	8,
 sparadraps	9,
 spares	5,
 sparides	7,
@@ -42890,6 +43620,7 @@ spirlins	7,
 spirochetes	10,
 spirulines	9,
 spitzenkandidaten	15,
+splanchnicectomies	17,
 splendeurs	9,
 splendides	9,
 splenectomies	12,
@@ -42903,6 +43634,7 @@ spontanees	8,
 spontaneites	11,
 spontanes	8,
 sporadiques	10,
+sporogenes	9,
 sporophores	10,
 sporophytes	10,
 sporopollenines	14,
@@ -42956,6 +43688,7 @@ stands	5,
 stanitsas	8,
 stannates	8,
 stannites	8,
+stapedectomies	13,
 staphyliers	10,
 staphyline	9,
 staphylines	9,
@@ -42965,6 +43698,7 @@ stariques	8,
 stars	4,
 stateres	7,
 stathouderesses	14,
+stathouders	10,
 statines	7,
 stationnaient	8,er
 stationnait	8,er
@@ -42980,6 +43714,7 @@ statistiques	11,
 statthalters	11,
 statuaires	9,
 statues	6,
+statues-menhirs	6,-menhir
 statures	7,
 statutaires	10,
 statuts	6,
@@ -43012,6 +43747,7 @@ sterees	6,
 stereochromes	12,
 stereotaxies	11,
 stereotomies	11,
+stereotypes	10,
 steres	5,
 steriles	7,
 sterilise	9,r
@@ -43020,6 +43756,7 @@ sterilisees	9,r
 sterilises	9,r
 sterlets	7,
 sternes	6,
+steroidogeneses	14,
 sterols	6,
 stethoscopes	11,
 stevedores	9,
@@ -43034,9 +43771,13 @@ stigmates	8,
 stigmatisations	14,
 stigmergies	10,
 stigmergiques	12,
+stigmographies	13,
 stimula	6,er
 stimulait	6,er
 stimulant	6,er
+stimulateurs	11,
+stimulatrice	8,eur
+stimulatrices	8,eur
 stimule	7,r
 stimulent	7,r
 stimulera	8,
@@ -43063,6 +43804,8 @@ stoechiometries	14,
 stoechiometriques	16,
 stoiciennes	10,
 stoicismes	9,
+stoiques	7,
+stollens	7,
 stolons	6,
 stomatopodes	11,
 stoppe	6,r
@@ -43079,6 +43822,7 @@ strasbourgs	10,
 strasserismes	12,
 strateges	8,
 strategies	9,
+strategiques	11,
 strates	6,
 stratifications	14,
 stratifiques	11,
@@ -43157,11 +43901,14 @@ sua	0,suer
 suais	0,suer
 suait	0,suer
 suaves	5,
+subalternations	14,
 subalternes	10,
 subconsciences	13,
 subconsciente	12,
 subconscientes	12,
 subconscients	12,
+subcontraires	12,
+subcontrarietes	14,
 subdivisions	11,
 subglaciaires	12,
 subi	4,r
@@ -43225,6 +43972,7 @@ subsistait	7,er
 subsistances	11,
 subsiste	8,r
 subsistent	8,r
+subsomptions	11,
 subspontanee	11,
 subspontanees	11,
 subspontanes	11,
@@ -43262,7 +44010,13 @@ subulee	6,
 subulees	6,
 subules	6,
 subuliformes	11,
+suburbaine	9,
+suburbaines	9,
+suburbains	9,
 subventions	10,
+subversifs	9,
+subversive	8,f
+subversives	8,f
 subwoofers	9,
 suca	3,er
 sucais	3,er
@@ -43297,6 +44051,9 @@ sucons	5,
 sucree	5,
 sucrees	5,
 sucres	5,
+sucriere	7,
+sucrieres	7,
+sucriers	7,
 sucs	3,
 sud-africaine	12,
 sud-africaines	12,|13,
@@ -43310,6 +44067,7 @@ sud-coreens	10,
 sud-europeenne	12,
 sud-europeennes	12,
 sud-europeens	12,
+sudatoriums	10,
 sudburyites	10,
 sudetes	6,
 sudokus	6,
@@ -43368,6 +44126,7 @@ suis	0,etre|3,vre
 suisses	6,
 suissesse	6,
 suissesses	6,
+suissitudes	10,
 suit	3,vre
 suites	5,
 suivaient	4,re
@@ -43404,6 +44163,7 @@ sujets	5,
 sujette	5,
 sujettes	5,
 sukuns	5,
+sulfadiazines	12,
 sulfites	7,
 sulforaphanes	12,
 sulfureuse	8,x
@@ -43431,6 +44191,7 @@ supercalifragilisticexpidelilicieuse	34,x
 supercalifragilisticexpidelilicieuses	34,x
 supercarburants	14,
 supercheries	11,
+supercondensateurs	17,
 supercritiques	13,
 superessifs	10,
 superfemmes	10,
@@ -43551,6 +44312,7 @@ supraconductrices	12,eur
 supranationale	13,
 supranationales	13,
 supranationaux	12,l
+supremacismes	12,
 surabondances	12,
 surabondent	9,r
 surarbitres	10,
@@ -43674,6 +44436,9 @@ surprise-parties	15,
 surprises	7,|8,
 surprises-parties	8,-partie
 surproductions	13,
+surprotecteurs	13,
+surprotectrice	10,eur
+surprotectrices	10,eur
 surreactions	11,
 surrealismes	11,
 surrealistes	11,
@@ -43686,6 +44451,7 @@ sursautez	8,r
 surtaxes	7,
 surtouts	7,
 surtraitements	13,
+surtravaux	8,il
 surveillai	8,er
 surveillais	8,er
 surveillait	8,er
@@ -43808,11 +44574,13 @@ sylvides	7,
 sylvines	7,
 symbioses	8,
 symboles	7,
+symboliques	10,
 symbolisant	8,er
 symbolise	9,r
 symbolisent	9,r
 symetries	8,
 sympas	5,
+sympathectomies	14,
 sympathies	9,
 sympathiques	11,
 sympathise	10,r
@@ -43861,7 +44629,9 @@ synergies	8,
 synesthesies	11,
 synodes	6,
 synonymes	8,
+synophridies	11,
 synopses	7,
+synovectomies	12,
 syntactiques	11,
 syntagmes	8,
 syntaxes	7,
@@ -43914,12 +44684,16 @@ tabulaires	9,
 tacamaques	9,
 tacherons	8,
 taches	5,
+tachetee	7,
+tachetees	7,
+tachetes	7,
 tachistoscopes	13,
 tachoclines	10,
 tachymetres	10,
 tachyons	7,
 tacites	6,
 taciturnes	9,
+tacle	5,r
 tacles	5,
 tactiles	7,
 tactiques	8,
@@ -43986,6 +44760,7 @@ tallinnoise	10,
 tallinnoises	10,
 talmuds	6,
 taloches	7,
+talonnettes	10,
 talonneurs	9,
 talonneuses	10,
 talons	5,
@@ -44016,6 +44791,7 @@ tangas	5,
 tangente	7,
 tangentes	7,|8,
 tangents	7,
+tangibles	8,
 tangos	5,
 tanguaient	5,er
 tanguait	5,er
@@ -44034,6 +44810,7 @@ tanneries	8,
 tannes	5,r
 tanneurs	7,
 tanneuses	8,
+tans	3,
 tantalates	9,
 tantales	7,
 tantes	5,
@@ -44223,6 +45000,7 @@ tcheques	7,
 tcherkesses	10,
 tchernozioms	11,
 tchetchenes	10,
+tchoins	6,
 tchoudes	7,
 tchouktches	10,
 tchoums	6,
@@ -44248,6 +45026,7 @@ teguments	8,
 teheranaises	11,
 teignes	6,
 teindront	6,e
+teintages	8,
 teintant	5,er
 teinte	5,
 teintees	6,r
@@ -44277,6 +45056,9 @@ telecopieurs	11,
 telefilms	8,
 telegrammes	10,
 telegraphes	10,
+telegraphia	10,er
+telegraphiames	10,er
+telegraphie	11,r
 telegraphiques	13,
 telekinesies	11,
 telemarkeurs	11,
@@ -44404,6 +45186,7 @@ tende	4,re
 tendent	4,re
 tendez	4,re
 tendiez	4,re
+tendinectomies	13,
 tendirent	4,re
 tendis	4,re
 tendit	4,re
@@ -44421,6 +45204,7 @@ tendus	4,re
 tenebre	7,s
 tenebreuse	8,x
 tenebreuses	8,x
+tenectomies	10,
 teneurs	6,
 tenez	3,ir
 tengades	7,
@@ -44434,6 +45218,7 @@ tenolyses	8,
 tenons	3,ir
 tenorites	8,
 tenors	5,
+tenotomies	9,
 tenrecs	6,
 tenseurs	7,
 tenseuse	6,r
@@ -44495,6 +45280,7 @@ teraparsecs	10,
 terapascals	10,
 terateslas	9,
 teratologies	11,
+teratozoospermies	16,
 teravolts	8,
 terawatts	8,
 terbates	7,
@@ -44530,6 +45316,7 @@ terminons	6,er
 termites	7,
 ternes	5,
 terpenes	7,
+terpenoides	10,
 terpodiums	9,
 terps	4,
 terraformations	14,
@@ -44672,6 +45459,7 @@ theodicees	9,
 theogonies	9,
 theologiennes	12,
 theologies	9,
+theologiques	11,
 theologoumenes	13,
 theomachies	10,
 theophanies	10,
@@ -44742,7 +45530,9 @@ thymines	7,
 thymomes	7,
 thyms	4,
 thyratrons	9,
+thyreocytes	10,
 thyristors	9,
+thyrocytes	9,
 thyroidectomies	14,
 thyroides	8,
 thyroidienne	10,
@@ -44894,6 +45684,7 @@ toatoas	6,
 toblerones	9,
 toboggans	8,
 tobrouks	7,
+toc-tocs	7,
 tocarde	6,
 tocardes	6,
 tocards	6,
@@ -44965,6 +45756,7 @@ tombez	5,r
 tombiez	4,er
 tombons	4,er
 tomes	4,
+tomodensitometries	17,
 tomographies	11,
 tondaient	4,re
 tondais	4,re
@@ -44985,6 +45777,7 @@ toners	5,
 tonfas	5,
 tongiens	7,
 tongs	4,
+toniques	7,
 tonitruant	7,er
 tonkinoise	9,
 tonkinoises	9,
@@ -44997,9 +45790,11 @@ tonnelles	8,
 tonnerres	8,
 tonnes	5,|5,r
 tons	3,
+tonsilles	8,
 tonsures	7,
 tontes	5,
 topazes	6,
+topectomies	10,
 topiaires	8,
 topics	5,
 topinambaulx	8,our
@@ -45235,6 +46030,7 @@ toxidermies	10,
 toxines	6,
 toxinologies	11,
 toxiques	7,
+trabeculectomies	15,
 traca	4,er
 tracabilites	11,
 tracables	8,
@@ -45413,9 +46209,14 @@ transcende	10,r
 transconteneurs	14,
 transcriptions	13,
 transcriptomes	13,
+transcrira	9,e
+transcrirons	9,e
+transcris	8,re
+transcrit	8,re
 transepts	8,
 transes	6,
 transesterifications	19,
+transfeminismes	14,
 transfera	8,er
 transferaient	8,er
 transfere	9,r
@@ -45642,6 +46443,7 @@ trebuchets	9,
 trefileurs	9,
 trefles	6,
 treiges	6,
+treizaines	9,
 treiziemes	9,
 trekkings	8,
 tremas	5,
@@ -45673,6 +46475,7 @@ tremperai	7,
 trempes	6,|6,r
 trempez	6,r
 tremplins	8,
+trente-cinquiemes	16,
 trente-deuxiemes	15,
 trente-et-une	12,
 trente-et-uniemes	16,
@@ -45720,6 +46523,10 @@ triathlons	9,
 triaxiale	8,
 triaxiales	8,
 triaxiaux	7,l
+tribale	6,
+tribales	6,
+tribals	6,
+tribaux	5,l
 tribometres	10,
 tribometries	11,
 tribords	7,
@@ -45749,6 +46556,7 @@ tricotait	6,er
 tricote	7,r
 tricotera	8,
 tricotes	7,r
+tricots	6,
 trictracs	8,
 tridents	7,
 tridimensionnelle	15,
@@ -45794,6 +46602,9 @@ trimbalent	8,r
 trime	5,r
 triment	5,r
 trimestres	9,
+trimestrielle	11,
+trimestrielles	11,
+trimestriels	11,
 trimons	4,er
 tringles	7,
 trinitrobenzenes	15,
@@ -45852,6 +46663,7 @@ trisaieux	8,l
 triskaidekaphobies	17,
 tristes	6,
 tristesses	9,
+triterpenes	10,
 triticales	9,
 tritiums	7,
 tritons	6,
@@ -45912,8 +46724,11 @@ tropaions	8,
 trophallaxies	12,
 trophees	7,
 trophologies	11,
+tropicale	8,
+tropicales	8,
 tropicalismes	12,
 tropicariums	11,
+tropicaux	7,l
 tropiquariums	12,
 tropiques	8,
 tropopauses	10,
@@ -46044,6 +46859,7 @@ tubes	4,
 tubeuses	7,
 tubistes	7,
 tubules	6,
+tucuxis	6,
 tudancas	7,
 tue	3,r
 tue-mouches	10,
@@ -46122,6 +46938,7 @@ tuyauteries	10,
 tuyaux	5,
 tweeds	5,
 tweeters	7,
+twerke	6,r
 twin-sets	8,
 tychopelagiques	14,
 tympans	6,
@@ -46139,6 +46956,7 @@ tyranniques	10,
 tyrannise	9,r
 tyrannosaures	12,
 tyrans	5,
+tyriens	6,
 tyroliennes	10,
 tyrosinemies	11,
 tyrothricines	12,
@@ -46149,6 +46967,7 @@ tzatzikis	8,
 u-boote	6,
 u-boots	6,
 uberisations	11,
+ubers	4,
 ubiquistes	9,
 ubuesques	8,
 ufologues	8,
@@ -46192,6 +47011,7 @@ ultramarathons	13,
 ultramicroscopes	15,
 ultraminces	10,
 ultramodernes	12,
+ultramontanismes	15,
 ultrasons	8,
 ultravides	9,
 ultraviolets	11,
@@ -46211,6 +47031,7 @@ une	0,un|0,des|0,un·e
 unes	0,l'un
 unguentaria	10,um
 unguentariums	12,
+uniatismes	9,
 uniaxes	6,
 unicamerale	10,
 unicamerales	10,
@@ -46388,6 +47209,7 @@ vaccinales	8,
 vaccinations	11,
 vaccinatrices	12,
 vaccinaux	7,l
+vaccinophobies	13,
 vaccins	6,
 vacharde	7,
 vachardes	7,
@@ -46466,6 +47288,7 @@ valaisannes	8,
 valaisans	8,
 valait	3,oir
 valant	3,oir
+valaques	7,
 valent	3,oir
 valentins	8,
 valerianes	9,
@@ -46530,6 +47353,7 @@ vaniteuses	7,x
 vanity-cases	11,
 vanneaux	7,
 vannee	5,r
+vanneries	8,
 vannes	5,|5,r
 vanniere	7,
 vannieres	7,|8,
@@ -46573,6 +47397,7 @@ variees	5,
 varies	5,
 varietes	7,
 varioles	7,
+variraptors	10,
 variscites	9,
 varsoviennes	11,
 varsoviens	9,
@@ -46676,6 +47501,7 @@ velleitaires	11,
 velles	5,
 velocites	8,
 velodromes	9,
+velofestations	13,
 velomobiles	10,
 velorails	8,
 velorues	7,
@@ -46741,6 +47567,7 @@ veneres	6,r
 venerienne	8,
 veneriennes	8,
 veneriens	8,
+venerologies	11,
 venerons	5,er
 veneurs	6,
 venez	3,ir
@@ -46806,6 +47633,7 @@ venusienne	8,
 venusiennes	8,
 venusiens	8,
 vepecistes	9,
+veracites	8,
 verandas	7,
 verbes	5,
 verbeuse	6,x
@@ -46861,6 +47689,7 @@ vermines	7,
 vermoulue	8,
 vermoulues	8,
 vermoulus	8,
+vernaculaires	12,
 verne	4,ir
 verni	5,r
 vernie	5,r
@@ -46965,6 +47794,7 @@ vervets	6,
 ves	0,ve
 vesces	5,
 vesicatoires	11,
+vesiculectomies	14,
 vesicules	8,
 vesigons	7,
 vesous	5,
@@ -46977,6 +47807,7 @@ vessies	6,
 vestes	5,
 vestiaires	9,
 vestibulaires	12,
+vestibules	9,
 vestimentaires	13,
 vestons	6,
 vesuvianites	11,
@@ -47061,6 +47892,8 @@ vicesimale	9,
 vicesimales	9,
 vicesimaux	8,l
 vichyssoises	11,
+vicianines	9,
+vicianoses	9,
 vicie	5,r
 vicieuse	6,x
 vicieuses	6,x
@@ -47086,6 +47919,7 @@ vide-caves	9,
 vide-greniers	12,
 vide-ordures	11,
 vide-poches	10,
+vide-pommes	10,
 videe	4,r
 videes	4,r
 vident	4,r
@@ -47202,6 +48036,8 @@ villegiatures	12,
 villes	5,
 villes-eponges	5,-eponge
 villes-provinces	5,-province
+villes-satellite	5,-satellite
+villes-satellites	5,-satellite
 villottes	8,
 vils	3,
 vimbes	5,
@@ -47260,6 +48096,7 @@ viperes	6,
 virages	6,
 virelais	7,
 virelangues	10,
+virements	8,
 viremies	7,
 virent	0,voir
 vireuse	5,x
@@ -47315,6 +48152,7 @@ visibles	7,
 visigothiques	12,
 visioconferences	15,
 visionnaires	11,
+visionneuses	11,
 visions	3,er|6,
 visiophones	10,
 visita	5,er
@@ -47360,6 +48198,7 @@ visuels	6,
 vit	0,voir|0,vivre
 vitale	5,
 vitales	5,
+vitalismes	9,
 vitalites	8,
 vitamines	8,
 vitaux	4,l
@@ -47380,6 +48219,7 @@ vitrifications	13,
 vitrines	7,
 vitriols	7,
 vitroceramiques	14,
+vitronectines	12,
 vitropressions	13,
 vitruvienne	9,
 vitruviennes	9,
@@ -47410,6 +48250,7 @@ vivides	6,
 viviez	3,re
 vivions	3,re
 vivipares	8,
+viviparites	10,
 vivons	3,re
 vivotait	5,er
 vivote	6,r
@@ -47488,6 +48329,7 @@ volatils	7,
 volcaniques	10,
 volcanismes	10,
 volcanologies	12,
+volcanologiques	14,
 volcans	6,
 vole	4,r
 volees	5,|4,r
@@ -47515,6 +48357,7 @@ volions	3,er
 volitifs	7,
 volitive	6,f
 volitives	6,f
+volkischs	8,
 volleyeurs	9,
 volons	3,er
 volontaires	10,
@@ -47726,6 +48569,7 @@ wallons	6,
 wampis	5,
 wastringues	10,
 waterpolos	9,
+waters	5,
 wattheures	9,
 watts	4,
 watts-heures	4,-heure
@@ -47770,12 +48614,16 @@ wisigothiques	12,
 wokes	4,
 wokismes	7,
 woks	3,
+wolffias	7,
 wolframites	10,
 wollastonites	12,
 wolpertingers	12,
 wombats	6,
+wonderboys	9,
 wons	3,
+woodburytypies	13,
 workshops	8,
+wulfenites	9,
 wurtembergs	10,
 wyandottes	9,
 wyvernes	7,
@@ -47790,6 +48638,7 @@ xenophobes	9,
 xenophobies	10,
 xenotransplantations	19,
 xeriques	7,
+xerographiques	13,
 xeromorphes	10,
 xerophtalmies	12,
 xerophytes	9,
@@ -47820,7 +48669,9 @@ yaourts	6,
 yapocks	6,
 yards	4,
 yatagans	7,
+yearlings	8,
 yekkes	5,
+yemenites	8,
 yemens	5,
 yeniches	7,
 yens	3,
@@ -47830,6 +48681,7 @@ yeux	0,oeil
 yezidie	6,
 yezidies	6,
 yezidis	6,
+yiddishkeits	11,
 yiddishs	7,
 yoctoamperes	11,
 yoctocandelas	12,
@@ -47916,7 +48768,9 @@ zelee	4,
 zelees	4,
 zeles	4,
 zelliges	7,
+zelotes	6,
 zelotiques	9,
+zelotismes	9,
 zemidjans	8,
 zeniths	6,
 zens	3,
@@ -47966,6 +48820,7 @@ zieute	6,r
 ziggourats	9,
 zigouille	9,r
 zigzags	6,
+zikrs	4,
 zimbabweenne	10,
 zimbabweennes	10,
 zimbabweens	10,
@@ -47995,6 +48850,7 @@ zoobiologies	11,
 zoocentrismes	12,
 zoochlorelles	12,
 zoochories	9,
+zoogeographies	13,
 zoologies	8,
 zoologiques	10,
 zoologistes	10,
@@ -48006,6 +48862,7 @@ zoos	3,
 zoosemiotiques	13,
 zoospores	8,
 zootechniciennes	15,
+zootechnies	10,
 zootomes	7,
 zooxanthelles	12,
 zorilles	7,
@@ -48028,6 +48885,7 @@ zygopteres	9,
 zygotenes	8,
 zygotes	6,
 zymases	6,
+zymologies	9,
 zymosanes	8,
 zymotiques	9,
 złotys	5,

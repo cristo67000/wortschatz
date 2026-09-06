@@ -74,13 +74,17 @@
   function grouper(cartes) {
     const groupes = new Map();
     for (const carte of cartes) {
-      const id = carte.langue + ' ' + carte.mot;
+      /* Un mot personnel se groupe sous son identifiant, jamais sous sa
+       * graphie : deux entrées peuvent s'écrire pareil — celle du dictionnaire
+       * et la sienne — et les confondre mêlerait leurs échéances. */
+      const id = carte.perso ? 'perso ' + carte.perso : carte.langue + ' ' + carte.mot;
       const groupe = groupes.get(id);
       if (groupe) {
         groupe.cartes.push(carte);
         groupe.cree = Math.min(groupe.cree, carte.cree);
       } else {
         groupes.set(id, { id, langue: carte.langue, mot: carte.mot,
+                          perso: carte.perso || null,
                           cree: carte.cree, cartes: [carte] });
       }
     }
@@ -110,7 +114,7 @@
 
   async function retirer(groupe) {
     retires.set(groupe.id, { groupe, cartes: groupe.cartes });
-    await Revision.oublier(groupe.langue, groupe.mot);
+    await Revision.oublier(groupe.langue, groupe.mot, groupe.perso);
     await Seance.rafraichir();
     /* La main passe au bouton qui annule : c'est le seul geste qui ait un sens
      * juste après, et il doit être atteignable sans souris. */
@@ -156,7 +160,11 @@
      * être supprimé depuis, et le numéro qu'elle garde désignerait alors un
      * fichier qui n'existe plus. Sans vedette, le mot s'affiche sans être
      * cliquable — il reste retirable, ce pour quoi on est venu. */
-    const vedette = Lexique.vedette(groupe.langue, groupe.mot);
+    /* Un mot personnel s'ouvre par son identifiant, et il est toujours là :
+     * il ne dépend d'aucun paquet téléchargé. */
+    const perso = groupe.perso && racine.Perso ? Perso.brut(groupe.perso) : null;
+    const vedette = perso ? Perso.resultat(perso, true, null)
+                          : Lexique.vedette(groupe.langue, groupe.mot);
     const corps = element(vedette ? 'button' : 'div', 'suivi-mot');
     if (vedette) {
       corps.type = 'button';
@@ -165,6 +173,9 @@
     corps.appendChild(element('span', 'pastille',
       I18n.t('langue.' + groupe.langue + '.court')));
     corps.appendChild(element('span', 'mot', groupe.mot));
+    if (groupe.perso) {
+      corps.appendChild(element('span', 'pastille perso', I18n.t('perso.marque')));
+    }
     if (vedette && vedette.apercu) {
       corps.appendChild(element('span', 'traduction', vedette.apercu));
     }

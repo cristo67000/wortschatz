@@ -1,9 +1,13 @@
 {
   "version": 2,
-  "construit": "2026-08-24",
+  "construit": "2026-09-06",
   "moutures": {
     "de": "2025.11.21",
     "fr": "2025.11.21"
+  },
+  "moutures_wiktionnaire": {
+    "de": "2026-09-04",
+    "fr": "2026-09-05"
   },
   "bandes": [
     "premiers-pas",
@@ -11,14 +15,32 @@
     "etendu",
     "rare"
   ],
+  "gain": {
+    "de": {
+      "wikdict": 59027,
+      "neuves": 4253,
+      "sens_traduits": 5265,
+      "sens_sans_traduction": 10802
+    },
+    "fr": {
+      "wikdict": 47340,
+      "neuves": 1768,
+      "sens_traduits": 28527,
+      "sens_sans_traduction": 5497
+    }
+  },
   "paquets": {
     "noyau": {
       "entrees": {
         "de": 12000,
         "fr": 12000
       },
-      "phrases": 36869,
-      "octets": 21862147,
+      "traduites": {
+        "de": 12000,
+        "fr": 12000
+      },
+      "phrases": 38110,
+      "octets": 22512532,
       "fichiers": [
         "noyau/de.idx",
         "noyau/de-000.json",
@@ -92,16 +114,22 @@
         "noyau/phrases-037.json",
         "noyau/phrases-038.json",
         "noyau/phrases-039.json",
-        "noyau/phrases-040.json"
+        "noyau/phrases-040.json",
+        "noyau/phrases-041.json",
+        "noyau/phrases-042.json"
       ]
     },
     "complet": {
       "entrees": {
-        "de": 59027,
-        "fr": 47340
+        "de": 63280,
+        "fr": 49108
       },
-      "phrases": 40637,
-      "octets": 74540964,
+      "traduites": {
+        "de": 63280,
+        "fr": 49108
+      },
+      "phrases": 42010,
+      "octets": 79214953,
       "fichiers": [
         "complet/de.idx",
         "complet/de-000.json",
@@ -170,6 +198,11 @@
         "complet/de-063.json",
         "complet/de-064.json",
         "complet/de-065.json",
+        "complet/de-066.json",
+        "complet/de-067.json",
+        "complet/de-068.json",
+        "complet/de-069.json",
+        "complet/de-070.json",
         "complet/formes-de.idx",
         "complet/fr.idx",
         "complet/fr-000.json",
@@ -225,6 +258,8 @@
         "complet/fr-050.json",
         "complet/fr-051.json",
         "complet/fr-052.json",
+        "complet/fr-053.json",
+        "complet/fr-054.json",
         "complet/formes-fr.idx",
         "complet/phrases-000.json",
         "complet/phrases-001.json",
@@ -271,7 +306,8 @@
         "complet/phrases-042.json",
         "complet/phrases-043.json",
         "complet/phrases-044.json",
-        "complet/phrases-045.json"
+        "complet/phrases-045.json",
+        "complet/phrases-046.json"
       ]
     }
   }

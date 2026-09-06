@@ -76,6 +76,7 @@ import formes_fr
 import phrases
 import corpus
 import tei
+import traductions
 import wiktionnaire
 
 RACINE = Path(__file__).resolve().parent
@@ -589,9 +590,11 @@ def main():
         print(f"  + {len(journal_grammaire['ajoutees'])} entrées grammaticales "
               f"écrites pour l'application : {', '.join(journal_grammaire['ajoutees'])}")
 
-    print("\nGreffe du Wiktionnaire — définitions, exemples et flexions par sens")
+    print("\nGreffe du Wiktionnaire — définitions, exemples, flexions, traductions")
+    gain = {}
     for langue in ("de", "fr"):
         par_mot = wiktionnaire.charger(langue)
+        avant = len(dictionnaires[langue])
         journal_wikt = {}
         for mot, entree in dictionnaires[langue].items():
             alignement.enrichir(entree, par_mot.get(mot, []), journal_wikt)
@@ -602,6 +605,31 @@ def main():
               f"avec citation ({part:.1f} %)")
         print(f"       {journal_wikt['sens_ajoutes']} sens ajoutés, "
               f"{journal_wikt['sans_entree']} lectures sans entrée Wiktionnaire")
+        print(f"       {journal_wikt['traduits']} sens traduits par le "
+              f"Wiktionnaire là où WikDict ne connaissait rien, "
+              f"{journal_wikt['sens_ajoutes_traduits']} sens ajoutés traduits")
+        print(f"       reste {journal_wikt['sens_sans_traduction']} sens sans "
+              f"traduction — définition et exemple seulement")
+
+        # Les vedettes que WikDict n'a pas et que le Wiktionnaire traduit.
+        journal_neuves = {}
+        traductions.ajouter(dictionnaires, index_formes[langue],
+                            index_graphies[langue], langue, par_mot, journal_neuves)
+        print(f"       + {journal_neuves['ajoutees']} vedettes neuves traduites "
+              f"({journal_neuves['examinees']} examinées, "
+              f"{journal_neuves['sans_traduction']} écartées faute de traduction)")
+        if journal_neuves["exemples"]:
+            apercus = ", ".join(
+                f"{mot} → {'/'.join(trads)}"
+                for mot, _nature, trads in journal_neuves["exemples"][:5])
+            print(f"       exemples : {apercus}")
+        gain[langue] = {
+            "wikdict": avant,
+            "neuves": journal_neuves["ajoutees"],
+            "sens_traduits": journal_wikt["traduits"]
+                             + journal_wikt["sens_ajoutes_traduits"],
+            "sens_sans_traduction": journal_wikt["sens_sans_traduction"],
+        }
 
     print("\nLecture du corpus Tatoeba")
     paires_alignees, allemandes, francaises = corpus.paires()
@@ -673,7 +701,9 @@ def main():
         "version": 2,
         "construit": time.strftime("%Y-%m-%d"),
         "moutures": moutures,
+        "moutures_wiktionnaire": wiktionnaire.moutures(),
         "bandes": NOMS_BANDES,
+        "gain": gain,
         "paquets": {},
     }
 
@@ -690,8 +720,14 @@ def main():
             [e["mot"] for e in selections["de"]],
             [e["mot"] for e in selections["fr"]])
 
-        fichiers, octets, comptes = [], 0, {}
+        fichiers, octets, comptes, traduites = [], 0, {}, {}
         for langue in ("de", "fr"):
+            # Une entrée « traduite » porte au moins une traduction attestée :
+            # c'est la seule sorte qui réponde à la question qu'on lui pose.
+            # Compter les autres gonflerait le chiffre sans servir personne.
+            traduites[langue] = sum(
+                1 for e in selections[langue]
+                if any(bloc[1] for lecture in e["lectures"] for bloc in lecture[4]))
             formes = (index_formes[langue] if borne is None
                       else formes_restreintes(index_formes[langue], selections[langue]))
             # Un voisin absent du paquet ne mènerait nulle part : le noyau ne
@@ -716,12 +752,14 @@ def main():
 
         manifeste["paquets"][nom] = {
             "entrees": comptes,
+            "traduites": traduites,
             "phrases": len(vivier),
             "octets": octets,
             "fichiers": fichiers,
         }
         etat = "ok" if octets <= budget else "DÉPASSEMENT"
         print(f"  {nom:8} {comptes['de']:6d} de + {comptes['fr']:6d} fr  "
+              f"({traduites['de'] + traduites['fr']} traduites)  "
               f"{commun.humain(octets):>9}  (budget {commun.humain(budget)}) {etat}")
         if octets > budget and not options.sans_budget:
             raise SystemExit(

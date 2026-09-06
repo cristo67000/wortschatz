@@ -71,10 +71,31 @@
 
       <ul id="resultats" role="listbox" aria-label="Résultats" hidden></ul>
 
+      <button id="b-ajouter-liste" type="button" class="bouton-discret ajouter-mot"
+              data-t="perso.ajouter.autre" hidden></button>
+
       <div id="rien" hidden>
         <p data-t="chercher.rien"></p>
         <p class="discret" id="rien-conseil"></p>
+        <button id="b-ajouter-rien" type="button" class="bouton-principal"></button>
       </div>
+    </section>
+
+    <!-- ————— Mes mots ————— -->
+    <section id="vue-mesmots" class="vue" hidden>
+      <h2 data-t="perso.titre"></h2>
+      <p class="discret" data-t="perso.note"></p>
+      <button id="b-ajouter-mot" type="button" class="bouton-principal"
+              data-t="perso.ajouter"></button>
+
+      <section class="bloc">
+        <h3><span data-t="perso.liste"></span><span id="perso-compte" class="compte"></span></h3>
+        <input id="perso-filtre" type="search" autocomplete="off" autocapitalize="off"
+               spellcheck="false" data-t-ph="perso.filtrer" data-t-aria="perso.filtrer" hidden>
+        <ul id="perso-liste"></ul>
+        <p id="perso-vide" class="discret" data-t="perso.vide" hidden></p>
+        <p id="perso-rien" class="discret" data-t="perso.filtre-vide" hidden></p>
+      </section>
     </section>
 
     <!-- ————— Réviser ————— -->
@@ -211,6 +232,12 @@
       </section>
 
       <section class="bloc">
+        <h3 data-t="sauvegarde.titre"></h3>
+        <p class="discret" data-t="sauvegarde.detail"></p>
+        <div id="zone-sauvegarde"></div>
+      </section>
+
+      <section class="bloc">
         <h3 data-t="reglages.voix"></h3>
         <label class="bascule">
           <input type="checkbox" id="reglage-voix">
@@ -249,6 +276,9 @@
     <button type="button" data-vue="reviser">
       <span class="pictogramme" aria-hidden="true">◳</span><span data-t="onglet.reviser"></span>
     </button>
+    <button type="button" data-vue="mesmots">
+      <span class="pictogramme" aria-hidden="true">✎</span><span data-t="onglet.mesmots"></span>
+    </button>
     <button type="button" data-vue="progres">
       <span class="pictogramme" aria-hidden="true">◔</span><span data-t="onglet.progres"></span>
     </button>
@@ -261,18 +291,26 @@
     <div id="fiche-contenu"></div>
   </aside>
 
+  <aside id="panneau-perso" hidden aria-modal="true" role="dialog">
+    <div id="formulaire-perso"></div>
+  </aside>
+
   <script src="js/i18n.js"></script>
   <script src="js/lexique.js"></script>
   <script src="js/store.js"></script>
   <script src="js/voix.js"></script>
   <script src="js/revision.js"></script>
   <script src="js/exercices.js"></script>
+  <script src="js/notes.js"></script>
+  <script src="js/perso.js"></script>
   <script src="js/motsvifs.js"></script>
   <script src="js/fiche.js"></script>
   <script src="js/seance.js"></script>
   <script src="js/progres.js"></script>
   <script src="js/atelier.js"></script>
   <script src="js/suivis.js"></script>
+  <script src="js/mesmots.js"></script>
+  <script src="js/sauvegarde.js"></script>
   <script src="js/paquets.js"></script>
   <script src="js/installer.js"></script>
   <script src="js/miseajour.js"></script>
