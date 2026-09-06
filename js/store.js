@@ -192,8 +192,15 @@
 
   // ── Cartes de révision ────────────────────────────────────────────────────
 
+  /* Le séparateur est un caractère nul, et ce n'est pas une coquetterie : une
+   * vedette peut contenir des espaces — « dans l'ensemble », « avoir lieu » —
+   * et un identifiant séparé par des espaces deviendrait ambigu. Un NUL ne
+   * figure dans aucune vedette, dans aucune langue.
+   *
+   * Il est là depuis le premier commit, et des bases installées en dépendent :
+   * le changer renommerait toutes les cartes de tout le monde. */
   function identifiant(langue, mot, type) {
-    return langue + ' ' + mot + ' ' + type;
+    return langue + ' ' + mot + ' ' + type;
   }
 
   /* L'identifiant d'une carte de mot personnel.
@@ -204,7 +211,7 @@
    * plus entrer en collision avec une carte du dictionnaire — « perso: » ne se
    * lit dans aucun code de langue. */
   function identifiantPerso(uid, type) {
-    return 'perso:' + uid + ' ' + type;
+    return 'perso:' + uid + ' ' + type;
   }
 
   async function lireCarte(id) {
@@ -265,7 +272,8 @@
   async function consulter(langue, mot) {
     const t = await transaction(['historique'], 'readwrite');
     const magasin = t.objectStore('historique');
-    await promesse(magasin.put({ id: langue + ' ' + mot, langue, mot, quand: Date.now() }));
+    await promesse(magasin.put({ id: langue + ' ' + mot, langue, mot,
+                                quand: Date.now() }));
     const tout = await promesse(magasin.index('quand').getAll());
     for (const vieux of tout.slice(0, Math.max(0, tout.length - HISTORIQUE_MAX))) {
       magasin.delete(vieux.id);

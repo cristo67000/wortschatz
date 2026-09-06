@@ -106,6 +106,13 @@ function titre(texte) {
  * laissait : une seule carte « sens » par mot, un journal, un historique et des
  * réglages. On la fabrique à la main, sans passer par `store.js`, parce que
  * `store.js` d'aujourd'hui ne sait plus l'écrire. */
+/* Le séparateur des identifiants de carte : un caractère nul, depuis le premier
+ * commit de l'application. Les épreuves le reconstruisent plutôt que de le
+ * recopier — un NUL dans un fichier source se perd au premier outil qui nettoie
+ * les caractères de commande, et c'est arrivé. */
+const SEP = String.fromCharCode(0);
+const ID = (langue, mot, type) => langue + SEP + mot + SEP + type;
+
 function depotVersion1() {
   const depot = nouveauDepot(1);
   const creer = (nom, keyPath, index, lignes, autoIncrement) => {
@@ -120,27 +127,27 @@ function depotVersion1() {
     { cle: 'paquet', valeur: 'complet' },
   ]);
   creer('cartes', 'id', { echeance: 'echeance', mot: 'mot', etat: 'etat' }, [
-    { id: 'de Haus sens', langue: 'de', mot: 'Haus', tranche: 12, type: 'sens',
+    { id: ID('de', 'Haus', 'sens'), langue: 'de', mot: 'Haus', tranche: 12, type: 'sens',
       etat: 'revision', palier: 1, intervalle: 47, facilite: 2.35,
       echeance: 1800000000000, reussites: 9, echecs: 2, cree: 1700000000000,
       vu: 1795000000000 },
-    { id: 'fr maison sens', langue: 'fr', mot: 'maison', tranche: 7, type: 'sens',
+    { id: ID('fr', 'maison', 'sens'), langue: 'fr', mot: 'maison', tranche: 7, type: 'sens',
       etat: 'apprentissage', palier: 0, intervalle: 1, facilite: 2.5,
       echeance: 1800000600000, reussites: 1, echecs: 0, cree: 1799000000000, vu: 0 },
-    { id: 'de Haus genre', langue: 'de', mot: 'Haus', tranche: 12, type: 'genre',
+    { id: ID('de', 'Haus', 'genre'), langue: 'de', mot: 'Haus', tranche: 12, type: 'genre',
       etat: 'revision', palier: 1, intervalle: 3, facilite: 2.5,
       echeance: 1800100000000, reussites: 4, echecs: 1, cree: 1700000000000, vu: 0 },
   ]);
   creer('journal', 'id', { quand: 'quand' }, [
-    { id: 1, quand: 1799000000000, carte: 'de Haus sens', langue: 'de', mot: 'Haus',
+    { id: 1, quand: 1799000000000, carte: ID('de', 'Haus', 'sens'), langue: 'de', mot: 'Haus',
       type: 'sens', exercice: 'saisie', qualite: 2, etatAvant: 'revision' },
-    { id: 2, quand: 1799500000000, carte: 'fr maison sens', langue: 'fr',
+    { id: 2, quand: 1799500000000, carte: ID('fr', 'maison', 'sens'), langue: 'fr',
       mot: 'maison', type: 'sens', exercice: 'qcm-comprendre', qualite: 0,
       etatAvant: 'nouveau' },
   ], true);
   depot.magasins.journal.prochain = 2;
   creer('historique', 'id', { quand: 'quand' }, [
-    { id: 'de Haus', langue: 'de', mot: 'Haus', quand: 1799900000000 },
+    { id: 'de' + SEP + 'Haus', langue: 'de', mot: 'Haus', quand: 1799900000000 },
   ]);
   return depot;
 }
@@ -153,7 +160,7 @@ async function epreuveMigration1() {
   const cartes = await Store.toutesLesCartes();
   verifier(cartes.length === 3, `3 cartes conservées, ${cartes.length} trouvées`);
 
-  const ancienne = cartes.find((c) => c.id === 'de Haus vers-de');
+  const ancienne = cartes.find((c) => c.id === ID('de', 'Haus', 'vers-de'));
   if (verifier(!!ancienne, 'la carte « sens » est devenue « vers-de »')) {
     verifier(ancienne.intervalle === 47, `intervalle conservé (${ancienne.intervalle})`);
     verifier(ancienne.facilite === 2.35, `facilité conservée (${ancienne.facilite})`);
@@ -162,11 +169,11 @@ async function epreuveMigration1() {
     verifier(ancienne.echeance === 1800000000000, 'échéance conservée');
     verifier(ancienne.cree === 1700000000000, 'date de création conservée');
   }
-  verifier(!cartes.some((c) => c.id === 'de Haus sens'),
+  verifier(!cartes.some((c) => c.id === ID('de', 'Haus', 'sens')),
     'l’ancienne ligne « sens » est effacée, pas seulement réécrite');
-  verifier(!!cartes.find((c) => c.id === 'fr maison vers-fr'),
+  verifier(!!cartes.find((c) => c.id === ID('fr', 'maison', 'vers-fr')),
     'la carte française devient « vers-fr » — la direction productive');
-  const genre = cartes.find((c) => c.id === 'de Haus genre');
+  const genre = cartes.find((c) => c.id === ID('de', 'Haus', 'genre'));
   verifier(genre && genre.reussites === 4, 'la carte de genre n’est pas touchée');
 
   const reglages = await Store.lireReglages();
@@ -201,6 +208,35 @@ async function epreuveMigration2(depot) {
     'les cartes sont les mêmes après rechargement');
   const reglages = await Store.lireReglages();
   verifier(reglages.langue === 'de', 'les réglages survivent au rechargement');
+}
+
+/* Le séparateur, éprouvé pour lui-même.
+ *
+ * Il a été perdu une fois, en réécrivant `store.js` : un outil a remplacé les
+ * caractères de commande par des espaces, et personne ne l'a vu — les cartes
+ * existantes continuaient de marcher, puisqu'on les retrouve par l'index `mot`
+ * et non par leur clé. Seules les cartes neuves prenaient une autre forme, et
+ * une base finissait avec deux façons de nommer la même chose.
+ *
+ * D'où cette épreuve, qui ne vérifie rien d'autre que ce détail-là.
+ */
+function epreuveSeparateur() {
+  titre('L’identifiant d’une carte');
+  const id = Store.identifiant('de', 'Haus', 'vers-de');
+  verifier(id.indexOf(SEP) !== -1,
+    'le séparateur est un caractère nul, pas une espace', JSON.stringify(id));
+  verifier(id === ID('de', 'Haus', 'vers-de'),
+    'il a la forme que les bases installées portent déjà');
+  verifier(Store.identifiantPerso('p-1a2b3c', 'vers-de').indexOf(SEP) !== -1,
+    'les cartes de mots personnels suivent la même règle');
+
+  /* La raison d'être du NUL : une vedette peut contenir des espaces, et deux
+   * mots différents ne doivent jamais produire le même identifiant. */
+  const a = Store.identifiant('fr', 'dans l’ensemble', 'vers-de');
+  const b = Store.identifiant('fr', 'dans', 'l’ensemble vers-de');
+  verifier(a !== b,
+    'deux vedettes différentes ne se confondent pas, même avec des espaces',
+    { a: JSON.stringify(a), b: JSON.stringify(b) });
 }
 
 // ── 2. Notes ────────────────────────────────────────────────────────────────
@@ -805,6 +841,7 @@ function epreuveCoquille() {
 async function principal() {
   const depot = await epreuveMigration1();
   await epreuveMigration2(depot);
+  epreuveSeparateur();
   await Lexique.charger('noyau');
   await epreuveNotes(depot);
   const mots = await epreuvePerso(depot);
