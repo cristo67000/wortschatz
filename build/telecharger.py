@@ -16,9 +16,11 @@ Usage :
 """
 
 import argparse
+import json
 import re
 import sys
 import time
+import email.utils
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -48,6 +50,15 @@ KAIKKI = "https://kaikki.org/{edition}wiktionary/raw-wiktextract-data.jsonl.gz"
 # gratuitement ; se présenter est la moindre des choses.
 AGENT = "Wortschatz-build/1.0 (application hors ligne d'apprentissage FR-DE)"
 
+# La date de chaque fichier telle que l'hebergeur l'annonce.
+#
+# Sans elle, on ne saurait pas dire de quelle mouture viennent les donnees : le
+# TEI de WikDict porte la sienne dans son en-tete, mais les dumps kaikki.org
+# n'en portent aucune, et la date du fichier sur le disque est celle du
+# telechargement — pas celle de la source. SOURCES.md et le manifeste des
+# donnees citent ce qui est ecrit ici.
+MOUTURES = {}
+
 
 def humain(octets):
     for unite in ("o", "Ko", "Mo", "Go"):
@@ -61,6 +72,18 @@ def ouvrir(url, depuis=0):
     if depuis:
         requete.add_header("Range", f"bytes={depuis}-")
     return urllib.request.urlopen(requete, timeout=120)
+
+
+def noter_mouture(destination, reponse):
+    """Retient la date annoncee par l'hebergeur, au format ISO."""
+    brut = reponse.headers.get("Last-Modified")
+    if not brut:
+        return
+    try:
+        instant = email.utils.parsedate_to_datetime(brut)
+    except (TypeError, ValueError):
+        return
+    MOUTURES[destination.name] = instant.date().isoformat()
 
 
 def lister(url):
@@ -88,6 +111,7 @@ def telecharger(url, destination, forcer=False):
     try:
         with ouvrir(url, depuis=0) as reponse:
             attendu = int(reponse.headers.get("Content-Length") or 0)
+            noter_mouture(destination, reponse)
     except urllib.error.HTTPError as e:
         raise SystemExit(f"  ✗ {url} → HTTP {e.code}")
 
@@ -157,6 +181,20 @@ def main():
     for nom in ("de-fr.sqlite3", "fr-de.sqlite3"):
         telecharger(WIKDICT_SQLITE + mouture + nom, SOURCES / nom, options.forcer)
 
+    # La base monolingue française : c'est elle qui porte les formes fléchies
+    # (« nationaux » → « national »), dans ses tables `entry` et `form`. Les
+    # bases bilingues ne les ont pas. Sans elle, `formes_fr.py` doit tout
+    # reconstruire par règle, et l'index français perd les irrégularités que le
+    # Wiktionnaire connaît pourtant.
+    #
+    # WikDict la publie sous le nom `fr.sqlite3` ; on la range sous
+    # `fr-lang.sqlite3` pour ne pas la confondre avec `fr-de.sqlite3`, qui est
+    # une base de traductions et n'a pas les mêmes tables.
+    print(f"\nWikDict — base monolingue française (formes fléchies), "
+          f"mouture {mouture.rstrip('/')}")
+    telecharger(WIKDICT_SQLITE + mouture + "fr.sqlite3",
+                SOURCES / "fr-lang.sqlite3", options.forcer)
+
     print("\nTatoeba — phrases alignées")
     for langue, nom in (("deu", "deu_sentences.tsv.bz2"),
                         ("fra", "fra_sentences.tsv.bz2"),
@@ -168,6 +206,13 @@ def main():
     for edition in ("de", "fr"):
         telecharger(KAIKKI.format(edition=edition),
                     SOURCES / f"wiktionnaire-{edition}.jsonl.gz", options.forcer)
+
+    (SOURCES / "moutures.json").write_text(
+        json.dumps(MOUTURES, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8", newline="")
+    print("\nMoutures des sources — build/sources/moutures.json")
+    for nom, date in sorted(MOUTURES.items()):
+        print(f"  {nom:<30} {date}")
 
     total = sum(f.stat().st_size for f in SOURCES.iterdir() if f.is_file())
     print(f"\nTotal : {humain(total)} dans build/sources/")

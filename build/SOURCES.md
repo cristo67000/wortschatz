@@ -16,6 +16,9 @@ licence, et ce que l'application en fait. Les mêmes mentions figurent dans
     — 48 578 entrées, mouture 2025.11.21
   - `https://download.wikdict.com/dictionaries/sqlite/<mouture>/de-fr.sqlite3`
   - `https://download.wikdict.com/dictionaries/sqlite/<mouture>/fr-de.sqlite3`
+    — mouture 2_2026-06
+  - `https://download.wikdict.com/dictionaries/sqlite/<mouture>/fr.sqlite3`,
+    rangée sous `fr-lang.sqlite3` — mouture 2_2026-06
 - **Licence** : Creative Commons Attribution — Partage dans les mêmes conditions
   3.0 non transposé (CC BY-SA 3.0), telle qu'annoncée dans l'en-tête TEI.
   <https://creativecommons.org/licenses/by-sa/3.0/legalcode>
@@ -24,9 +27,17 @@ licence, et ce que l'application en fait. Les mêmes mentions figurent dans
 
 Ce que nous en tirons : la forme vedette, la transcription phonétique (API), la
 nature grammaticale, **le genre des noms allemands**, les formes fléchies, la
-définition en langue source et les traductions. Les bases SQLite ne servent qu'à
-une chose : `simple_translation.rel_importance`, qui dit à quel point un mot est
-courant, et qui sert à classer le vocabulaire par bandes de fréquence.
+définition en langue source et les traductions.
+
+Les bases SQLite servent à deux choses. Les bilingues (`de-fr`, `fr-de`)
+donnent `simple_translation.rel_importance`, qui dit à quel point un mot est
+courant et sert à classer le vocabulaire par bandes de fréquence. La
+monolingue française (`fr.sqlite3`) donne ses tables `entry` et `form`,
+c'est-à-dire **les formes fléchies du français** : 30 625 renvois de « nationaux »
+vers « national » que les bases bilingues ne portent pas et qu'aucune règle ne
+devine. Elle manquait à `telecharger.py` jusqu'à la version 3 — `formes_fr.py`
+la cherchait et repartait en silence sans elle, ce qui laissait l'index français
+aux seuls verbes irréguliers et aux formes reconstruites par règle.
 
 Le partage dans les mêmes conditions s'applique : les paquets de données produits
 dans `data/` sont eux aussi sous CC BY-SA, et l'application l'indique.
@@ -51,10 +62,15 @@ alignées, qui servent d'exemples sur les fiches, de matière aux exercices
 - **Site** : <https://kaikki.org/> — extraction *wiktextract* de Tatu Ylonen
   (<https://github.com/tatuylonen/wiktextract>)
 - **Fichiers utilisés**
-  - `https://kaikki.org/dewiktionary/raw-wiktextract-data.jsonl.gz` — 288 Mo,
-    édition allemande du Wiktionnaire, mouture du 2026-08-04
-  - `https://kaikki.org/frwiktionary/raw-wiktextract-data.jsonl.gz` — 682 Mo,
-    édition française, mouture du 2026-05-01
+  - `https://kaikki.org/dewiktionary/raw-wiktextract-data.jsonl.gz` — 289 Mo,
+    édition allemande du Wiktionnaire, mouture du 2026-09-04
+  - `https://kaikki.org/frwiktionary/raw-wiktextract-data.jsonl.gz` — 685 Mo,
+    édition française, mouture du 2026-09-05
+
+Les moutures ne sont pas recopiées à la main : `telecharger.py` lit l'en-tête
+`Last-Modified` de chaque fichier et l'écrit dans `build/sources/moutures.json`,
+que `construire.py` reporte dans `data/manifeste.json`. Une date affichée dans
+l'application est donc celle de la source, pas celle du téléchargement.
 - **Licence** : celles du Wiktionnaire, **CC BY-SA** et GFDL.
   <https://en.wiktionary.org/wiki/Wiktionary:Copyrights>
 - **Citation académique** : Tatu Ylonen, *Wiktextract: Wiktionary as
@@ -68,7 +84,39 @@ Ce que nous en tirons, et que WikDict ne porte pas :
 - les **synonymes** ;
 - les **formes qu'on apprend par cœur** — pluriel et génitif des noms
   allemands, temps primitifs des verbes, comparatif et superlatif, féminin et
-  pluriel des adjectifs français, conjugaison du présent et de l'imparfait.
+  pluriel des adjectifs français, conjugaison du présent et de l'imparfait ;
+- depuis la version 3, les **tables de traduction** — « Übersetzungen » dans
+  l'édition allemande, « traductions » dans la française — avec le numéro du
+  sens que chacune sert.
+
+### Les traductions du Wiktionnaire, et ce qu'elles changent
+
+Jusqu'à la version 2, WikDict décidait seul de ce qui entrait au dictionnaire :
+`wiktionnaire.py` jetait toute vedette dont la clé lui était inconnue, et ne
+regardait pas une seule fois le champ `translations`. Le lexique plafonnait donc
+à ce que le filtre d'attestation de WikDict avait bien voulu laisser passer.
+
+`build/traductions.py` lit ces tables. Il en tire deux choses distinctes :
+
+- **des traductions pour des sens qui n'en avaient pas.** C'est le gain
+  principal, et le moins visible. Un sens que le Wiktionnaire décrit et que
+  WikDict ne traduit pas s'affichait « sens sans traduction connue » : une
+  définition à déchiffrer, et rien à apprendre. La part des sens traduits passe
+  de 51 % à 89 % du côté français, de 69 % à 81 % du côté allemand ;
+- **des vedettes entièrement nouvelles** — 4 253 allemandes, 1 768 françaises —
+  absentes de WikDict et traduites par le Wiktionnaire : *Pfefferspray*,
+  *Gelaber*, *Dorfstraße*, *bzw.*, *néophobie*, *planétarium*, *est-ce que*.
+
+Une vedette n'entre que si elle porte **au moins une traduction attestée**. Le
+Wiktionnaire décrit 108 000 vedettes allemandes ; les verser toutes ferait un
+dictionnaire monolingue deux fois plus gros où un mot sur deux ne répondrait pas
+à la question qu'on lui pose. Rien n'est fabriqué : une traduction retenue ici
+est une traduction que le Wiktionnaire écrit, sous le sens où il l'écrit.
+
+Une vedette dont la **clé** existe déjà n'entre pas non plus. « Gehen » le nom
+et « gehen » le verbe partagent la clé `gehen` ; les verser côte à côte
+fabriquerait deux résultats concurrents là où la greffe des sens fait déjà le
+travail sur l'entrée existante.
 
 Deux éditions et non une : l'édition allemande décrit les mots allemands **en
 allemand**, la française les mots français **en français**. L'édition anglaise

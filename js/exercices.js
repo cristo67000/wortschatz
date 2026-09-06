@@ -448,10 +448,25 @@
     return auHasard(possibles);
   }
 
+  /* Les phrases dont dispose une entrée.
+   *
+   * Une entrée du dictionnaire garde des numéros, qui désignent des paires du
+   * vivier commun ; un mot personnel porte directement la phrase qu'on a écrite
+   * pour lui. La différence s'arrête ici : le reste des exercices ne voit qu'une
+   * liste de paires, et ne sait pas d'où elle vient.
+   *
+   * Une paire dont un côté manque — un exemple saisi sans sa traduction — reste
+   * utilisable pour la phrase à trou, qui ne lit que la langue du mot. Les
+   * exercices qui réclament les deux côtés la filtrent eux-mêmes. */
+  async function phrasesDe(entree) {
+    if (entree.paires) return entree.paires.slice();
+    return Lexique.phrases(entree.phrases);
+  }
+
   /* Construit la question. Renvoie un objet décrivant ce qu'il faut afficher ;
    * c'est seance.js qui le met en page. */
   async function preparer(carte, entree, options) {
-    const phrases = await Lexique.phrases(entree.phrases);
+    const phrases = await phrasesDe(entree);
     const type = typeDExercice(carte, entree, phrases, options);
     const reponses = traductions(entree);
     /* La langue dans laquelle on attend la réponse. Elle ne se déduit pas du
@@ -586,22 +601,29 @@
     }
 
     if (type === 'trou' && phrases.length) {
-      const paire = auHasard(phrases);
-      const source = carte.langue === 'de' ? paire.de : paire.fr;
-      const cible = carte.langue === 'de' ? paire.fr : paire.de;
+      const utilisables = phrases.filter(
+        (p) => (carte.langue === 'de' ? p.de : p.fr));
+      const paire = utilisables.length ? auHasard(utilisables) : null;
+      const source = paire && (carte.langue === 'de' ? paire.de : paire.fr);
+      const cible = paire && (carte.langue === 'de' ? paire.fr : paire.de);
+      if (!source) return saisieSimple(carte, entree, reponses);
       const troue = trouer(source, carte.langue, Lexique.cle(entree.mot));
       if (troue) {
-        return { type, carte, entree, enonce: troue.texte, indice: cible,
+        return { type, carte, entree, enonce: troue.texte, indice: cible || null,
                  attendu: troue.mot, attendus: [troue.mot, entree.mot],
                  estNom: estNom(entree), langueReponse: carte.langue };
       }
     }
 
-    if (type === 'paire-phrase' && phrases.length) {
-      const paire = auHasard(phrases);
+    /* L'appariement de phrases réclame les deux côtés : sans traduction en
+     * face, il n'y a rien à apparier. Un exemple personnel saisi seul est donc
+     * écarté ici, et l'exercice de repli prend la main. */
+    const appariables = phrases.filter((p) => p.de && p.fr);
+    if (type === 'paire-phrase' && appariables.length) {
+      const paire = auHasard(appariables);
       const source = carte.langue === 'de' ? paire.de : paire.fr;
       const bonne = carte.langue === 'de' ? paire.fr : paire.de;
-      const autres = melanger(phrases.filter((p) => p !== paire))
+      const autres = melanger(appariables.filter((p) => p !== paire))
         .slice(0, 2)
         .map((p) => (carte.langue === 'de' ? p.fr : p.de));
       if (autres.length >= 1) {
@@ -619,6 +641,16 @@
     }
 
     // Par défaut, et pour tout ce qui précède qui n'a pas abouti : la saisie.
+    return saisieSimple(carte, entree, reponses);
+  }
+
+  /* Le repli : écrire la vedette, en ne voyant que sa traduction.
+   *
+   * Toute question qui n'aboutit pas retombe ici — une phrase où le mot ne se
+   * reconnaît pas, un pluriel absent, un synonyme qu'on n'a pas. Une séance ne
+   * doit jamais rester sans question à poser : l'exercice de repli demande le
+   * moins de données possible, et il y en a toujours assez. */
+  function saisieSimple(carte, entree, reponses) {
     return {
       type: 'saisie',
       carte, entree,
@@ -653,7 +685,7 @@
     corriger, distancePour: distance, nettoyer, decouper,
     traductions, genreDe, genresDe, estNom, avecArticle,
     formeFlechie, synonymesDe,
-    preparer, typeDExercice, trouer, melanger,
+    preparer, typeDExercice, trouer, melanger, phrasesDe,
   };
 
 })(window);

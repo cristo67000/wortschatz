@@ -105,6 +105,7 @@
   function carteDePapier(mot, atelier) {
     return {
       langue: mot.langue, mot: mot.mot, tranche: mot.tranche,
+      perso: mot.perso || null,
       type: typeDeCarte(atelier, mot.langue),
       reussites: 9, echecs: 0, etat: 'revision', intervalle: 1,
       facilite: Revision.FACILITE_INITIALE, palier: 0, echeance: 0, vu: 0,
@@ -116,9 +117,11 @@
     const vus = new Map();
     for (const carte of cartes) {
       if (carte.langue !== langue) continue;
-      const cle = carte.langue + ' ' + carte.mot;
+      const cle = carte.perso ? 'perso ' + carte.perso
+                              : carte.langue + ' ' + carte.mot;
       if (!vus.has(cle)) {
-        vus.set(cle, { langue: carte.langue, mot: carte.mot, tranche: carte.tranche });
+        vus.set(cle, { langue: carte.langue, mot: carte.mot,
+                       tranche: carte.tranche, perso: carte.perso || null });
       }
     }
     return [...vus.values()];
@@ -178,6 +181,8 @@
   }
 
   function phrasesDe(entree) {
+    // Un mot personnel porte sa phrase en propre, sans passer par le vivier.
+    if (entree.paires) return entree.paires.filter((p) => p.de || p.fr);
     const numeros = (entree.phrases || []).slice();
     for (const lecture of entree.lectures) {
       for (const bloc of lecture[4]) {

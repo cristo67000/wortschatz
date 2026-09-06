@@ -25,7 +25,7 @@
  * efface, sur demande explicite ou en installant une version plus récente.
  */
 
-const VERSION = 'v2.0.0';
+const VERSION = 'v3.0.0';
 const COQUILLE = 'wortschatz-coquille-' + VERSION;
 
 const FICHIERS = [
@@ -41,12 +41,16 @@ const FICHIERS = [
   'js/voix.js',
   'js/revision.js',
   'js/exercices.js',
+  'js/notes.js',
+  'js/perso.js',
   'js/motsvifs.js',
   'js/fiche.js',
   'js/seance.js',
   'js/progres.js',
   'js/atelier.js',
   'js/suivis.js',
+  'js/mesmots.js',
+  'js/sauvegarde.js',
   'js/paquets.js',
   'js/installer.js',
   'js/miseajour.js',

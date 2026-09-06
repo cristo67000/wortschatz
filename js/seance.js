@@ -132,6 +132,7 @@
 
     const entree = await Lexique.ouvrir({
       langue: carte.langue, mot: carte.mot, tranche: carte.tranche,
+      perso: carte.perso || null,
     });
     if (!entree) {
       /* Le mot a disparu du dictionnaire — une version des données plus
@@ -295,7 +296,8 @@
        * compteurs de mémorisation, eux, l'ignorent. */
       await Store.noter({
         quand: Date.now(), carte: q.carte.id || null,
-        langue: q.carte.langue, mot: q.carte.mot, type: q.carte.type,
+        langue: q.carte.langue, mot: q.carte.mot, perso: q.carte.perso || null,
+        type: q.carte.type,
         exercice: q.type, qualite, etatAvant: q.carte.etat || null, libre: true,
       }).catch(() => {});
     }
@@ -365,8 +367,25 @@
     ouvrir.type = 'button';
     ouvrir.addEventListener('click', () => App.ouvrirFiche({
       langue: entree.langue, mot: entree.mot, tranche: q.carte.tranche,
+      perso: entree.perso || null,
     }));
     bloc.appendChild(ouvrir);
+
+    /* La note personnelle, si elle existe — et seulement ici.
+     *
+     * Une note contient souvent le moyen qu'on s'est trouvé pour retrouver le
+     * mot, c'est-à-dire la réponse. L'afficher pendant la question viderait
+     * l'exercice de son sens ; l'afficher après la réponse, au moment où l'on
+     * relit, est exactement ce pour quoi on l'a écrite. Elle arrive après coup
+     * — le verdict ne l'attend pas pour s'afficher. */
+    if (racine.Notes) {
+      // La question courante fait garde-fou : si l'on a déjà cliqué
+      // « Suivant », la note qui arrive n'a plus rien à faire à l'écran.
+      const pourQui = question;
+      Notes.rappel(entree).then((rappel) => {
+        if (rappel && question === pourQui) bloc.appendChild(rappel);
+      }).catch(() => {});
+    }
   }
 
   function avancer() {

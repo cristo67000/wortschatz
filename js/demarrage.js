@@ -61,6 +61,15 @@
         Store.ecrireReglage('paquet', paquet).catch(() => {});
       }
 
+      /* Les mots personnels entrent en mémoire avant que l'écran ne s'ouvre.
+       *
+       * La recherche est synchrone — c'est ce qui fait qu'elle suit la touche —
+       * et elle ne peut donc pas aller les chercher en base à chaque frappe.
+       * Ils sont peu nombreux et tiennent dans un tableau ; les charger ici est
+       * le seul moment où l'attente ne se voit pas. Un échec n'arrête rien :
+       * on ouvre le dictionnaire sans eux plutôt que de ne rien ouvrir. */
+      await Perso.charger().catch(() => {});
+
       App.brancher({ reglages, manifeste });
       ecran.classList.add('parti');
       setTimeout(() => { ecran.hidden = true; }, 300);

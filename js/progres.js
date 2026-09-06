@@ -39,6 +39,16 @@
     return noeud;
   }
 
+  /* Ce qui identifie un mot dans les statistiques.
+   *
+   * Un mot personnel se compte sous son identifiant, jamais sous sa graphie :
+   * on peut avoir ajouté « Zug » avec sa propre traduction alors que le
+   * dictionnaire le connaît déjà, et les deux s'apprennent séparément. Les
+   * confondre ferait passer pour su un mot qu'on n'a jamais révisé. */
+  function cleDuMot(ligne) {
+    return ligne.perso ? 'perso ' + ligne.perso : ligne.langue + ' ' + ligne.mot;
+  }
+
   function jourDe(instant) {
     const d = new Date(instant);
     d.setHours(0, 0, 0, 0);
@@ -70,7 +80,7 @@
         parJour.set(jourLibre, (parJour.get(jourLibre) || 0) + 1);
         continue;
       }
-      const mot = ligne.langue + ' ' + ligne.mot;
+      const mot = cleDuMot(ligne);
       if (ligne.qualite >= 2) {
         (PRODUCTION.indexOf(ligne.exercice) !== -1 ? produits : reconnus).add(mot);
       } else if (ligne.qualite === 0) {
@@ -81,7 +91,7 @@
     }
     for (const mot of produits) reconnus.delete(mot);
 
-    const suivis = new Set(cartes.map((c) => c.langue + ' ' + c.mot));
+    const suivis = new Set(cartes.map(cleDuMot));
     const jamais = new Set(suivis);
     for (const mot of produits) jamais.delete(mot);
     for (const mot of reconnus) jamais.delete(mot);

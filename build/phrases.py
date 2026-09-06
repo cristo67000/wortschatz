@@ -231,20 +231,58 @@ def sens_illustre(traductions_par_sens, presentes):
     wurde hier Silber abgebaut. » traduit par « on extrayait de l'argent »
     illustre *extraire*, pas *démanteler*.
 
-    On s'abstient dès que deux sens répondent. Deux traductions présentes dans
-    la même phrase, c'est soit une coïncidence, soit deux sens voisins : dans
-    les deux cas, choisir serait deviner.
+    On s'abstient dès que deux sens répondent **avec la même précision**. Deux
+    traductions d'un seul mot présentes dans la même phrase, c'est soit une
+    coïncidence, soit deux sens voisins : dans les deux cas, choisir serait
+    deviner.
+
+    Une locution, en revanche, désigne son sens bien plus sûrement qu'un mot
+    isolé. Si la phrase porte à la fois « aller » et « aller au travail », c'est
+    le second qui dit quel sens est employé — le premier est contenu dans le
+    second, et l'ambiguïté n'est qu'apparente. On départage donc par le nombre
+    de mots de la traduction trouvée, et on s'abstient toujours à égalité.
+
+    La règle a été ajoutée en version 3, quand les traductions du Wiktionnaire
+    ont fait passer la part des sens traduits de 51 % à 89 % du côté français.
+    Chaque sens traduit de plus est un candidat de plus, donc une chance de plus
+    de tomber sur deux réponses : sans départage, l'abondance nouvelle faisait
+    perdre les phrases qu'elle aurait dû aider à ranger.
     """
-    trouves = []
+    candidats = []           # (précision, rang, clés des traductions trouvées)
     for rang, traductions in enumerate(traductions_par_sens):
+        trouvees = set()
+        precision = 0
         for traduction in traductions:
-            morceaux = commun.cle(traduction).split()
+            cle = commun.cle(traduction)
+            morceaux = cle.split()
             if morceaux and all(m in presentes for m in morceaux):
-                trouves.append(rang)
-                break
-        if len(trouves) > 1:
-            return None
-    return trouves[0] if len(trouves) == 1 else None
+                trouvees.add(cle)
+                precision = max(precision, len(morceaux))
+        if trouvees:
+            candidats.append((precision, rang, trouvees))
+
+    if not candidats:
+        return None
+
+    sommet = max(candidat[0] for candidat in candidats)
+    tetes = [candidat for candidat in candidats if candidat[0] == sommet]
+    if len(tetes) == 1:
+        return tetes[0][1]
+
+    # Plusieurs sens répondent avec la même précision. Reste à savoir s'ils
+    # répondent par la MÊME traduction : WikDict et le Wiktionnaire ne découpent
+    # pas les significations de la même façon, et la version 3, en greffant les
+    # traductions du Wiktionnaire, a multiplié les cas où deux sens voisins
+    # portent le mot « aller » tous les deux. Ce n'est pas une ambiguïté sur ce
+    # que la phrase illustre — c'est le même sens décrit deux fois. On prend
+    # alors le premier, celui que le reclassement a jugé le plus utile.
+    #
+    # Deux traductions DIFFÉRENTES, en revanche, désignent deux sens distincts :
+    # là, choisir serait deviner, et on s'abstient comme avant.
+    communes = set.intersection(*[candidat[2] for candidat in tetes])
+    if communes:
+        return min(candidat[1] for candidat in tetes)
+    return None
 
 
 def attribuer_aux_sens(vivier, retenues, dictionnaires, index_formes, journal=None):

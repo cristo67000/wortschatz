@@ -90,13 +90,14 @@
       bouton.dataset.suivi = suivi ? '1' : '0';
     }
 
-    Revision.estAppris(entree.langue, entree.mot).then(peindre).catch(() => {});
+    Revision.estAppris(entree.langue, entree.mot, entree.perso)
+      .then(peindre).catch(() => {});
 
     bouton.addEventListener('click', async () => {
       bouton.disabled = true;
       try {
         if (bouton.dataset.suivi === '1') {
-          await Revision.oublier(entree.langue, entree.mot);
+          await Revision.oublier(entree.langue, entree.mot, entree.perso);
           peindre(false);
         } else {
           await Revision.apprendre(entree);
@@ -122,6 +123,12 @@
     }
     bloc.appendChild(element('span', 'mot', entree.mot));
     bloc.appendChild(element('span', 'pastille', I18n.t('langue.' + entree.langue + '.court')));
+    /* « Personnel », sur la vedette et non en bas de fiche : on doit savoir
+     * d'un coup d'œil qu'on lit sa propre entrée et non le dictionnaire, sans
+     * quoi on croirait que le Wiktionnaire a écrit ce qu'on a écrit soi-même. */
+    if (entree.perso) {
+      bloc.appendChild(element('span', 'pastille perso', I18n.t('perso.marque')));
+    }
     return bloc;
   }
 
@@ -157,9 +164,15 @@
         bloc.appendChild(element('span', 'etiquette', I18n.t('genre.' + lecture[1])));
       }
     }
-    const bande = element('span', 'etiquette bande-' + entree.bande, I18n.t('bande.' + entree.bande));
-    bande.title = I18n.t('bande.explication');
-    bloc.appendChild(bande);
+    /* La bande de fréquence est un rang d'usage mesuré dans un corpus. Un mot
+     * personnel n'en a pas — il n'a jamais été compté nulle part — et lui en
+     * afficher une (« Premiers pas ») annoncerait une mesure qui n'existe pas. */
+    if (!entree.perso) {
+      const bande = element('span', 'etiquette bande-' + entree.bande,
+        I18n.t('bande.' + entree.bande));
+      bande.title = I18n.t('bande.explication');
+      bloc.appendChild(bande);
+    }
     return bloc;
   }
 
@@ -358,6 +371,68 @@
     }
   }
 
+  /* L'exemple qu'on a écrit soi-même pour un mot personnel.
+   *
+   * Il ne passe pas par le vivier de Tatoeba — il n'y est pas, et n'a rien à y
+   * faire. Les deux côtés restent cliquables comme ceux du dictionnaire : un
+   * mot inconnu croisé dans sa propre phrase mérite le même geste. */
+  function exemplePersonnel(entree) {
+    const paires = (entree.paires || []).filter((p) => p.de || p.fr);
+    if (!paires.length) return null;
+    const section = element('section', 'exemples');
+    section.appendChild(element('h3', null, I18n.t('perso.exemple')));
+    const autre = entree.langue === 'de' ? 'fr' : 'de';
+    for (const paire of paires) {
+      const sien = entree.langue === 'de' ? paire.de : paire.fr;
+      const traduit = entree.langue === 'de' ? paire.fr : paire.de;
+      const bloc = element('div', 'exemple');
+      const source = element('p', 'exemple-source');
+      source.appendChild(MotsVifs.tisser(sien, entree.langue,
+        { cible: Lexique.cle(entree.mot) }));
+      if (Voix.possible(entree.langue)) {
+        const ecouter = element('button', 'ecouter-phrase', '▸');
+        ecouter.type = 'button';
+        ecouter.setAttribute('aria-label', I18n.t('fiche.ecouter'));
+        ecouter.addEventListener('click', () => Voix.dire(sien, entree.langue));
+        source.appendChild(ecouter);
+      }
+      bloc.appendChild(source);
+      if (traduit) {
+        const cible = element('p', 'exemple-cible');
+        cible.appendChild(MotsVifs.tisser(traduit, autre, {}));
+        bloc.appendChild(cible);
+      }
+      section.appendChild(bloc);
+    }
+    return section;
+  }
+
+  /* Modifier ou supprimer sa propre entrée, depuis sa fiche.
+   *
+   * Les deux boutons vivent en bas, et non près de la vedette : on ouvre une
+   * fiche pour la lire, pas pour la corriger, et un « Supprimer » sous le doigt
+   * au-dessus du mot serait un piège. `mesmots.js` fait le travail — c'est lui
+   * qui sait demander confirmation quand il y a quelque chose à perdre. */
+  function boutonsPersonnels(entree, surFermeture) {
+    if (!entree.perso || !racine.MesMots) return null;
+    const ligne = element('div', 'ligne-boutons perso-actions');
+    const modifier = element('button', 'bouton-discret', I18n.t('perso.modifier'));
+    modifier.type = 'button';
+    modifier.addEventListener('click', () => MesMots.ouvrirFormulaire({
+      uid: entree.perso,
+      surEnregistrement: () => { if (surFermeture) surFermeture(); },
+    }));
+    const supprimer = element('button', 'lien-discret', I18n.t('perso.supprimer'));
+    supprimer.type = 'button';
+    supprimer.addEventListener('click', async () => {
+      const fait = await MesMots.supprimerAvecEgards(entree.perso);
+      if (fait && surFermeture) surFermeture();
+    });
+    ligne.appendChild(modifier);
+    ligne.appendChild(supprimer);
+    return ligne;
+  }
+
   function construire(entree, surFermeture) {
     const bloc = document.createDocumentFragment();
     const cleVedette = Lexique.cle(entree.mot);
@@ -380,9 +455,23 @@
       bloc.appendChild(section);
     }
 
-    const exemples = element('section', 'exemples');
-    bloc.appendChild(exemples);
-    remplirRestantes(entree, exemples, cleVedette).catch(() => exemples.remove());
+    const sien = exemplePersonnel(entree);
+    if (sien) bloc.appendChild(sien);
+
+    if (!entree.perso) {
+      const exemples = element('section', 'exemples');
+      bloc.appendChild(exemples);
+      remplirRestantes(entree, exemples, cleVedette).catch(() => exemples.remove());
+    }
+
+    /* « Mes notes » ferme la fiche, sous le dictionnaire et sous les exemples :
+     * c'est ce qu'on vient ajouter une fois qu'on a lu, et ce qu'on vient
+     * relire ensuite — on y revient en faisant défiler jusqu'en bas, ce qui est
+     * exactement le geste qu'on fait quand on cherche ses propres mots. */
+    if (racine.Notes) bloc.appendChild(Notes.construire(entree));
+
+    const actions = boutonsPersonnels(entree, surFermeture);
+    if (actions) bloc.appendChild(actions);
 
     const autour = voisinage(entree);
     if (autour) bloc.appendChild(autour);

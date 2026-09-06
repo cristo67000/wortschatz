@@ -65,9 +65,17 @@
     return Date.now();
   }
 
-  function neuve(langue, mot, tranche, type) {
-    return {
-      id: Store.identifiant(langue, mot, type),
+  /* Une carte neuve. `perso` est l'identifiant du mot personnel, ou rien.
+   *
+   * Il change l'identité de la carte, et rien d'autre. Une carte de mot
+   * personnel se nomme d'après cet identifiant plutôt que d'après la graphie :
+   * corriger l'orthographe du mot ne doit pas fabriquer une carte neuve et
+   * abandonner l'ancienne avec ses trois mois d'intervalle. Le champ `mot`
+   * reste, pour l'affichage des listes, et suit les corrections. */
+  function neuve(langue, mot, tranche, type, perso) {
+    const carte = {
+      id: perso ? Store.identifiantPerso(perso, type)
+                : Store.identifiant(langue, mot, type),
       langue, mot, tranche, type,
       etat: 'nouveau',
       palier: 0,
@@ -79,6 +87,8 @@
       cree: maintenant(),
       vu: 0,
     };
+    if (perso) carte.perso = perso;
+    return carte;
   }
 
   /* Le sens de travail : quelles directions on veut réviser.
@@ -106,7 +116,8 @@
       const aUnGenre = entree.lectures.some((l) => l[0] === 'n' && l[1]);
       if (aUnGenre) types.push('genre');
     }
-    return types.map((type) => neuve(entree.langue, entree.mot, entree.tranche, type));
+    return types.map((type) => neuve(entree.langue, entree.mot, entree.tranche,
+                                     type, entree.perso || null));
   }
 
   /* La carte demande-t-elle de produire la vedette elle-même, ou sa traduction ?
@@ -119,7 +130,8 @@
   }
 
   async function apprendre(entree) {
-    const existantes = await Store.cartesDuMot(entree.langue, entree.mot);
+    const existantes = await Store.cartesDuMot(entree.langue, entree.mot,
+                                               entree.perso || null);
     const deja = new Set(existantes.map((c) => c.type));
     const creees = [];
     for (const carte of cartesPour(entree)) {
@@ -130,14 +142,14 @@
     return creees;
   }
 
-  async function oublier(langue, mot) {
-    for (const carte of await Store.cartesDuMot(langue, mot)) {
+  async function oublier(langue, mot, perso) {
+    for (const carte of await Store.cartesDuMot(langue, mot, perso || null)) {
       await Store.supprimerCarte(carte.id);
     }
   }
 
-  async function estAppris(langue, mot) {
-    return (await Store.cartesDuMot(langue, mot)).length > 0;
+  async function estAppris(langue, mot, perso) {
+    return (await Store.cartesDuMot(langue, mot, perso || null)).length > 0;
   }
 
   // ── Le calcul de la prochaine échéance ────────────────────────────────────
@@ -205,6 +217,10 @@
       carte: carte.id,
       langue: carte.langue,
       mot: carte.mot,
+      /* L'identifiant du mot personnel voyage avec la ligne de journal : sans
+       * lui, l'onglet Progrès confondrait un « Zug » à soi avec celui du
+       * dictionnaire, et compterait pour un ce qui fait deux. */
+      perso: carte.perso || null,
       type: carte.type,
       exercice: exercice || null,
       qualite,

@@ -36,8 +36,10 @@
       else bouton.removeAttribute('aria-current');
     }
     if (nom !== 'reviser' && racine.Suivis) Suivis.reinitialiser();
+    if (nom !== 'mesmots' && racine.MesMots) MesMots.reinitialiser();
     if (nom === 'reglages') dessinerReglages();
     if (nom === 'reviser') Seance.rafraichir();
+    if (nom === 'mesmots') MesMots.dessiner();
     if (nom === 'progres') Progres.dessiner(elements.progresContenu);
     if (nom === 'chercher') elements.q.focus({ preventScroll: true });
     racine.scrollTo(0, 0);
@@ -75,6 +77,24 @@
     elements.rien.hidden = !saisie || aQuelqueChose;
     elements.rienConseil.textContent = I18n.t(
       Lexique.paquet === 'complet' ? 'chercher.rien.complet' : 'chercher.rien.conseil');
+
+    /* « Ajouter ce mot », sous une recherche restée vide.
+     *
+     * C'est le seul endroit où l'on sait à coup sûr que le mot manque, et le
+     * seul moment où on l'a encore sous les yeux, bien orthographié. Le bouton
+     * reste aussi accessible sous une liste de résultats — on cherche parfois
+     * un mot dont un homographe existe — mais discrètement. */
+    elements.ajouterSousRien.hidden = !saisie || aQuelqueChose;
+    elements.ajouterSousListe.hidden = !saisie || !aQuelqueChose;
+    if (saisie) {
+      elements.ajouterSousRien.textContent =
+        I18n.t('perso.ajouter.ce-mot', { mot: saisie });
+    }
+  }
+
+  function ajouterLeMotCherche() {
+    const saisie = elements.q.value.trim();
+    MesMots.ouvrirFormulaire({ saisie });
   }
 
   function chercher() {
@@ -93,7 +113,10 @@
     elements.fiche.hidden = false;
     elements.fiche.scrollTop = 0;
     document.body.style.overflow = 'hidden';
-    Store.consulter(entree.langue, entree.mot).catch(() => {});
+    /* L'historique de consultation ne retient que le dictionnaire : il sert à
+     * retrouver ce qu'on a cherché, et un mot personnel se retrouve dans
+     * « Mes mots », qui ne l'oublie jamais. */
+    if (!entree.perso) Store.consulter(entree.langue, entree.mot).catch(() => {});
   }
 
   function fermerFiche() {
@@ -170,6 +193,7 @@
     elements.etatMaj.textContent = '';
 
     dessinerDictionnaire();
+    dessinerSauvegarde();
     Installer.dessiner();
   }
 
@@ -179,12 +203,33 @@
     if (!manifeste) return;
 
     const installeComplet = Lexique.paquet === 'complet';
-    const nombre = installeComplet
-      ? manifeste.paquets.complet.entrees.de + manifeste.paquets.complet.entrees.fr
-      : manifeste.paquets.noyau.entrees.de + manifeste.paquets.noyau.entrees.fr;
+    const actif = manifeste.paquets[installeComplet ? 'complet' : 'noyau'];
+    const nombre = actif.entrees.de + actif.entrees.fr;
     elements.etatDictionnaire.textContent = I18n.t(
       installeComplet ? 'reglages.dictionnaire.complet' : 'reglages.dictionnaire.noyau',
       { n: nombre.toLocaleString(I18n.langue) });
+
+    /* Ce que le paquet actif pèse, ce qu'il sait faire, et d'où il vient.
+     *
+     * Trois choses qu'il fallait deviner jusqu'ici. « Installé » se dit
+     * explicitement : sur un téléphone, la différence entre « téléchargé et
+     * utilisable hors ligne » et « il faut du réseau » est la seule qui
+     * compte, et elle ne se lisait nulle part. */
+    const traduites = actif.traduites
+      ? actif.traduites.de + actif.traduites.fr : nombre;
+    const fiche = element('p', 'discret dictionnaire-detail');
+    fiche.appendChild(element('span', 'etat-installe',
+      I18n.t('reglages.dictionnaire.installe')));
+    fiche.appendChild(document.createTextNode(' · ' + I18n.t(
+      'reglages.dictionnaire.poids',
+      { taille: Paquets.humain(actif.octets, I18n.langue) })));
+    fiche.appendChild(document.createTextNode(' · ' + I18n.t(
+      'reglages.dictionnaire.traduites',
+      { n: traduites.toLocaleString(I18n.langue) })));
+    fiche.appendChild(document.createTextNode(' · ' + I18n.t(
+      'reglages.dictionnaire.phrases',
+      { n: actif.phrases.toLocaleString(I18n.langue) })));
+    zone.appendChild(fiche);
 
     if (installeComplet) {
       const bouton = element('button', 'bouton-discret', I18n.t('reglages.supprimer'));
@@ -215,6 +260,142 @@
     bouton.addEventListener('click', () => lancerTelechargement(zone, bouton));
     zone.appendChild(bouton);
     zone.appendChild(detail);
+  }
+
+  // ── Sauvegarde et restauration ────────────────────────────────────────────
+
+  /* Exporter, puis importer en deux temps : examiner, puis appliquer.
+   *
+   * Le temps intermédiaire n'est pas une politesse, c'est le cœur du sujet. Un
+   * fichier peut être plus ancien que ce qu'il y a dans l'appareil ; l'écrire
+   * par-dessus sans rien dire détruirait des révisions plus récentes, et
+   * personne ne s'en apercevrait avant des semaines. On montre donc d'abord ce
+   * qui entrerait, ce qui existe déjà, et ce qui se contredit — puis on demande.
+   */
+  function dessinerSauvegarde() {
+    const zone = elements.zoneSauvegarde;
+    if (!zone) return;
+    zone.textContent = '';
+
+    const ligne = element('div', 'ligne-boutons');
+    const exporter = element('button', 'bouton-discret', I18n.t('sauvegarde.exporter'));
+    exporter.type = 'button';
+    const importer = element('button', 'bouton-discret', I18n.t('sauvegarde.importer'));
+    importer.type = 'button';
+    ligne.appendChild(exporter);
+    ligne.appendChild(importer);
+    zone.appendChild(ligne);
+
+    const fichier = element('input');
+    fichier.type = 'file';
+    fichier.accept = 'application/json,.json';
+    fichier.hidden = true;
+    zone.appendChild(fichier);
+
+    const avis = element('div', 'sauvegarde-avis');
+    zone.appendChild(avis);
+
+    exporter.addEventListener('click', async () => {
+      exporter.disabled = true;
+      try {
+        await Sauvegarde.exporter();
+        avis.textContent = '';
+        avis.appendChild(element('p', 'discret',
+          I18n.t('sauvegarde.exporte', { fichier: Sauvegarde.nomDeFichier() })));
+      } catch (erreur) {
+        avis.textContent = I18n.t('sauvegarde.erreur.export');
+      } finally {
+        exporter.disabled = false;
+      }
+    });
+
+    importer.addEventListener('click', () => fichier.click());
+    fichier.addEventListener('change', async () => {
+      const choisi = fichier.files && fichier.files[0];
+      fichier.value = '';
+      if (!choisi) return;
+      avis.textContent = '';
+      avis.appendChild(element('p', 'discret', I18n.t('sauvegarde.lecture')));
+      const bilan = await Sauvegarde.examiner(choisi);
+      avis.textContent = '';
+      if (bilan.erreur) {
+        avis.appendChild(element('p', 'sauvegarde-echec', I18n.t(bilan.erreur)));
+        return;
+      }
+      dessinerBilanImport(avis, bilan);
+    });
+  }
+
+  function compteur(hote, cle, valeur) {
+    if (!valeur) return;
+    hote.appendChild(element('li', null, I18n.n(cle, valeur)));
+  }
+
+  function dessinerBilanImport(avis, bilan) {
+    avis.appendChild(element('p', null,
+      I18n.t('sauvegarde.trouve', { date: bilan.exporte || '?' })));
+
+    const details = element('ul', 'sauvegarde-bilan');
+    compteur(details, 'sauvegarde.bilan.mots', bilan.mots.neufs.length);
+    compteur(details, 'sauvegarde.bilan.notes', bilan.notes.neufs.length);
+    compteur(details, 'sauvegarde.bilan.cartes', bilan.cartes.neufs.length);
+    const pareils = bilan.mots.pareils.length + bilan.notes.pareils.length
+      + bilan.cartes.pareils.length;
+    compteur(details, 'sauvegarde.bilan.identiques', pareils);
+    compteur(details, 'sauvegarde.bilan.conflits', bilan.conflits);
+    const ignorees = bilan.ignorees.mots + bilan.ignorees.notes + bilan.ignorees.cartes;
+    compteur(details, 'sauvegarde.bilan.ignorees', ignorees);
+    if (!details.childNodes.length) {
+      details.appendChild(element('li', null, I18n.t('sauvegarde.bilan.rien')));
+    }
+    avis.appendChild(details);
+
+    let politique = 'garder';
+    if (bilan.conflits) {
+      avis.appendChild(element('p', 'discret', I18n.t('sauvegarde.conflits.question')));
+      const choix = element('div', 'segments');
+      choix.setAttribute('role', 'group');
+      for (const valeur of ['garder', 'remplacer']) {
+        const bouton = element('button', null, I18n.t('sauvegarde.conflits.' + valeur));
+        bouton.type = 'button';
+        bouton.setAttribute('aria-pressed', String(valeur === politique));
+        bouton.addEventListener('click', () => {
+          politique = valeur;
+          for (const autre of choix.querySelectorAll('button')) {
+            autre.setAttribute('aria-pressed', String(autre === bouton));
+          }
+        });
+        choix.appendChild(bouton);
+      }
+      avis.appendChild(choix);
+    }
+
+    if (!bilan.neufs && !bilan.conflits) return;
+
+    const boutons = element('div', 'ligne-boutons');
+    const valider = element('button', 'bouton-principal', I18n.t('sauvegarde.appliquer'));
+    valider.type = 'button';
+    valider.addEventListener('click', async () => {
+      valider.disabled = true;
+      const compte = await Sauvegarde.appliquer(bilan, politique);
+      avis.textContent = '';
+      const resume = element('ul', 'sauvegarde-bilan');
+      compteur(resume, 'sauvegarde.fait.mots', compte.mots);
+      compteur(resume, 'sauvegarde.fait.notes', compte.notes);
+      compteur(resume, 'sauvegarde.fait.cartes', compte.cartes);
+      compteur(resume, 'sauvegarde.fait.gardes', compte.gardes);
+      compteur(resume, 'sauvegarde.fait.orphelines', compte.orphelines);
+      if (!resume.childNodes.length) {
+        resume.appendChild(element('li', null, I18n.t('sauvegarde.fait.rien')));
+      }
+      avis.appendChild(element('p', null, I18n.t('sauvegarde.fait')));
+      avis.appendChild(resume);
+      if (racine.MesMots) MesMots.dessiner();
+      if (racine.Seance) Seance.rafraichir();
+      chercher();
+    });
+    boutons.appendChild(valider);
+    avis.appendChild(boutons);
   }
 
   async function lancerTelechargement(zone, bouton) {
@@ -286,6 +467,9 @@
       reglageArticle: $('#reglage-article'),
       reglageNouveautes: $('#reglage-nouveautes'),
       etatVoix: $('#etat-voix'),
+      ajouterSousRien: $('#b-ajouter-rien'),
+      ajouterSousListe: $('#b-ajouter-liste'),
+      zoneSauvegarde: $('#zone-sauvegarde'),
       aproposVersions: $('#apropos-versions'),
       verifierMaj: $('#b-verifier-maj'),
       etatMaj: $('#etat-maj'),
@@ -303,6 +487,10 @@
      * cartouche ouvert par-dessus la fiche, pas la fiche elle-même. */
     MotsVifs.brancher();
     Atelier.brancher();
+    MesMots.brancher();
+
+    elements.ajouterSousRien.addEventListener('click', ajouterLeMotCherche);
+    elements.ajouterSousListe.addEventListener('click', ajouterLeMotCherche);
 
     elements.q.addEventListener('input', chercher);
     elements.qVider.addEventListener('click', () => {
@@ -376,9 +564,11 @@
       dessinerRecents();
       chercher();
       if (!elements.fiche.hidden) fermerFiche();
+      if (racine.MesMots) MesMots.fermerFormulaire();
       if (!$('#vue-reglages').hidden) dessinerReglages();
       if (racine.Atelier) Atelier.dessiner();
       if (!$('#vue-reviser').hidden) Seance.rafraichir();
+      if (!$('#vue-mesmots').hidden) MesMots.dessiner();
       if (!$('#vue-progres').hidden) Progres.dessiner(elements.progresContenu);
     });
 
