@@ -276,6 +276,12 @@ def enrichir(entree, enregistrements, journal=None):
 
         enregistrement = choisir_enregistrement(nature, genre, enregistrements)
         compteur["sens"] += len(sens)
+        # Le Wiktionnaire sait si cette vedette est une expression, mieux que
+        # sa nature ne le dit : « moins que rien » est un nom, et une
+        # expression. L'attestation voyage jusqu'à `expressions.py`.
+        if any(e.get("idiome") for e in enregistrements):
+            entree["idiome"] = ("idiome" if any(e.get("idiome") == "idiome"
+                                                for e in enregistrements) else "locution")
         if enregistrement is None:
             compteur["sans_entree"] += 1
             continue

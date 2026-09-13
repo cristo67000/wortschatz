@@ -62,6 +62,20 @@ d'en retirer. Un retrait ne demande pas confirmation : il s'annule, et remet la
 carte telle qu'elle était — intervalle, facilité, réussites. Retirer un mot puis
 le rajouter par sa fiche, au contraire, en refait un mot neuf.
 
+**Les expressions usuelles.** Taper « feu » donne « à petit feu », « Ahnung »
+donne « keine Ahnung », « chance » donne « au petit bonheur la chance » — et
+aussi « viel Glück », par sa traduction. L'index des vedettes ne sait trouver
+que des débuts de mot ; un second index, par mot, range chaque expression sous
+chacun de ses mots et sous ceux de ses traductions, dans les deux langues. Les
+expressions forment un groupe à part sous les résultats, et chaque fiche de mot
+se termine par celles qui le contiennent. Une expression s'apprend comme un
+mot, dans les deux directions, sans carte de genre — on n'apprend pas « der »
+sur « kein Problem ».
+
+Ce qui fait qu'une suite de mots est une expression et non un nom composé, et
+d'où viennent les équivalents des formules que les tables de traduction
+ignorent, est dit dans [build/SOURCES.md](build/SOURCES.md).
+
 **Mes notes.** Chaque fiche porte une section où l'on écrit ce qu'aucun
 dictionnaire ne sait : le moyen mnémotechnique qu'on s'est trouvé, le piège où
 l'on retombe, la phrase où l'on a rencontré le mot. Les notes sont à part du
@@ -138,6 +152,21 @@ Deux paquets sont produits :
   décision de l'utilisateur. Les Réglages affichent le paquet actif, son poids
   sur l'appareil, le nombre d'entrées traduites, et qu'il est utilisable hors
   ligne.
+
+### Les expressions usuelles, en chiffres
+
+| | noyau | complet |
+|---|---|---|
+| expressions allemandes | 504 | 3 577 |
+| expressions françaises | 1 582 | 9 618 |
+| dont sans équivalent connu | 0 | 8 742 |
+| poids du paquet | 22.7 Mo | 80.2 Mo |
+
+Le noyau ne reçoit que des expressions traduites, faites de ses propres mots ;
+son budget est passé de 22 à 23 Mo pour les accueillir, et le dit dans
+`construire.py`. Le paquet complet porte en plus les expressions que le
+Wiktionnaire atteste sans leur connaître d'équivalent — elles se lisent, avec
+leur définition, mais ne se révisent pas, et leur fiche le dit.
 
 ### Ce que la version 3 a ajouté au dictionnaire, mesuré
 
@@ -269,6 +298,13 @@ La version 3 en ajoute deux :
 build/traductions.py   les tables de traduction du Wiktionnaire, et les
                        vedettes que WikDict ignore
 build/mesurer_gain.py  ce que la construction a gagné, chiffres à l'appui
+```
+
+La version 3.1 en ajoute un :
+
+```
+build/expressions.py   reconnaître les expressions usuelles, compléter les
+                       formules que les tables ignorent, et les indexer par mot
 ```
 
 ## Trois pièges, pour qui reprendrait le code

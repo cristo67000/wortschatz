@@ -81,6 +81,12 @@
    * plus. Il est donc large, en bas de la vedette, et dit son état — un mot déjà
    * suivi affiche qu'il l'est, et permet de le retirer. */
   function boutonApprendre(entree) {
+    /* Rien à produire, rien à apprendre : une expression attestée mais sans
+     * équivalent connu n'a pas de réponse à demander. On le dit à la place du
+     * bouton, plutôt que d'offrir un exercice sans solution. */
+    if (!Exercices.traductions(entree).length) {
+      return element('p', 'discret sans-equivalent', I18n.t('fiche.sans-equivalent'));
+    }
     const bouton = element('button', 'apprendre', I18n.t('fiche.apprendre'));
     bouton.type = 'button';
 
@@ -149,10 +155,26 @@
     return ligne;
   }
 
+  /* D'où vient une expression. Le dictionnaire et le Wiktionnaire sont cités
+   * dans les Réglages pour l'ensemble ; une formule dont l'équivalent vient de
+   * Tatoeba, ou une glose de l'édition d'en face, le dit sur sa fiche — c'est
+   * une autre sorte d'attestation, et le lecteur a le droit de le savoir. */
+  const PROVENANCES = {
+    dico: 'fiche.provenance.dico',
+    tatoeba: 'fiche.provenance.tatoeba',
+    croisee: 'fiche.provenance.croisee',
+    attestee: 'fiche.provenance.attestee',
+  };
+
   function etiquettes(entree, lecture) {
     const bloc = element('div', 'etiquettes');
     const nature = nomDeNature(lecture[0]);
     if (nature) bloc.appendChild(element('span', 'etiquette', nature));
+    if (entree.expression && !entree.perso) {
+      const marque = element('span', 'etiquette expression', I18n.t('fiche.expression'));
+      marque.title = I18n.t(PROVENANCES[entree.expression] || 'fiche.provenance.dico');
+      bloc.appendChild(marque);
+    }
     if (lecture[1]) {
       const table = ARTICLES[entree.langue] || {};
       const article = lecture[0] === 'n' && table[lecture[1]];
@@ -441,6 +463,8 @@
     bloc.appendChild(vedette(entree));
     bloc.appendChild(ligneSon(entree));
     bloc.appendChild(boutonApprendre(entree));
+    const origine = provenance(entree);
+    if (origine) bloc.appendChild(origine);
 
     for (const lecture of entree.lectures) {
       const section = element('section', 'lecture');
@@ -464,6 +488,12 @@
       remplirRestantes(entree, exemples, cleVedette).catch(() => exemples.remove());
     }
 
+    /* Les expressions usuelles qui contiennent ce mot — après les synonymes et
+     * les exemples, avant les notes. C'est là qu'on découvre « à petit feu »
+     * depuis « feu », et « keine Ahnung » depuis « Ahnung ». */
+    const tournures = expressionsDe(entree);
+    if (tournures) bloc.appendChild(tournures);
+
     /* « Mes notes » ferme la fiche, sous le dictionnaire et sous les exemples :
      * c'est ce qu'on vient ajouter une fois qu'on a lu, et ce qu'on vient
      * relire ensuite — on y revient en faisant défiler jusqu'en bas, ce qui est
@@ -477,6 +507,81 @@
     if (autour) bloc.appendChild(autour);
 
     return bloc;
+  }
+
+  /* La provenance d'une expression, et son explication, sous la vedette. */
+  function provenance(entree) {
+    if (!entree.expression || entree.perso) return null;
+    const bloc = element('div', 'provenance');
+    if (entree.explication) {
+      const texte = element('p', 'explication');
+      texte.appendChild(MotsVifs.tisser(entree.explication,
+        entree.langue === 'de' ? 'fr' : 'de', {}));
+      bloc.appendChild(texte);
+    }
+    bloc.appendChild(element('p', 'discret',
+      I18n.t(PROVENANCES[entree.expression] || 'fiche.provenance.dico')));
+    return bloc;
+  }
+
+  /* Combien d'expressions on montre d'abord sur une fiche. Un mot courant en
+   * a des dizaines ; six en disent assez, « Voir plus » déplie le reste. */
+  const EXPRESSIONS_VISIBLES = 6;
+
+  /* « Expressions usuelles » — celles qui contiennent le mot de la fiche.
+   *
+   * Deux sources : l'index des expressions par mot, et ses propres entrées à
+   * plusieurs mots qui contiennent ce mot. Une fiche qui est elle-même une
+   * expression ne se propose pas. Rien n'est affiché quand il n'y a rien :
+   * une section vide promet quelque chose qu'elle ne tient pas. */
+  function expressionsDe(entree) {
+    const k = Lexique.cle(entree.mot);
+    const liste = Lexique.expressionsAvec(entree, 60);
+    if (racine.Perso) {
+      for (const enregistrement of Perso.liste()) {
+        if (enregistrement.id === entree.perso) continue;
+        if (enregistrement.mot.indexOf(' ') === -1) continue;
+        const dedans = Perso.commenceParUnMot(enregistrement.cle, k)
+          || enregistrement.traductions.some((t) => Perso.commenceParUnMot(Lexique.cle(t), k));
+        if (dedans) liste.push(Perso.resultat(enregistrement, true, null));
+      }
+    }
+    if (!liste.length) return null;
+
+    const section = element('section', 'expressions-usuelles');
+    section.appendChild(element('h3', null, I18n.t('fiche.expressions')));
+    const ul = element('ul');
+
+    function ligne(resultat) {
+      const li = element('li');
+      const bouton = element('button', 'expression-ligne');
+      bouton.type = 'button';
+      bouton.appendChild(element('span', 'pastille',
+        I18n.t('langue.' + resultat.langue + '.court')));
+      bouton.appendChild(element('span', 'mot', resultat.mot));
+      if (resultat.perso) {
+        bouton.appendChild(element('span', 'pastille perso', I18n.t('perso.marque')));
+      }
+      if (resultat.apercu) bouton.appendChild(element('span', 'traduction', resultat.apercu));
+      bouton.addEventListener('click', () => App.ouvrirFiche(resultat));
+      li.appendChild(bouton);
+      return li;
+    }
+
+    for (const resultat of liste.slice(0, EXPRESSIONS_VISIBLES)) ul.appendChild(ligne(resultat));
+    section.appendChild(ul);
+    const reste = liste.slice(EXPRESSIONS_VISIBLES);
+    if (reste.length) {
+      const plus = element('button', 'lien-discret',
+        I18n.n('fiche.expressions.plus', reste.length));
+      plus.type = 'button';
+      plus.addEventListener('click', () => {
+        for (const resultat of reste) ul.appendChild(ligne(resultat));
+        plus.remove();
+      });
+      section.appendChild(plus);
+    }
+    return section;
   }
 
   /* « Autour de ce mot ».

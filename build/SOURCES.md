@@ -126,6 +126,62 @@ L'appariement des sens avec ceux de WikDict est décrit dans
 `build/alignement.py` et mesuré par `build/verifier.py` : **95,7 % des sens
 allemands et 84,9 % des sens français du noyau** portent au moins un exemple.
 
+### Les expressions usuelles
+
+Depuis la version 3.1, l'application distingue les **expressions usuelles** —
+locutions, tournures, formules de conversation, proverbes — des mots à
+plusieurs morceaux qui restent des mots (« base de données », « Republik
+Kuba »). Elles se cherchent par n'importe lequel de leurs mots, dans les deux
+langues, et se retrouvent au bas de la fiche de chacun. `build/expressions.py`
+les reconnaît, les complète et les indexe ; trois sources s'y ajoutent, dans cet
+ordre de confiance.
+
+**1. Le dictionnaire lui-même.** WikDict et les tables de traduction du
+Wiktionnaire portent déjà des milliers d'expressions traduites, mêlées aux
+mots. On les reconnaît à leur nature — verbe, adverbe, adjectif, interjection,
+locution, ou rien du tout, car DBnary laisse les tournures allemandes sans
+nature — et à la taxonomie du Wiktionnaire lui-même, qui range « simple comme
+bonjour » dans « Expressions en français » alors qu'il en fait un adjectif.
+Les noms et noms propres sont écartés, les verbes pronominaux aussi.
+
+**2. Une attestation lexicale, un équivalent de Tatoeba.** « kein Problem »,
+« viel Glück », « keine Ahnung » n'ont de traduction dans aucune table, et de
+page ni dans l'édition allemande ni dans la française du Wiktionnaire. Le
+**Wiktionnaire anglais** les décrit — c'est ce qu'on lui demande, et rien
+d'autre, ses gloses étant en anglais :
+
+- `https://kaikki.org/dictionary/German/pos-{phrase,intj,proverb,prep_phrase}/…`
+- `https://kaikki.org/dictionary/French/pos-{phrase,intj,proverb,prep_phrase}/…`
+  — huit fichiers, 5,4 Mo en tout, mêmes licence et provenance que le reste du
+  Wiktionnaire (CC BY-SA, GFDL).
+
+L'équivalent vient alors de **Tatoeba**, où ces formules figurent en phrases
+complètes traduites par des locuteurs — mais seulement sur deux signaux
+indépendants : plusieurs traductions distinctes de la même phrase, ou une
+expression que deux éditions du Wiktionnaire décrivent. Tatoeba aligne des
+phrases, pas des expressions : « Nach links ! » se traduit par « Tourne à
+gauche ! », qui n'est pas l'équivalent de « nach links ». On ne prend jamais
+une phrase de Tatoeba seule pour une expression.
+
+**3. L'édition d'en face.** Le Wiktionnaire français décrit « keine Ahnung » en
+français — « Aucune idée. Je n'en sais rien. » — et l'allemand décrit des
+expressions françaises en allemand. Une glose de quatre mots au plus est un
+équivalent ; une glose plus longue est une explication, gardée pour ce qu'elle
+est et affichée sous la vedette. Cette source n'atteste rien à elle seule :
+elle enrichit ce que sa propre édition ou l'anglaise a déjà attesté.
+
+Ce qui n'a ni traduction ni équivalent attesté n'est pas inventé. Une expression
+que le Wiktionnaire range lui-même parmi ses expressions entre tout de même,
+avec sa définition et, s'il s'en trouve, une phrase de Tatoeba qui la contient —
+mais sa fiche dit qu'aucun équivalent n'est connu, elle ne se révise pas, et le
+manifeste la compte à part (`expressions_sans_equivalent`). Le noyau, lui, n'en
+reçoit aucune : il ne contient que des expressions traduites, faites de ses
+propres mots.
+
+Chaque expression dit sa provenance sur sa fiche : `dico` (une table de
+traduction), `tatoeba`, `croisee` (glose de l'édition d'en face), `attestee`
+(définition seule).
+
 ## 4. Ce que nous ne pouvons pas utiliser
 
 Deux dictionnaires ont été demandés, envisagés, et écartés — non par choix

@@ -246,7 +246,7 @@ async function principal() {
       'les deux notes aussi', apres.notes);
   } finally {
     onglet.fermer();
-    fermerChrome(chrome);
+    await fermerChrome(chrome);
     try { rmSync(telechargements, { recursive: true, force: true }); } catch (e) { /* tant pis */ }
   }
 }

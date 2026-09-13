@@ -1055,6 +1055,88 @@ textarea.saisie-perso { resize: vertical; line-height: 1.5; }
   #perso-liste .suivi-mot .traduction { flex-basis: 100%; white-space: normal; }
 }
 
+/* ————— Expressions usuelles ————— */
+
+/* Le groupe sous les résultats, et la section en fin de fiche, partagent la
+   mise en page des listes de mots : même pastille, même mot, même traduction
+   qui se laisse couper. Une expression est un mot plus long, pas autre chose. */
+#resultats-expressions { margin-top: 1.1rem; }
+#resultats-expressions h3,
+.expressions-usuelles h3 {
+  margin: 0 0 .4rem;
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--encre-tres-douce);
+  font-weight: 600;
+}
+#resultats-expressions[hidden] { display: none; }
+/* La suite des mots, sous les expressions : même liste que #resultats. */
+#resultats-suite { list-style: none; margin: .4rem 0 0; padding: 0; }
+#resultats-suite[hidden] { display: none; }
+#resultats-suite .titre-suite { padding: .8rem 0 .2rem; }
+#resultats-suite .titre-suite h3 {
+  margin: 0;
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--encre-tres-douce);
+  font-weight: 600;
+}
+.resultats-expressions,
+.expressions-usuelles ul { list-style: none; margin: 0; padding: 0; }
+.resultats-expressions li,
+.expressions-usuelles li { border-bottom: 1px solid var(--trait); }
+.resultats-expressions li:last-child,
+.expressions-usuelles li:last-child { border-bottom: 0; }
+.expressions-usuelles {
+  margin: 1.75rem 0 1rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--trait);
+}
+.expression-ligne {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  width: 100%;
+  min-width: 0;
+  padding: .55rem .4rem;
+  border: 0;
+  background: transparent;
+  color: var(--encre);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.expression-ligne:hover, .expression-ligne:focus-visible { background: var(--accent-clair); }
+.expression-ligne .mot { font-weight: 600; }
+.expression-ligne .traduction {
+  color: var(--encre-douce);
+  font-size: .9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+/* Sur un téléphone, une expression et sa traduction ne tiennent pas sur une
+   ligne : la traduction passe dessous, comme pour les mots personnels — dans
+   la liste des résultats comme au bas d'une fiche. Le mot, lui, ne se coupe
+   pas : « prendre / feu » sur deux lignes ne se lit plus comme une expression. */
+.expression-ligne .mot,
+#resultats-expressions .resultat .mot { flex: none; max-width: 100%; }
+@media (max-width: 30rem) {
+  .expression-ligne,
+  #resultats-expressions .resultat { flex-wrap: wrap; }
+  .expression-ligne .traduction,
+  #resultats-expressions .resultat .traduction { flex-basis: 100%; white-space: normal; }
+}
+.etiquette.expression { background: var(--accent-clair); color: var(--accent); }
+.provenance { margin: -.2rem 0 1rem; }
+.provenance .explication { margin: 0 0 .3rem; }
+.provenance .discret { margin: 0; font-size: .8rem; }
+.sans-equivalent { margin: .3rem 0 1rem; }
+
 /* ————— Sauvegarde ————— */
 
 .sauvegarde-avis { margin-top: .8rem; }

@@ -105,12 +105,18 @@ def note(texte_de, texte_fr, langue, rangs, vedettes, formes):
     return valeur
 
 
-def choisir(paires, dictionnaires, index_formes, ordres, journal=None):
+def choisir(paires, dictionnaires, index_formes, ordres, journal=None,
+            supplements=None):
     """Sélectionne les phrases et les rattache aux vedettes.
 
     Renvoie `(vivier, par_vedette)` :
       vivier      liste de [texte allemand, texte français]
       par_vedette {langue: {vedette: [numéros dans le vivier]}}
+
+    `supplements`, s'il est donné, apporte des candidates que `lemmes_de` ne
+    sait pas trouver : `{langue: {vedette: [(valeur, numéro), …]}}`. C'est par
+    là que les expressions à plusieurs mots reçoivent leurs phrases — « à petit
+    feu » n'est le lemme d'aucun mot, mais il figure tel quel dans des phrases.
     """
     rangs = {}
     vedettes = {}
@@ -132,6 +138,12 @@ def choisir(paires, dictionnaires, index_formes, ordres, journal=None):
             texte = texte_de if langue == "de" else texte_fr
             for mot in lemmes_de(texte, langue, vedettes[langue], index_formes[langue]):
                 candidates[langue][mot].append((valeur, numero))
+
+    if supplements:
+        for langue in ("de", "fr"):
+            for mot, lot in supplements.get(langue, {}).items():
+                if mot in dictionnaires[langue]:
+                    candidates[langue][mot].extend(lot)
 
     # Attribution, du mot le plus utile au moins utile : les mots que l'on
     # apprendra en premier ont droit aux meilleures phrases, et à celles qui ne

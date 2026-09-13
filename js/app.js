@@ -47,32 +47,109 @@
 
   // ── Recherche ─────────────────────────────────────────────────────────────
 
+  function ligneDeResultat(resultat) {
+    const bouton = element('button', 'resultat');
+    bouton.type = 'button';
+    bouton.appendChild(element('span', 'pastille', I18n.t('langue.' + resultat.langue + '.court')));
+    bouton.appendChild(element('span', 'mot', resultat.mot));
+    if (resultat.via) {
+      /* La flèche se lit dans le sens de la recherche : on a tapé « Häuser »,
+       * on arrive à « Haus ». Écrire « forme de Häuser » à côté de « Haus »
+       * se lisait à l'envers. */
+      const note = element('span', 'via', '← ' + resultat.via);
+      note.title = resultat.via + ' : ' + I18n.t('chercher.via') + ' ' + resultat.mot;
+      bouton.appendChild(note);
+    }
+    if (resultat.perso) {
+      bouton.appendChild(element('span', 'pastille perso', I18n.t('perso.marque')));
+    }
+    bouton.appendChild(element('span', 'traduction', resultat.apercu));
+    bouton.addEventListener('click', () => ouvrirFiche(resultat));
+    const ligne = element('li');
+    ligne.appendChild(bouton);
+    return ligne;
+  }
+
+  /* Combien d'expressions on montre d'abord. Sur « de » ou « der », il y en
+   * aurait des dizaines ; six suffisent à voir si l'on est sur la bonne piste,
+   * et « Voir plus » déplie le reste. */
+  const EXPRESSIONS_VISIBLES = 6;
+
+  /* Les expressions usuelles, en groupe à part sous les mots.
+   *
+   * Elles viennent de deux endroits : l'index des expressions par mot (« feu »
+   * → « à petit feu ») et ses propres entrées à plusieurs mots, qui se
+   * cherchent déjà par leurs mots intérieurs. Ce qui figure déjà parmi les
+   * résultats de mots — parce qu'on a tapé le début de l'expression — n'est
+   * pas répété. */
+  function dessinerExpressions(expressions, dejaVus) {
+    const bloc = elements.expressions;
+    bloc.textContent = '';
+    const retenues = expressions.filter((r) => !dejaVus.has(r.langue + ' ' + r.mot
+                                                              + (r.perso || '')));
+    bloc.hidden = retenues.length === 0;
+    if (!retenues.length) return;
+
+    bloc.appendChild(element('h3', null, I18n.t('chercher.expressions')));
+    const liste = element('ul');
+    liste.className = 'resultats-expressions';
+    const visibles = retenues.slice(0, EXPRESSIONS_VISIBLES);
+    for (const resultat of visibles) liste.appendChild(ligneDeResultat(resultat));
+    bloc.appendChild(liste);
+
+    const reste = retenues.slice(EXPRESSIONS_VISIBLES);
+    if (reste.length) {
+      const plus = element('button', 'lien-discret',
+        I18n.n('chercher.expressions.plus', reste.length));
+      plus.type = 'button';
+      plus.addEventListener('click', () => {
+        for (const resultat of reste) liste.appendChild(ligneDeResultat(resultat));
+        plus.remove();
+      });
+      bloc.appendChild(plus);
+    }
+  }
+
   function dessinerResultats(resultats, saisie) {
     const liste = elements.resultats;
+    const suite = elements.resultatsSuite;
     liste.textContent = '';
+    suite.textContent = '';
 
-    for (const resultat of resultats) {
-      const bouton = element('button', 'resultat');
-      bouton.type = 'button';
-      bouton.appendChild(element('span', 'pastille', I18n.t('langue.' + resultat.langue + '.court')));
-      bouton.appendChild(element('span', 'mot', resultat.mot));
-      if (resultat.via) {
-        /* La flèche se lit dans le sens de la recherche : on a tapé « Häuser »,
-         * on arrive à « Haus ». Écrire « forme de Häuser » à côté de « Haus »
-         * se lisait à l'envers. */
-        const note = element('span', 'via', '← ' + resultat.via);
-        note.title = resultat.via + ' : ' + I18n.t('chercher.via') + ' ' + resultat.mot;
-        bouton.appendChild(note);
+    /* Les expressions usuelles atteintes par un mot de la saisie — depuis
+     * l'index du dictionnaire, et depuis ses propres entrées à plusieurs
+     * mots. Un mot personnel d'un seul mot n'est pas une expression. */
+    const vus = new Set(resultats.map((r) => r.langue + ' ' + r.mot + (r.perso || '')));
+    const expressions = saisie ? Lexique.chercherExpressions(saisie) : [];
+    if (saisie && racine.Perso) {
+      for (const r of Perso.chercher(Lexique.cle(saisie), 12)) {
+        if (r.mot.indexOf(' ') !== -1) expressions.push(Object.assign({ expression: true }, r));
       }
-      bouton.appendChild(element('span', 'traduction', resultat.apercu));
-      bouton.addEventListener('click', () => ouvrirFiche(resultat));
-      const ligne = element('li');
-      ligne.appendChild(bouton);
-      liste.appendChild(ligne);
     }
+    dessinerExpressions(expressions, vus);
 
-    const aQuelqueChose = resultats.length > 0;
-    liste.hidden = !aQuelqueChose;
+    /* Où placer le groupe des expressions.
+     *
+     * Sur « feu », le dictionnaire répond par quarante mots qui commencent
+     * ainsi, et « à petit feu » arriverait en bas de tout cela, hors de l'écran
+     * d'un téléphone. Quand il y a des expressions, elles se glissent donc
+     * après les mots exacts et les formes fléchies — ce qu'on cherchait — et
+     * les mots qui ne font que commencer pareil suivent, sous un titre à eux.
+     * Sans expression, rien ne change : une seule liste, comme avant. */
+    const aDesExpressions = !elements.expressions.hidden;
+    const exacts = aDesExpressions ? resultats.filter((r) => r.rang <= 1) : resultats;
+    const autres = aDesExpressions ? resultats.filter((r) => r.rang > 1) : [];
+    for (const resultat of exacts) liste.appendChild(ligneDeResultat(resultat));
+    if (autres.length) {
+      const titre = element('li', 'titre-suite');
+      titre.appendChild(element('h3', null, I18n.t('chercher.autres-mots')));
+      suite.appendChild(titre);
+      for (const resultat of autres) suite.appendChild(ligneDeResultat(resultat));
+    }
+    suite.hidden = autres.length === 0;
+
+    const aQuelqueChose = resultats.length > 0 || aDesExpressions;
+    liste.hidden = exacts.length === 0;
     elements.accueil.hidden = !!saisie;
     elements.rien.hidden = !saisie || aQuelqueChose;
     elements.rienConseil.textContent = I18n.t(
@@ -453,6 +530,8 @@
       q: $('#q'),
       qVider: $('#q-vider'),
       resultats: $('#resultats'),
+      expressions: $('#resultats-expressions'),
+      resultatsSuite: $('#resultats-suite'),
       accueil: $('#accueil'),
       rien: $('#rien'),
       rienConseil: $('#rien-conseil'),

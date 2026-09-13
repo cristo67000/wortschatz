@@ -8,6 +8,10 @@
  *                   clé ⇥ mot ⇥ n° de tranche ⇥ bande ⇥ aperçu
  *   de-000.json…    les entrées elles-mêmes, par tranches de 900
  *   formes-de.idx   forme fléchie ⇥ n,reste  →  lemme = forme[:n] + reste
+ *   expressions-de.idx  mot ⇥ langue:vedette|langue:vedette|…
+ *                   les expressions usuelles qui contiennent ce mot, dans leur
+ *                   vedette ou dans leurs traductions — « feu » y mène à
+ *                   « à petit feu », « Flamme » aussi (« auf kleiner Flamme »)
  *   phrases-000.json…  le vivier de phrases, partagé entre les deux langues
  *
  * ── Pourquoi l'index reste une chaîne ───────────────────────────────────────
@@ -111,6 +115,7 @@
     manifeste: null,
     index: {},             // langue → {texte, debuts}
     formes: {},            // langue → {texte, debuts}  (paquet complet)
+    expressions: {},       // langue du mot → {texte, debuts}
     tranches: new Map(),   // 'de/12' → Map(mot → entrée)
   };
 
@@ -125,6 +130,7 @@
       || JSON.parse(await texteDe('data/manifeste.json'));
     const index = {};
     const formes = {};
+    const expressions = {};
     for (const langue of ['de', 'fr']) {
       index[langue] = indexer(await texteDe(`data/${paquet}/${langue}.idx`));
       /* Les deux paquets ont leur index des formes fléchies — celui du noyau
@@ -132,6 +138,15 @@
        * « gehen » qu'après le téléchargement complet, et la fiche ne saurait
        * pas reconnaître « Hause » dans sa phrase d'exemple. */
       formes[langue] = indexer(await texteDe(`data/${paquet}/formes-${langue}.idx`));
+      /* L'index des expressions par mot. Un paquet construit avant la version 3
+       * n'en a pas : on continue sans, la recherche par mot intérieur est
+       * simplement muette jusqu'à la prochaine mise à jour des données. */
+      try {
+        expressions[langue] = indexer(
+          await texteDe(`data/${paquet}/expressions-${langue}.idx`));
+      } catch (erreur) {
+        expressions[langue] = null;
+      }
     }
     // Rien n'est publié tant que tout n'est pas lu : un chargement à moitié
     // fait laisserait l'application avec un index allemand neuf et un index
@@ -140,6 +155,7 @@
     etat.paquet = paquet;
     etat.index = index;
     etat.formes = formes;
+    etat.expressions = expressions;
     etat.tranches.clear();
     viviers.clear();
     return etat;
@@ -341,6 +357,135 @@
     return resultats.slice(0, limite);
   }
 
+  // ── Les expressions usuelles, par un mot qu'elles contiennent ─────────────
+
+  /* Les expressions qui contiennent ce mot, ou un mot qui commence ainsi.
+   *
+   * L'index des vedettes ne sait trouver que des débuts de vedette : « feu »
+   * n'y donne pas « à petit feu ». Celui-ci est rangé par **mot**, dans les
+   * deux langues — un mot de la vedette, ou un mot de ses traductions —, et se
+   * lit par la même dichotomie. On regarde d'abord le mot exact, puis les mots
+   * qui le prolongent (« Glück » trouve aussi « Glücks… »), jusqu'à un plafond :
+   * sur « de » ou « der », les listes seraient interminables.
+   *
+   * Rend des références `{langue, mot, exact}` — pas des entrées : il faut
+   * encore passer par `vedette()` pour savoir dans quelle tranche elles vivent.
+   * Un mot qui n'y est pas rend une liste vide, jamais une erreur.
+   */
+  function expressionsPar(langue, k, plafond) {
+    const index = etat.expressions[langue];
+    if (!index || !k) return [];
+    const limite = plafond || 40;
+    const sortie = [];
+    const vues = new Set();
+    let numero = premiereLigne(index, k);
+    while (numero < index.debuts.length && sortie.length < limite) {
+      const [motLu, liste] = champs(index, numero);
+      if (!motLu.startsWith(k)) break;
+      const exact = motLu === k;
+      for (const marque of liste.split('|')) {
+        const deuxPoints = marque.indexOf(':');
+        if (deuxPoints === -1) continue;
+        const empreinte = marque;
+        if (vues.has(empreinte)) continue;
+        vues.add(empreinte);
+        sortie.push({ langue: marque.slice(0, deuxPoints),
+                      mot: marque.slice(deuxPoints + 1), exact, par: motLu });
+        if (sortie.length >= limite) break;
+      }
+      numero += 1;
+    }
+    return sortie;
+  }
+
+  /* Les expressions atteintes par une saisie, prêtes à être affichées.
+   *
+   * Plusieurs mots tapés doivent tous s'y trouver : « petit feu » ne rend que
+   * ce qui contient « petit » et « feu ». Chaque mot est cherché dans les deux
+   * langues — on ne sait pas laquelle on tape, et une expression allemande se
+   * trouve aussi par sa traduction française.
+   *
+   * Le classement : d'abord les expressions atteintes par un mot **entier**
+   * (« feu » plutôt que « feuille »), puis les plus courantes, puis les plus
+   * courtes. Ce qui est cherché n'est plus dans la liste s'il y est déjà
+   * comme vedette : l'appelant retire les doublons avec ses propres résultats.
+   */
+  function chercherExpressions(saisie, plafond) {
+    const k = cle(saisie);
+    if (!k) return [];
+    const mots = k.split(' ').filter((m) => m.length >= 2);
+    if (!mots.length) return [];
+    const limite = plafond || 30;
+
+    // Le mot le plus discriminant en premier : le plus long.
+    const ordonnes = mots.slice().sort((a, b) => b.length - a.length);
+    let candidats = null;
+    for (const mot of ordonnes) {
+      const lot = new Map();
+      for (const langue of ['de', 'fr']) {
+        for (const ref of expressionsPar(langue, mot, 120)) {
+          const empreinte = ref.langue + ' ' + ref.mot;
+          const deja = lot.get(empreinte);
+          if (!deja || (ref.exact && !deja.exact)) lot.set(empreinte, ref);
+        }
+      }
+      if (candidats === null) {
+        candidats = lot;
+      } else {
+        for (const empreinte of Array.from(candidats.keys())) {
+          if (!lot.has(empreinte)) candidats.delete(empreinte);
+        }
+      }
+      if (!candidats.size) return [];
+    }
+
+    const resultats = [];
+    for (const ref of candidats.values()) {
+      const v = vedette(ref.langue, ref.mot);
+      if (!v) continue;
+      v.exact = ref.exact;
+      v.expression = true;
+      resultats.push(v);
+    }
+    resultats.sort((a, b) => {
+      if (a.exact !== b.exact) return a.exact ? -1 : 1;
+      if (a.bande !== b.bande) return a.bande - b.bande;
+      if (a.mot.length !== b.mot.length) return a.mot.length - b.mot.length;
+      return a.mot < b.mot ? -1 : (a.mot > b.mot ? 1 : 0);
+    });
+    return resultats.slice(0, limite);
+  }
+
+  /* Les expressions qui contiennent une vedette donnée, pour le bas de sa
+   * fiche. On cherche le mot exact, dans sa langue et — s'il figure dans des
+   * traductions — dans l'autre. La vedette elle-même est écartée : « à petit
+   * feu » ne se propose pas à sa propre fiche. */
+  function expressionsAvec(entree, plafond) {
+    const k = cle(entree.mot);
+    const sortie = [];
+    const vues = new Set();
+    for (const langue of ['de', 'fr']) {
+      for (const ref of expressionsPar(langue, k, 200)) {
+        if (!ref.exact) continue;
+        const empreinte = ref.langue + ' ' + ref.mot;
+        if (vues.has(empreinte)) continue;
+        if (ref.langue === entree.langue && ref.mot === entree.mot) continue;
+        vues.add(empreinte);
+        const v = vedette(ref.langue, ref.mot);
+        if (v) { v.expression = true; sortie.push(v); }
+      }
+    }
+    sortie.sort((a, b) => {
+      // La langue de la fiche d'abord, puis les plus courantes, puis les courtes.
+      const memeLangueA = a.langue === entree.langue ? 0 : 1;
+      const memeLangueB = b.langue === entree.langue ? 0 : 1;
+      if (memeLangueA !== memeLangueB) return memeLangueA - memeLangueB;
+      if (a.bande !== b.bande) return a.bande - b.bande;
+      return a.mot.length - b.mot.length;
+    });
+    return plafond ? sortie.slice(0, plafond) : sortie;
+  }
+
   // ── Ouverture d'une entrée ────────────────────────────────────────────────
 
   async function tranche(langue, numero) {
@@ -349,15 +494,24 @@
     const brut = JSON.parse(await texteDe(
       `data/${etat.paquet}/${langue}-${String(numero).padStart(3, '0')}.json`));
     const carte = new Map();
-    for (const [mot, bande, lectures, numerosDePhrases, voisins] of brut.e) {
+    for (const [mot, bande, lectures, numerosDePhrases, voisins, expression,
+                explication] of brut.e) {
       /* Le numéro de tranche voyage avec l'entrée : une carte de révision ne
        * garde que de quoi retrouver le mot, et sans lui elle ne saurait pas
        * dans quel fichier aller le chercher. */
-      carte.set(mot, {
+      const entree = {
         mot, langue, bande, lectures, tranche: numero,
         phrases: numerosDePhrases || [],
         voisins: voisins || [],
-      });
+      };
+      /* Une expression usuelle dit d'où elle vient — « dico », « tatoeba »,
+       * « croisee », « attestee » — et porte parfois une explication. Les
+       * mots ordinaires n'ont ni l'un ni l'autre : le tableau s'arrête avant. */
+      if (expression) {
+        entree.expression = expression;
+        if (explication) entree.explication = explication;
+      }
+      carte.set(mot, entree);
     }
     // Une poignée de tranches en mémoire suffit à la navigation ; au-delà on
     // relâche les plus anciennes plutôt que de garder 25 Mo au chaud.
@@ -458,6 +612,7 @@
     entreesAuHasard,
     nombreDeTranches,
     lemmes,
+    expressionsPar, chercherExpressions, expressionsAvec,
     etat,
     get paquet() { return etat.paquet; },
     get manifeste() { return etat.manifeste; },

@@ -45,6 +45,8 @@ TATOEBA = "https://downloads.tatoeba.org/exports/per_language/"
 # et leurs exemples **en allemand**, la française de même. C'est ce que WikDict
 # ne retient pas — il ne garde que les paires de traduction.
 KAIKKI = "https://kaikki.org/{edition}wiktionary/raw-wiktextract-data.jsonl.gz"
+KAIKKI_PAR_NATURE = ("https://kaikki.org/dictionary/{langue}/pos-{nature}/"
+                     "kaikki.org-dictionary-{langue}-by-pos-{nature}.jsonl")
 
 # Un navigateur poli s'annonce. Les deux hébergeurs servent des fichiers lourds
 # gratuitement ; se présenter est la moindre des choses.
@@ -200,6 +202,17 @@ def main():
                         ("fra", "fra_sentences.tsv.bz2"),
                         ("deu", "deu-fra_links.tsv.bz2")):
         telecharger(TATOEBA + langue + "/" + nom, SOURCES / nom, options.forcer)
+
+    # Le Wiktionnaire anglais, par nature et par langue : quelques méga-octets
+    # de locutions, formules, proverbes et interjections allemands et français.
+    # Il ne sert qu'à attester qu'une suite de mots est une expression — ses
+    # gloses sont en anglais — mais « kein Problem » ou « viel Glück » n'ont de
+    # page ni dans l'édition allemande ni dans la française, et l'anglaise les a.
+    print("\nWiktionnaire anglais — expressions allemandes et françaises, par nature")
+    for langue, code in (("German", "de"), ("French", "fr")):
+        for nature in ("phrase", "intj", "proverb", "prep_phrase"):
+            telecharger(KAIKKI_PAR_NATURE.format(langue=langue, nature=nature),
+                        SOURCES / f"wiktionnaire-en-{code}-{nature}.jsonl", options.forcer)
 
     print("\nWiktionnaire intégral (définitions, exemples et flexions par sens)")
     print("  ~970 Mo à eux deux : c'est long, et la reprise sur coupure marche.")

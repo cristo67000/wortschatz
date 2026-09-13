@@ -70,6 +70,7 @@ from pathlib import Path
 
 import alignement
 import commun
+import expressions
 import familles
 import grammaire
 import formes_fr
@@ -124,7 +125,12 @@ CITATION_MAX = 200      # signes ; au-delà, la phrase n'aide plus personne
 # La version 2 embarque les citations et les tableaux de flexion : les budgets
 # montent en conséquence, mais restent très en deçà des 200 Mo autorisés. Le
 # noyau est celui qui compte vraiment — c'est le poids installé.
-BUDGET_NOYAU = 22 * 1024 * 1024
+#
+# Version 3.1 : le noyau reçoit les expressions usuelles faites de ses propres
+# mots — deux mille tournures et formules, avec leurs exemples — et passe de
+# 21,5 à 22,7 Mo. Le budget monte d'un méga-octet pour le dire ; il reste là
+# pour que la prochaine dérive ne passe pas inaperçue.
+BUDGET_NOYAU = 23 * 1024 * 1024
 BUDGET_COMPLET = 130 * 1024 * 1024
 
 
@@ -517,7 +523,16 @@ def entree_ecrite(entree, rang_de_bande, attribution, voisins, citations_max):
                          lecture[5] if len(lecture) > 5 else [],
                          lecture[6] if len(lecture) > 6 else []])
 
-    return [entree["mot"], rang_de_bande, lectures, attribution["libres"], voisins]
+    ecrite = [entree["mot"], rang_de_bande, lectures, attribution["libres"], voisins]
+    # Une expression usuelle porte sa provenance en sixième position, et une
+    # explication en septième quand l'édition d'en face en donne une. Les
+    # autres entrées s'arrêtent à cinq : le lecteur tolère l'absence, et cinq
+    # mille lignes de plus pèseraient pour rien.
+    if entree.get("expression"):
+        ecrite.append(entree["expression"])
+        if entree.get("explication"):
+            ecrite.append(entree["explication"])
+    return ecrite
 
 
 def ecrire_paquet(dossier, langue, selection, positions, phrases, voisins,
@@ -592,8 +607,10 @@ def main():
 
     print("\nGreffe du Wiktionnaire — définitions, exemples, flexions, traductions")
     gain = {}
+    extraits = {}
     for langue in ("de", "fr"):
         par_mot = wiktionnaire.charger(langue)
+        extraits[langue] = par_mot
         avant = len(dictionnaires[langue])
         journal_wikt = {}
         for mot, entree in dictionnaires[langue].items():
@@ -636,6 +653,49 @@ def main():
     textes = {"de": allemandes.values(), "fr": francaises.values()}
     print(f"  {len(allemandes)} phrases allemandes, {len(francaises)} françaises")
 
+    print("\nExpressions usuelles")
+    journal_expr = {}
+    expressions.marquer(dictionnaires, journal_expr)
+    print(f"  {journal_expr['dictionnaire_de']} allemandes et "
+          f"{journal_expr['dictionnaire_fr']} françaises reconnues dans le dictionnaire")
+    # Ce que chaque édition du Wiktionnaire dit des expressions de l'autre
+    # langue : l'édition française décrit « keine Ahnung », l'allemande
+    # décrit « à petit feu ».
+    croises = {"de": wiktionnaire.charger_croises("fr"),
+               "fr": wiktionnaire.charger_croises("de")}
+    attestations_en = expressions.charger_attestations_en(SOURCES)
+    expressions.ajouter_formules(dictionnaires, extraits, croises, attestations_en,
+                                 paires_alignees, journal_expr)
+    # Où le corpus emploie chaque expression retenue : ces paires deviendront
+    # leurs exemples, par le même chemin que celles des mots.
+    reperees = expressions.reperer_dans_le_corpus(
+        {langue: [commun.cle(e["mot"]) for e in dictionnaires[langue].values()
+                  if e.get("expression")] for langue in ("de", "fr")},
+        paires_alignees)
+    supplements = {}
+    for langue in ("de", "fr"):
+        par_cle = {}
+        for e in dictionnaires[langue].values():
+            if e.get("expression"):
+                par_cle.setdefault(commun.cle(e["mot"]), []).append(e["mot"])
+        supplements[langue] = {}
+        for k, lot in reperees[langue].items():
+            for mot in par_cle.get(k, ()):
+                supplements[langue][mot] = lot[:expressions.EXEMPLES_PAR_EXPRESSION * 2]
+    illustrees = {l: sum(1 for k in reperees[l] if reperees[l][k]) for l in ("de", "fr")}
+    print(f"  {illustrees['de']} expressions allemandes et {illustrees['fr']} françaises "
+          f"trouvées telles quelles dans le corpus")
+    for entree in list(dictionnaires["de"].values()) + list(dictionnaires["fr"].values()):
+        if entree.get("neuve") and entree.get("expression"):
+            elaguer_citations(entree)
+    print(f"  + {journal_expr['ajoutees_de']} allemandes et "
+          f"{journal_expr['ajoutees_fr']} françaises attestées par un Wiktionnaire, "
+          f"dont {journal_expr['tatoeba']} traduites par Tatoeba, "
+          f"{journal_expr['croisee']} glosées par l'édition d'en face, "
+          f"{journal_expr['sans_equivalent']} sans équivalent connu")
+    for langue, mot, trads, source in journal_expr["exemples"][:10]:
+        print(f"       {langue} {mot} → {' / '.join(trads)}  [{source}]")
+
     print("\nFormes fléchies du français")
     journal = {}
     par_cle_fr, _ = corpus.compter_deux(francaises.values(), "fr")
@@ -677,7 +737,8 @@ def main():
     print("\nChoix des phrases d'exemple")
     journal_phrases = {}
     vivier_complet, attributions_completes = phrases.choisir(
-        paires_alignees, dictionnaires, index_formes, ordres, journal_phrases)
+        paires_alignees, dictionnaires, index_formes, ordres, journal_phrases,
+        supplements=supplements)
     print(f"  {journal_phrases['paires']} paires examinées, "
           f"{journal_phrases['vivier']} retenues")
     print(f"  {journal_phrases['mots_de']} mots allemands et "
@@ -713,8 +774,18 @@ def main():
         ("complet", None, BUDGET_COMPLET, CITATIONS_PAR_SENS),
     ):
         dossier = DATA / nom
-        selections = {langue: (ordres[langue][:borne] if borne else ordres[langue])
-                      for langue in ("de", "fr")}
+        selections = {}
+        for langue in ("de", "fr"):
+            if borne is None:
+                selections[langue] = ordres[langue]
+                continue
+            # Le noyau : les mots les plus courants, puis les expressions
+            # faites de ces mots — voir `expressions.va_au_noyau`.
+            base = ordres[langue][:borne]
+            cles_du_noyau = {commun.cle(e["mot"]) for e in base}
+            en_plus = [e for e in ordres[langue][borne:]
+                       if expressions.va_au_noyau(e, cles_du_noyau)]
+            selections[langue] = base + en_plus
         vivier, attributions = phrases.sous_ensemble(
             vivier_complet, attributions_completes,
             [e["mot"] for e in selections["de"]],
@@ -750,9 +821,26 @@ def main():
         fichiers += [f"{nom}/{x}" for x in liste]
         octets += poids
 
+        # L'index des mots des expressions : « feu » → « à petit feu ».
+        index_expr = expressions.index_des_mots(selections, positions)
+        nb_expressions, sans_equivalent = {}, {}
+        for langue in ("de", "fr"):
+            nb_mots, poids = expressions.ecrire_index(
+                dossier / f"expressions-{langue}.idx", index_expr[langue], ecrire)
+            fichiers.append(f"{nom}/expressions-{langue}.idx")
+            octets += poids
+            nb_expressions[langue] = sum(1 for e in selections[langue] if e.get("expression"))
+            sans_equivalent[langue] = sum(
+                1 for e in selections[langue]
+                if e.get("expression") == expressions.SOURCE_ATTESTEE)
+            print(f"  {nom:8} expressions-{langue}.idx : {nb_mots} mots, "
+                  f"{nb_expressions[langue]} expressions")
+
         manifeste["paquets"][nom] = {
             "entrees": comptes,
             "traduites": traduites,
+            "expressions": nb_expressions,
+            "expressions_sans_equivalent": sans_equivalent,
             "phrases": len(vivier),
             "octets": octets,
             "fichiers": fichiers,

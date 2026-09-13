@@ -197,6 +197,7 @@ async function principal() {
         reseau,
         paquet: Lexique.paquet,
         entreesIndex: Lexique.etat.index.de.debuts.length,
+        entreesAnnoncees: Lexique.manifeste.paquets.noyau.entrees.de,
         chercheDico: Lexique.chercher('Haus').filter(r => !r.perso).map(r => r.mot).slice(0, 3),
         chercheForme: Lexique.chercher('ging').filter(r => !r.perso).map(r => r.mot).slice(0, 2),
         persoCompte: Perso.compte(),
@@ -211,8 +212,9 @@ async function principal() {
       'depuis la page, le réseau est bien coupé', horsLigne.reseau);
     verifier(horsLigne.demarrageFini, 'l’application s’ouvre sans réseau');
     verifier(horsLigne.paquet === 'noyau', 'le dictionnaire est chargé', horsLigne.paquet);
-    verifier(horsLigne.entreesIndex === 12000,
-      'l’index allemand est complet (' + horsLigne.entreesIndex + ' vedettes)');
+    verifier(horsLigne.entreesIndex === horsLigne.entreesAnnoncees && horsLigne.entreesIndex >= 12000,
+      'l’index allemand est complet (' + horsLigne.entreesIndex + ' vedettes, '
+      + 'autant que le manifeste en annonce)');
     verifier(horsLigne.chercheDico.includes('Haus'),
       'la recherche du dictionnaire marche hors ligne', horsLigne.chercheDico);
     verifier(horsLigne.chercheForme.includes('gehen'),
@@ -239,6 +241,95 @@ async function principal() {
     verifier(fiche.aExemple,
       'elle porte ses sens et ses exemples (' + fiche.longueur + ' signes)');
 
+    titre('7. Les expressions usuelles, hors ligne, par l’interface');
+    const expressions = await onglet.evaluer(`
+      document.querySelector('.fiche-fermer').click();
+      await new Promise(x => setTimeout(x, 300));
+      const q = document.querySelector('#q');
+      const taper = async (t) => {
+        q.value = t; q.dispatchEvent(new Event('input', { bubbles: true }));
+        await new Promise(x => setTimeout(x, 350));
+        const groupe = document.querySelector('#resultats-expressions');
+        return { visible: !groupe.hidden,
+                 titre: (groupe.querySelector('h3') || {}).textContent || '',
+                 lignes: [...groupe.querySelectorAll('.resultat .mot')].map(e => e.textContent),
+                 mots: [...document.querySelectorAll('#resultats .resultat .mot')].map(e => e.textContent) };
+      };
+      const feu = await taper('feu');
+      const ahnung = await taper('Ahnung');
+      const gluck = await taper('Gluck');
+      const problem = await taper('Problem');
+      const chance = await taper('chance');
+      const bonjour = await taper('bonjour');
+      // Un clic sur une expression ouvre sa fiche, avec sa section et sa provenance.
+      await taper('Problem');
+      const bouton = [...document.querySelectorAll('#resultats-expressions .resultat')]
+        .find(b => b.querySelector('.mot').textContent === 'kein Problem');
+      bouton.click();
+      await new Promise(x => setTimeout(x, 1200));
+      const fiche = document.querySelector('#fiche-contenu');
+      const texteFiche = fiche.textContent;
+      const boutonApprendre = fiche.querySelector('.apprendre');
+      // Et la fiche d'un mot montre la section en bas.
+      document.querySelector('.fiche-fermer').click();
+      await taper('Ahnung');
+      document.querySelector('#resultats .resultat').click();
+      await new Promise(x => setTimeout(x, 1200));
+      const section = document.querySelector('#fiche-contenu .expressions-usuelles');
+      const dansLaSection = section
+        ? [...section.querySelectorAll('.expression-ligne .mot')].map(e => e.textContent) : [];
+      const titreSection = section ? section.querySelector('h3').textContent : null;
+      const ordre = [...document.querySelectorAll('#fiche-contenu > section, #fiche-contenu > div')]
+        .map(e => e.className.split(' ')[0]);
+      return { feu, ahnung, gluck, problem, chance, bonjour,
+               ficheExpression: { marque: texteFiche.includes('expression'),
+                                  provenance: texteFiche.includes('Tatoeba'),
+                                  equivalents: texteFiche.includes('Pas de problème')
+                                               && texteFiche.includes('Aucun problème'),
+                                  apprendre: !!boutonApprendre },
+               dansLaSection, titreSection, ordre };
+    `);
+    verifier(expressions.feu.visible && expressions.feu.lignes.includes('à petit feu'),
+      '« feu » → groupe « Expressions usuelles » avec « à petit feu »', expressions.feu);
+    verifier(expressions.feu.titre === 'Expressions usuelles',
+      'le groupe porte son titre', expressions.feu.titre);
+    verifier(expressions.feu.mots.includes('feu'),
+      'la recherche des mots n’a pas bougé : « feu » est toujours là');
+    verifier(expressions.ahnung.lignes.includes('keine Ahnung'),
+      '« Ahnung » → « keine Ahnung »', expressions.ahnung.lignes);
+    verifier(expressions.gluck.lignes.includes('viel Glück'),
+      '« Gluck » sans tréma → « viel Glück »', expressions.gluck.lignes);
+    verifier(expressions.problem.lignes.includes('kein Problem'),
+      '« Problem » → « kein Problem »', expressions.problem.lignes);
+    verifier(expressions.chance.lignes.includes('au petit bonheur la chance')
+             && expressions.chance.lignes.includes('viel Glück'),
+      '« chance » → « au petit bonheur la chance » et « viel Glück » (par sa traduction)',
+      expressions.chance.lignes);
+    verifier(expressions.ficheExpression.marque && expressions.ficheExpression.provenance,
+      'la fiche de « kein Problem » dit que c’est une expression, et d’où elle vient');
+    verifier(expressions.ficheExpression.equivalents,
+      'elle montre ses deux équivalents attestés');
+    verifier(expressions.ficheExpression.apprendre, 'elle propose « Apprendre »');
+    verifier(expressions.titreSection === 'Expressions usuelles'
+             && expressions.dansLaSection.includes('keine Ahnung'),
+      'la fiche « Ahnung » propose « keine Ahnung » en bas', expressions.dansLaSection);
+    const positionExpr = expressions.ordre.indexOf('expressions-usuelles');
+    const positionNotes = expressions.ordre.indexOf('mes-notes');
+    verifier(positionExpr !== -1 && positionNotes > positionExpr,
+      'la section vient après les exemples et avant les notes', expressions.ordre);
+
+    titre('8. Apprendre une expression, hors ligne');
+    const apprise = await onglet.evaluer(`
+      document.querySelector('.fiche-fermer').click();
+      const v = Lexique.vedette('de', 'kein Problem');
+      const e = await Lexique.ouvrir(v);
+      const cartes = await Revision.apprendre(e);
+      return { types: cartes.map(c => c.type).sort(),
+               dansLesSuivis: (await Store.cartesDuMot('de', 'kein Problem')).length };
+    `);
+    verifier(JSON.stringify(apprise.types) === JSON.stringify(['vers-de', 'vers-fr']),
+      '« kein Problem » : deux cartes, aucune de genre', apprise.types);
+
     // Le serveur repart pour l'épreuve suivante.
     serveur = demarrerServeur();
     await attendreServeur(true);
@@ -247,7 +338,7 @@ async function principal() {
     return { uid: ajout.uid, serveur };
   } finally {
     onglet.fermer();
-    fermerChrome(chrome);
+    await fermerChrome(chrome);
   }
 }
 

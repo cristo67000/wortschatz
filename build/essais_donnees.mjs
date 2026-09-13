@@ -796,6 +796,153 @@ async function epreuveDictionnaire() {
   }
 }
 
+// ── 6 bis. Les expressions usuelles ─────────────────────────────────────────
+
+/* Les exemples de la demande, tels quels, sur les vrais paquets.
+ *
+ * On éprouve trois choses : qu'un mot intérieur trouve l'expression (« feu »
+ * → « à petit feu »), que la traduction la trouve aussi (« Flamme » → « à
+ * petit feu »), et que la fiche du mot la propose en bas. Puis
+ * l'apprentissage : une expression allemande contenant un nom ne doit pas
+ * recevoir de carte de genre.
+ */
+async function epreuveExpressions() {
+  titre('Expressions usuelles : recherche par un mot intérieur');
+  await Lexique.charger('noyau');
+
+  const trouve = (saisie, attendu) => Lexique.chercherExpressions(saisie)
+    .some((r) => r.mot === attendu);
+
+  // Les exemples français.
+  verifier(trouve('feu', 'à petit feu'), '« feu » → « à petit feu »');
+  verifier(trouve('bonheur', 'au petit bonheur la chance'),
+    '« bonheur » → « au petit bonheur la chance »');
+  verifier(trouve('chance', 'au petit bonheur la chance'),
+    '« chance » → « au petit bonheur la chance »');
+
+  // Les exemples allemands. Les vedettes ont la graphie du Wiktionnaire,
+  // minuscule initiale ; la recherche ignore la casse.
+  verifier(trouve('Ahnung', 'keine Ahnung'), '« Ahnung » → « keine Ahnung »');
+  verifier(trouve('Problem', 'kein Problem'), '« Problem » → « kein Problem »');
+  verifier(trouve('Glück', 'viel Glück'), '« Glück » → « viel Glück »');
+  verifier(trouve('Gluck', 'viel Glück'), '« Gluck » sans tréma → « viel Glück »');
+  verifier(trouve('GLÜCK', 'viel Glück'), 'en majuscules aussi');
+  verifier(trouve('klar', 'alles klar'), '« klar » → « alles klar »');
+  verifier(trouve('nichts', 'macht nichts'), '« nichts » → « macht nichts »');
+
+  // Depuis la traduction : le mot est dans l'autre langue.
+  verifier(trouve('Flamme', 'à petit feu'),
+    '« Flamme » (auf kleiner Flamme) → « à petit feu »');
+  verifier(trouve('problème', 'kein Problem'),
+    '« problème » (pas de problème) → « kein Problem »');
+  verifier(trouve('idée', 'keine Ahnung'), '« idée » (aucune idée) → « keine Ahnung »');
+  verifier(trouve('chance', 'viel Glück'), '« chance » (bonne chance) → « viel Glück »');
+
+  // Préfixe pendant la frappe, mots entiers d'abord.
+  const parPrefixe = Lexique.chercherExpressions('Ahn');
+  verifier(parPrefixe.some((r) => r.mot === 'keine Ahnung'),
+    'un début de mot suffit pendant la frappe');
+  const exacts = Lexique.chercherExpressions('feu');
+  verifier(exacts.length && exacts[0].exact,
+    'les correspondances par mot entier passent en tête', exacts.slice(0, 2).map((r) => r.mot));
+
+  // Plusieurs mots : tous doivent y être.
+  verifier(trouve('petit feu', 'à petit feu'), '« petit feu » → « à petit feu »');
+  verifier(!trouve('petit Ahnung', 'keine Ahnung'),
+    'deux mots qui ne vont pas ensemble ne trouvent rien');
+
+  // Les mots très fréquents restent bornés.
+  const surDe = Lexique.chercherExpressions('de');
+  verifier(surDe.length > 0 && surDe.length <= 30,
+    `« de » donne une liste bornée (${surDe.length})`);
+
+  titre('Expressions usuelles : ce que porte une fiche');
+  const petitFeu = await Lexique.ouvrir(Lexique.vedette('fr', 'à petit feu'));
+  verifier(petitFeu && petitFeu.expression === 'dico',
+    '« à petit feu » est une expression du dictionnaire');
+  const sens = petitFeu.lectures[0][4];
+  verifier(sens.length >= 2 && sens.some((b) => /cuisson/.test(b[0]))
+           && sens.some((b) => /durer/.test(b[0])),
+    'ses deux sens — la cuisson et le figuré — sont distincts', sens.map((b) => b[0]));
+
+  const problem = await Lexique.ouvrir(Lexique.vedette('de', 'kein Problem'));
+  verifier(problem.expression === 'tatoeba', '« kein Problem » vient de Tatoeba');
+  const equivalents = Exercices.traductions(problem).map((t) => t.toLowerCase());
+  verifier(equivalents.includes('pas de problème') && equivalents.includes('aucun problème'),
+    'ses deux équivalents attestés sont là', equivalents);
+  const phrases = await Exercices.phrasesDe(problem);
+  verifier(phrases.length > 0 && phrases.every((p) => p.de && p.fr),
+    'il a des exemples traduits', phrases.length);
+
+  const klar = await Lexique.ouvrir(Lexique.vedette('de', 'alles klar'));
+  const definitionKlar = klar.lectures[0][4][0][0];
+  verifier(klar.expression === 'croisee' && /compris|clair/.test(definitionKlar),
+    '« alles klar » porte l’explication de l’édition française', definitionKlar);
+  verifier(Exercices.traductions(klar).some((t) => /clair|bien/i.test(t)),
+    'et un équivalent court tiré de sa glose', Exercices.traductions(klar));
+
+  titre('Expressions usuelles : en bas de la fiche du mot');
+  const feu = await Lexique.ouvrir(Lexique.vedette('fr', 'feu'));
+  verifier(Lexique.expressionsAvec(feu).some((r) => r.mot === 'à petit feu'),
+    'la fiche « feu » propose « à petit feu »');
+  const bonheur = await Lexique.ouvrir(Lexique.vedette('fr', 'bonheur'));
+  verifier(Lexique.expressionsAvec(bonheur).some((r) => r.mot === 'au petit bonheur la chance'),
+    'la fiche « bonheur » propose « au petit bonheur la chance »');
+  const ahnung = await Lexique.ouvrir(Lexique.vedette('de', 'Ahnung'));
+  verifier(Lexique.expressionsAvec(ahnung).some((r) => r.mot === 'keine Ahnung'),
+    'la fiche « Ahnung » propose « keine Ahnung »');
+  verifier(!Lexique.expressionsAvec(petitFeu).some((r) => r.mot === 'à petit feu'),
+    'une expression ne se propose pas à sa propre fiche');
+  const flamme = Lexique.vedette('de', 'Flamme');
+  if (flamme) {
+    verifier(Lexique.expressionsAvec(await Lexique.ouvrir(flamme))
+      .some((r) => r.mot === 'à petit feu'),
+      'la fiche allemande « Flamme » propose « à petit feu », par sa traduction');
+  }
+
+  titre('Expressions usuelles : apprentissage');
+  Revision.sensDeTravail = 'les-deux';
+  const cartes = Revision.cartesPour(problem);
+  egaux(cartes.map((c) => c.type).sort(), ['vers-de', 'vers-fr'],
+    '« kein Problem » : deux directions, pas de carte de genre malgré « Problem »');
+  verifier(Exercices.avecArticle(problem) === null,
+    'pas d’exercice « avec l’article » sur une expression');
+  const verdict = Exercices.corriger('aucun problème', Exercices.traductions(problem),
+    { langue: 'fr' });
+  verifier(verdict.verdict === 'juste', 'une variante enregistrée est acceptée');
+  const refus = Exercices.corriger('sans souci', Exercices.traductions(problem),
+    { langue: 'fr' });
+  verifier(refus.verdict === 'faux', 'une variante non enregistrée ne l’est pas');
+  const majuscule = Exercices.corriger('Kein Problem', ['kein Problem'],
+    { langue: 'de', estNom: false });
+  verifier(majuscule.verdict === 'juste' && !majuscule.remarque,
+    '« Kein Problem » avec majuscule initiale passe sans remarque');
+
+  titre('Expressions usuelles : une expression à soi');
+  await Perso.charger();
+  const lust = await Perso.creer({
+    mot: 'Ich habe keine Lust', langue: 'de', nature: 'locution',
+    traductions: 'Je n’ai pas envie, J’ai pas envie',
+    exemple: 'Ich habe keine Lust dazu.', exempleTraduit: 'Je n’ai pas envie de le faire.',
+  });
+  verifier(Lexique.chercher('Lust').some((r) => r.perso === lust.id),
+    '« Lust » → « Ich habe keine Lust » (mot intérieur d’une entrée personnelle)');
+  verifier(Lexique.chercher('envie').some((r) => r.perso === lust.id),
+    '« envie » → « Ich habe keine Lust », par la traduction');
+  const cartesLust = Revision.cartesPour(Perso.entree(lust.id));
+  egaux(cartesLust.map((c) => c.type).sort(), ['vers-de', 'vers-fr'],
+    'deux cartes, aucune de genre, bien que « Lust » soit un nom');
+  await Notes.ecrire({ perso: lust.id, langue: 'de', mot: 'Ich habe keine Lust' },
+    'Se dit avec un haussement d’épaules.');
+  verifier((await Notes.lire({ perso: lust.id })).texte.startsWith('Se dit'),
+    'elle porte une note');
+  const paquetExport = await Sauvegarde.rassembler();
+  verifier(paquetExport.motsPersonnels.some((m) => m.mot === 'Ich habe keine Lust')
+           && paquetExport.notes.some((n) => n.id === 'perso:' + lust.id),
+    'elle part dans l’export avec sa note');
+  await Perso.supprimer(lust.id);
+}
+
 // ── 7. La coquille : ce que le service worker doit pré-cacher ──────────────
 
 /* Le mode hors ligne ne se casse pas bruyamment : il se casse en silence.
@@ -849,6 +996,7 @@ async function principal() {
   await epreuvePersistance(depot, mots);
   await epreuvePaquets(depot, mots);
   await epreuveDictionnaire();
+  await epreuveExpressions();
   await epreuveSauvegarde(depot);
   epreuveCoquille();
 

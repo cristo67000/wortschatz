@@ -7,7 +7,7 @@
  * service worker — et qu'un mode hors ligne qu'on n'a pas vu marcher n'est pas
  * un mode hors ligne.
  */
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -31,6 +31,16 @@ function trouverChrome() {
 }
 
 export async function lancerChrome({ port = 9222, profil = null, telechargements = null } = {}) {
+  /* Si quelque chose répond déjà sur ce port, le Chrome qu'on va lancer ne
+   * pourra pas s'y installer, et l'on parlerait sans le savoir à un autre —
+   * un navigateur laissé par une épreuve précédente, avec ses cartes et ses
+   * mots, qui fausserait tout. On refuse avant de lancer quoi que ce soit. */
+  const occupant = await fetch(`http://127.0.0.1:${port}/json/version`)
+    .then((r) => r.json()).catch(() => null);
+  if (occupant) {
+    throw new Error('Le port ' + port + ' est déjà tenu par ' + (occupant.Browser || '?')
+      + ' — fermez-le, ou choisissez un autre port.');
+  }
   const dossier = profil || mkdtempSync(path.join(tmpdir(), 'wortschatz-profil-'));
   const arguments_ = [
     '--headless=new',
@@ -69,10 +79,29 @@ export async function lancerChrome({ port = 9222, profil = null, telechargements
   return { processus, port, dossier, version, ephemere: !profil };
 }
 
-export function fermerChrome(chrome) {
-  try { chrome.processus.kill(); } catch (e) { /* déjà parti */ }
-  if (chrome.ephemere) {
-    try { rmSync(chrome.dossier, { recursive: true, force: true }); } catch (e) { /* tant pis */ }
+export async function fermerChrome(chrome) {
+  const processus = chrome.processus;
+  const parti = new Promise((resoudre) => {
+    if (processus.exitCode !== null || processus.signalCode) { resoudre(); return; }
+    processus.once('exit', resoudre);
+    setTimeout(resoudre, 10000).unref();
+  });
+  /* Sous Windows, tuer le processus principal laisse vivre ses rendus et son
+   * processus graphique, qui tiennent le profil : on abat tout l'arbre. */
+  if (process.platform === 'win32' && processus.pid) {
+    spawnSync('taskkill', ['/PID', String(processus.pid), '/T', '/F'], { stdio: 'ignore' });
+  }
+  try { processus.kill(); } catch (e) { /* déjà parti */ }
+  await parti;
+  if (!chrome.ephemere) return;
+  /* Chrome lâche ses fichiers un peu après sa mort : on insiste quelques
+   * secondes, sans quoi le dossier temporaire resterait — 70 Mo par épreuve. */
+  for (let essai = 0; essai < 40; essai += 1) {
+    try {
+      rmSync(chrome.dossier, { recursive: true, force: true });
+      if (!existsSync(chrome.dossier)) return;
+    } catch (e) { /* encore tenu */ }
+    await new Promise((r) => setTimeout(r, 250));
   }
 }
 

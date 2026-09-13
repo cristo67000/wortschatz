@@ -171,7 +171,7 @@ async function semer() {
       + 'build/essais_migration_en_ligne.mjs relever');
   } finally {
     onglet.fermer();
-    fermerChrome(chrome);
+    await fermerChrome(chrome);
   }
 }
 
@@ -280,7 +280,7 @@ async function relever(empreinte) {
       'les cartes de la version 2 sont toujours là', final.anciennes);
   } finally {
     onglet.fermer();
-    fermerChrome(chrome);
+    await fermerChrome(chrome);
   }
 }
 

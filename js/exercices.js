@@ -152,13 +152,21 @@
     return premiereLecture(entree)[0] === 'n';
   }
 
+  /* Une expression : plusieurs mots. Les exercices qui portent sur un mot —
+   * le genre, l'article, le pluriel — ne s'y appliquent pas, et la correction
+   * n'y reproche pas la majuscule : « kein Problem » commence par une
+   * minuscule en vedette, et par une majuscule quand on le dit. */
+  function estExpression(entree) {
+    return !!entree && entree.mot.indexOf(' ') !== -1;
+  }
+
   /* Le mot précédé de son article, sous chacun de ses genres — ou null quand la
    * question ne se pose pas : ce n'est pas un nom, ou son genre est absent des
    * données. 2 % des noms allemands n'en ont pas, et interroger sur ce qu'on
    * ignore soi-même n'apprend rien à personne. */
   function avecArticle(entree) {
     const table = ARTICLES[entree.langue];
-    if (!table || !estNom(entree)) return null;
+    if (!table || !estNom(entree) || estExpression(entree)) return null;
     const genres = genresDe(entree).filter((genre) => table[genre]);
     if (!genres.length) return null;
     return { genres, formes: genres.map((genre) => table[genre] + ' ' + entree.mot) };
@@ -460,7 +468,21 @@
    * exercices qui réclament les deux côtés la filtrent eux-mêmes. */
   async function phrasesDe(entree) {
     if (entree.paires) return entree.paires.slice();
-    return Lexique.phrases(entree.phrases);
+    /* Les phrases d'une entrée sont de deux sortes : celles rangées sous un
+     * sens précis, et celles laissées au niveau du mot. Les exercices
+     * prenaient les secondes seulement — et une expression comme « kein
+     * Problem », dont toutes les phrases sont rangées sous son unique sens,
+     * n'en avait aucune à proposer. On prend les deux : pour la phrase à
+     * trou, une phrase est une phrase. */
+    const numeros = (entree.phrases || []).slice();
+    for (const lecture of entree.lectures || []) {
+      for (const bloc of lecture[4] || []) {
+        for (const numero of (bloc[3] || [])) {
+          if (numeros.indexOf(numero) === -1) numeros.push(numero);
+        }
+      }
+    }
+    return Lexique.phrases(numeros);
   }
 
   /* Construit la question. Renvoie un objet décrivant ce qu'il faut afficher ;
@@ -475,6 +497,11 @@
      * annoncer, sans quoi on lit « Que veut dire ce mot ? » devant « maison »
      * en devant répondre « Haus ». */
     const autreLangue = carte.langue === 'de' ? 'fr' : 'de';
+    /* Une expression n'est jamais un nom pour la correction : on ne lui
+     * reproche ni majuscule ni article. `estNom` sert la casse allemande des
+     * substantifs, et « kein Problem » n'en est pas un, quoi qu'en dise la
+     * nature de son premier mot. */
+    const nom = estNom(entree) && !estExpression(entree);
 
     if (type === 'genre') {
       return {
@@ -516,8 +543,12 @@
         type, carte, entree,
         enonce: forme && carte.langue === 'de' ? forme.formes[0] : entree.mot,
         attendu: reponses[0],
+        /* Toutes les traductions enregistrées sont acceptées : « kein
+         * Problem » se dit « pas de problème » ou « aucun problème », et les
+         * deux sont attestées. Rien d'autre ne l'est — une variante qui n'a
+         * pas été enregistrée n'est pas devinée. */
         attendus: reponses,
-        estNom: estNom(entree),
+        estNom: nom,
         langueReponse: autre,
       };
     }
@@ -611,7 +642,7 @@
       if (troue) {
         return { type, carte, entree, enonce: troue.texte, indice: cible || null,
                  attendu: troue.mot, attendus: [troue.mot, entree.mot],
-                 estNom: estNom(entree), langueReponse: carte.langue };
+                 estNom: nom, langueReponse: carte.langue };
       }
     }
 
@@ -637,7 +668,7 @@
     if (type === 'ecoute') {
       return { type, carte, entree, enonce: null, aEcouter: entree.mot,
                attendu: entree.mot, attendus: [entree.mot],
-               estNom: estNom(entree), langueReponse: carte.langue };
+               estNom: nom, langueReponse: carte.langue };
     }
 
     // Par défaut, et pour tout ce qui précède qui n'a pas abouti : la saisie.
@@ -657,7 +688,7 @@
       enonce: reponses.slice(0, 2).join(', '),
       attendu: entree.mot,
       attendus: [entree.mot],
-      estNom: estNom(entree),
+      estNom: estNom(entree) && !estExpression(entree),
       langueReponse: carte.langue,
     };
   }
@@ -683,7 +714,7 @@
   racine.Exercices = {
     ARTICLES,
     corriger, distancePour: distance, nettoyer, decouper,
-    traductions, genreDe, genresDe, estNom, avecArticle,
+    traductions, genreDe, genresDe, estNom, estExpression, avecArticle,
     formeFlechie, synonymesDe,
     preparer, typeDExercice, trouer, melanger, phrasesDe,
   };
