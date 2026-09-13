@@ -47,32 +47,134 @@
 
   // ── Recherche ─────────────────────────────────────────────────────────────
 
+  function ligneDeResultat(resultat) {
+    const bouton = element('button', 'resultat');
+    bouton.type = 'button';
+    bouton.appendChild(element('span', 'pastille', I18n.t('langue.' + resultat.langue + '.court')));
+    bouton.appendChild(element('span', 'mot', resultat.mot));
+    if (resultat.via) {
+      /* La flèche se lit dans le sens de la recherche : on a tapé « Häuser »,
+       * on arrive à « Haus ». Écrire « forme de Häuser » à côté de « Haus »
+       * se lisait à l'envers. */
+      const note = element('span', 'via', '← ' + resultat.via);
+      note.title = resultat.via + ' : ' + I18n.t('chercher.via') + ' ' + resultat.mot;
+      bouton.appendChild(note);
+    }
+    if (resultat.perso) {
+      bouton.appendChild(element('span', 'pastille perso', I18n.t('perso.marque')));
+    }
+    /* Une expression sans équivalent se lit, mais ne s'apprend pas : elle le
+     * dit à la place de la traduction qu'elle n'a pas, et la ligne pâlit. */
+    if (resultat.expression && !resultat.apercu) {
+      bouton.classList.add('sans-equivalent');
+      bouton.appendChild(element('span', 'traduction discret',
+        I18n.t('expression.sans-equivalent')));
+    } else {
+      bouton.appendChild(element('span', 'traduction', resultat.apercu));
+    }
+    bouton.addEventListener('click', () => ouvrirFiche(resultat));
+    const ligne = element('li');
+    ligne.appendChild(bouton);
+    return ligne;
+  }
+
+  /* Combien d'expressions on montre d'abord, et combien chaque « Voir plus »
+   * en ajoute. Sur « de » ou « faire », le paquet complet en compte des
+   * centaines ; six suffisent à voir si l'on est sur la bonne piste, et
+   * chaque clic en déplie deux douzaines de plus — jusqu'à la dernière, car
+   * rien de ce que l'index sait n'est hors de portée. */
+  const EXPRESSIONS_VISIBLES = 6;
+  const EXPRESSIONS_PAR_PAGE = 24;
+
+  /* Déplie une liste par pages : `ajouter(lot)` reçoit ce qu'il faut afficher,
+   * le bouton dit combien il reste et disparaît quand il n'y a plus rien. */
+  function boutonVoirPlus(reste, cleLibelle, ajouter) {
+    if (!reste.length) return null;
+    const plus = element('button', 'lien-discret');
+    plus.type = 'button';
+    let position = 0;
+    const libeller = () => {
+      plus.textContent = I18n.n(cleLibelle, reste.length - position);
+    };
+    libeller();
+    plus.addEventListener('click', () => {
+      ajouter(reste.slice(position, position + EXPRESSIONS_PAR_PAGE));
+      position += EXPRESSIONS_PAR_PAGE;
+      if (position >= reste.length) plus.remove();
+      else libeller();
+    });
+    return plus;
+  }
+
+  /* Les expressions usuelles, en groupe à part sous les mots.
+   *
+   * Elles viennent de deux endroits : l'index des expressions par mot (« feu »
+   * → « à petit feu ») et ses propres entrées à plusieurs mots, qui se
+   * cherchent déjà par leurs mots intérieurs. Ce qui figure déjà parmi les
+   * résultats de mots — parce qu'on a tapé le début de l'expression — n'est
+   * pas répété. */
+  function dessinerExpressions(expressions, dejaVus) {
+    const bloc = elements.expressions;
+    bloc.textContent = '';
+    const retenues = expressions.filter((r) => !dejaVus.has(r.langue + ' ' + r.mot
+                                                              + (r.perso || '')));
+    bloc.hidden = retenues.length === 0;
+    if (!retenues.length) return;
+
+    bloc.appendChild(element('h3', null, I18n.t('chercher.expressions')));
+    const liste = element('ul');
+    liste.className = 'resultats-expressions';
+    const visibles = retenues.slice(0, EXPRESSIONS_VISIBLES);
+    for (const resultat of visibles) liste.appendChild(ligneDeResultat(resultat));
+    bloc.appendChild(liste);
+
+    const plus = boutonVoirPlus(retenues.slice(EXPRESSIONS_VISIBLES),
+      'chercher.expressions.plus',
+      (lot) => { for (const resultat of lot) liste.appendChild(ligneDeResultat(resultat)); });
+    if (plus) bloc.appendChild(plus);
+  }
+
   function dessinerResultats(resultats, saisie) {
     const liste = elements.resultats;
+    const suite = elements.resultatsSuite;
     liste.textContent = '';
+    suite.textContent = '';
 
-    for (const resultat of resultats) {
-      const bouton = element('button', 'resultat');
-      bouton.type = 'button';
-      bouton.appendChild(element('span', 'pastille', I18n.t('langue.' + resultat.langue + '.court')));
-      bouton.appendChild(element('span', 'mot', resultat.mot));
-      if (resultat.via) {
-        /* La flèche se lit dans le sens de la recherche : on a tapé « Häuser »,
-         * on arrive à « Haus ». Écrire « forme de Häuser » à côté de « Haus »
-         * se lisait à l'envers. */
-        const note = element('span', 'via', '← ' + resultat.via);
-        note.title = resultat.via + ' : ' + I18n.t('chercher.via') + ' ' + resultat.mot;
-        bouton.appendChild(note);
-      }
-      bouton.appendChild(element('span', 'traduction', resultat.apercu));
-      bouton.addEventListener('click', () => ouvrirFiche(resultat));
-      const ligne = element('li');
-      ligne.appendChild(bouton);
-      liste.appendChild(ligne);
+    /* Les expressions usuelles atteintes par un mot de la saisie — depuis
+     * l'index du dictionnaire, et depuis ses propres entrées. Celles-ci
+     * arrivent dans la recherche des mots, où « Lust » atteint « Ich habe
+     * keine Lust » par un mot intérieur ; si on les a déclarées expressions,
+     * elles passent au groupe des expressions, en tête — on les a écrites
+     * soi-même. Tapée en entier, l'expression reste un résultat exact. */
+    const siennes = resultats.filter((r) => r.perso && r.expression && !r.exact);
+    resultats = resultats.filter((r) => siennes.indexOf(r) === -1);
+    const vus = new Set(resultats.map((r) => r.langue + ' ' + r.mot + (r.perso || '')));
+    const expressions = saisie ? Lexique.chercherExpressions(saisie) : [];
+    expressions.unshift(...siennes);
+    dessinerExpressions(expressions, vus);
+
+    /* Où placer le groupe des expressions.
+     *
+     * Sur « feu », le dictionnaire répond par quarante mots qui commencent
+     * ainsi, et « à petit feu » arriverait en bas de tout cela, hors de l'écran
+     * d'un téléphone. Quand il y a des expressions, elles se glissent donc
+     * après les mots exacts et les formes fléchies — ce qu'on cherchait — et
+     * les mots qui ne font que commencer pareil suivent, sous un titre à eux.
+     * Sans expression, rien ne change : une seule liste, comme avant. */
+    const aDesExpressions = !elements.expressions.hidden;
+    const exacts = aDesExpressions ? resultats.filter((r) => r.rang <= 1) : resultats;
+    const autres = aDesExpressions ? resultats.filter((r) => r.rang > 1) : [];
+    for (const resultat of exacts) liste.appendChild(ligneDeResultat(resultat));
+    if (autres.length) {
+      const titre = element('li', 'titre-suite');
+      titre.appendChild(element('h3', null, I18n.t('chercher.autres-mots')));
+      suite.appendChild(titre);
+      for (const resultat of autres) suite.appendChild(ligneDeResultat(resultat));
     }
+    suite.hidden = autres.length === 0;
 
-    const aQuelqueChose = resultats.length > 0;
-    liste.hidden = !aQuelqueChose;
+    const aQuelqueChose = resultats.length > 0 || aDesExpressions;
+    liste.hidden = exacts.length === 0;
     elements.accueil.hidden = !!saisie;
     elements.rien.hidden = !saisie || aQuelqueChose;
     elements.rienConseil.textContent = I18n.t(
@@ -203,11 +305,35 @@
     if (!manifeste) return;
 
     const installeComplet = Lexique.paquet === 'complet';
-    const actif = manifeste.paquets[installeComplet ? 'complet' : 'noyau'];
-    const nombre = actif.entrees.de + actif.entrees.fr;
-    elements.etatDictionnaire.textContent = I18n.t(
-      installeComplet ? 'reglages.dictionnaire.complet' : 'reglages.dictionnaire.noyau',
-      { n: nombre.toLocaleString(I18n.langue) });
+    const ancien = Lexique.ancien;
+    /* Le paquet complet d'une mouture antérieure : on en lit les nombres
+     * dans son propre manifeste s'il l'a, et sinon on ne prétend rien. */
+    const actif = ancien
+      ? (ancien.manifeste ? ancien.manifeste.paquets.complet : null)
+      : manifeste.paquets[installeComplet ? 'complet' : 'noyau'];
+    const nombre = actif ? actif.entrees.de + actif.entrees.fr : 0;
+    elements.etatDictionnaire.textContent = ancien
+      ? I18n.t(actif ? 'reglages.dictionnaire.ancien' : 'reglages.dictionnaire.ancien.sans-nombre',
+               { n: nombre.toLocaleString(I18n.langue) })
+      : I18n.t(installeComplet ? 'reglages.dictionnaire.complet' : 'reglages.dictionnaire.noyau',
+               { n: nombre.toLocaleString(I18n.langue) });
+
+    if (ancien) {
+      /* Le message qui compte : ce qui marche encore, ce qui manque, ce que
+       * ça coûte, et que rien ne sera perdu en route. */
+      zone.appendChild(element('p', 'avis-donnees', I18n.t('donnees.anciennes.detail', {
+        taille: Paquets.humain(Paquets.poids(manifeste), I18n.langue),
+      })));
+      const bouton = element('button', 'bouton-principal', I18n.t('reglages.mettre-a-jour', {
+        taille: Paquets.humain(Paquets.poids(manifeste), I18n.langue),
+      }));
+      bouton.type = 'button';
+      bouton.addEventListener('click', () => lancerTelechargement(zone, bouton));
+      zone.appendChild(bouton);
+      zone.appendChild(element('p', 'discret', I18n.t('reglages.mettre-a-jour.detail')));
+      return;
+    }
+    if (!actif) return;
 
     /* Ce que le paquet actif pèse, ce qu'il sait faire, et d'où il vient.
      *
@@ -229,6 +355,21 @@
     fiche.appendChild(document.createTextNode(' · ' + I18n.t(
       'reglages.dictionnaire.phrases',
       { n: actif.phrases.toLocaleString(I18n.langue) })));
+    /* Les expressions usuelles : celles qui ont un équivalent s'apprennent,
+     * les autres se consultent seulement — deux nombres, pas un. */
+    if (actif.expressions_traduites) {
+      const traduitesExpr = actif.expressions_traduites.de + actif.expressions_traduites.fr;
+      const lecture = actif.expressions_sans_equivalent
+        ? actif.expressions_sans_equivalent.de + actif.expressions_sans_equivalent.fr : 0;
+      fiche.appendChild(document.createTextNode(' · ' + I18n.t(
+        'reglages.dictionnaire.expressions',
+        { n: traduitesExpr.toLocaleString(I18n.langue) })));
+      if (lecture) {
+        fiche.appendChild(document.createTextNode(' · ' + I18n.t(
+          'reglages.dictionnaire.expressions.lecture',
+          { n: lecture.toLocaleString(I18n.langue) })));
+      }
+    }
     zone.appendChild(fiche);
 
     if (installeComplet) {
@@ -423,9 +564,12 @@
 
       if (!fini) { dessinerDictionnaire(); return; }
 
+      /* Le nouveau paquet est entier, l'ancien vient d'être effacé par
+       * `telecharger` : on bascule d'un bloc sur la mouture courante. */
       await Lexique.charger('complet');
       await Store.ecrireReglage('paquet', 'complet');
       reglages.paquet = 'complet';
+      cacherAvisDonnees();
       dessinerReglages();
       chercher();
     } catch (erreur) {
@@ -445,6 +589,29 @@
 
   // ── Mise en place ─────────────────────────────────────────────────────────
 
+  // ── Un nouveau téléchargement est nécessaire ──────────────────────────────
+
+  /* Le bandeau qui le dit, au premier écran : le dictionnaire complet d'avant
+   * sert encore, mais les nouveautés attendent un téléchargement. « Mettre à
+   * jour » mène aux réglages, où le téléchargement se lance ; « Plus tard »
+   * replie le bandeau pour cette fois — les réglages le rediront. */
+  function montrerAvisDonnees() {
+    const bandeau = $('#donnees-anciennes');
+    if (!bandeau || !Lexique.ancien) return;
+    $('#donnees-anciennes-texte').textContent = I18n.t('donnees.anciennes', {
+      taille: Paquets.humain(Paquets.poids(manifeste), I18n.langue),
+    });
+    bandeau.hidden = false;
+    requestAnimationFrame(() => bandeau.classList.add('visible'));
+  }
+
+  function cacherAvisDonnees() {
+    const bandeau = $('#donnees-anciennes');
+    if (!bandeau) return;
+    bandeau.classList.remove('visible');
+    bandeau.hidden = true;
+  }
+
   function brancher(etatInitial) {
     reglages = etatInitial.reglages;
     manifeste = etatInitial.manifeste;
@@ -453,6 +620,8 @@
       q: $('#q'),
       qVider: $('#q-vider'),
       resultats: $('#resultats'),
+      expressions: $('#resultats-expressions'),
+      resultatsSuite: $('#resultats-suite'),
       accueil: $('#accueil'),
       rien: $('#rien'),
       rienConseil: $('#rien-conseil'),
@@ -574,6 +743,12 @@
 
     Revision.sensDeTravail = reglages.sensDeTravail || 'les-deux';
     Voix.actif = !!reglages.voix;
+    $('#b-donnees-mettre-a-jour').addEventListener('click', () => {
+      cacherAvisDonnees();
+      basculer('reglages');
+    });
+    $('#b-donnees-plus-tard').addEventListener('click', cacherAvisDonnees);
+    if (Lexique.ancien) montrerAvisDonnees();
     dessinerSuggestions();
     dessinerRecents();
     basculer('chercher');

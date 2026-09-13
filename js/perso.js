@@ -120,6 +120,12 @@
     const mot = assainir(brut.mot, MOT_MAX);
     const traductions = listeAssainie(brut.traductions, MOT_MAX, TRADUCTIONS_MAX);
     const nature = NATURES.indexOf(brut.nature) !== -1 ? brut.nature : '';
+    /* Une expression usuelle se déclare : plusieurs mots ne suffisent pas,
+     * « base de données » en a trois et reste un nom. Le formulaire pose la
+     * question quand le mot en a plusieurs ; une locution ou une interjection
+     * de plusieurs mots en est une d'office. */
+    const expression = /\s/.test(mot)
+      && (brut.expression === true || nature === 'locution' || nature === 'interjection');
     const genresPossibles = GENRES[langue] || [''];
     const genre = (nature === 'n' && genresPossibles.indexOf(brut.genre) !== -1)
       ? brut.genre : '';
@@ -138,6 +144,7 @@
         cle: langue ? Lexique.cle(mot) : '',
         nature,
         genre,
+        expression,
         traductions,
         pluriel: assainir(brut.pluriel, MOT_MAX),
         formes: listeAssainie(brut.formes, MOT_MAX, FORMES_MAX),
@@ -300,6 +307,15 @@
    * la place que le mot occupe dans la liste de quelqu'un qui l'a ajouté à la
    * main, c'est-à-dire la première. La fiche n'affiche d'ailleurs pas cette
    * bande pour un mot personnel, elle affiche « Personnel ». */
+  /* L'entrée personnelle est-elle une expression usuelle ? Les entrées
+   * écrites avant que la question existe n'ont pas le champ : seule leur
+   * nature en décide alors, et rien ne change pour elles. */
+  function estExpression(enregistrement) {
+    if (!enregistrement || !/\s/.test(enregistrement.mot || '')) return false;
+    return enregistrement.expression === true
+      || enregistrement.nature === 'locution' || enregistrement.nature === 'interjection';
+  }
+
   function entree(uid) {
     const enregistrement = table.get(uid);
     if (!enregistrement) return null;
@@ -330,6 +346,7 @@
       perso: uid,
       cree: enregistrement.cree,
       modifie: enregistrement.modifie,
+      expression: estExpression(enregistrement) ? 'perso' : undefined,
     };
   }
 
@@ -345,6 +362,7 @@
       exact: !!exact,
       via: via || null,
       perso: enregistrement.id,
+      expression: estExpression(enregistrement),
     };
   }
 
@@ -414,7 +432,7 @@
 
   racine.Perso = {
     NATURES, GENRES, MOT_MAX, EXEMPLE_MAX, TRADUCTIONS_MAX,
-    charger, liste, brut, compte, entree, resultat,
+    charger, liste, brut, compte, entree, resultat, estExpression,
     creer, modifier, supprimer, remettre, accorderLesCartes,
     chercher, memeCle, parGraphie, normaliser, commenceParUnMot,
     assainir, assainirPhrase, listeAssainie, nouvelIdentifiant,

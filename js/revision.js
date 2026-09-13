@@ -112,7 +112,13 @@
    * données serait insensé. */
   function cartesPour(entree) {
     const types = directionsPour(entree.langue);
-    if (entree.langue === 'de') {
+    /* Une expression n'a pas de genre, même quand elle contient un nom : on
+     * n'apprend pas « der » ou « die » sur « kein Problem », et le demander
+     * ferait poser une question dont la réponse n'est pas dans l'expression.
+     * Ce qui fait l'expression, c'est sa provenance ou le choix de qui l'a
+     * saisie — pas ses espaces : « Republik Kuba » garde sa carte de genre. */
+    const estExpression = Lexique.estExpression(entree);
+    if (entree.langue === 'de' && !estExpression) {
       const aUnGenre = entree.lectures.some((l) => l[0] === 'n' && l[1]);
       if (aUnGenre) types.push('genre');
     }

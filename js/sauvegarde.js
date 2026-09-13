@@ -129,6 +129,7 @@
       traductions: Array.isArray(brut.traductions) ? brut.traductions : [],
       nature: brut.nature,
       genre: brut.genre,
+      expression: brut.expression === true,
       pluriel: brut.pluriel,
       formes: Array.isArray(brut.formes) ? brut.formes : [],
       exemple: brut.exemple,

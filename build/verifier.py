@@ -176,8 +176,11 @@ def verifier_paquet(nom, manifeste):
     for surnumeraire in sorted(presents - declares):
         anomalie(f"{surnumeraire} présent sur le disque mais absent du manifeste")
 
+    expressions_vues = {}
+    vedettes_du_paquet = {}
     for langue in ("de", "fr"):
         index = charger_index(dossier / f"{langue}.idx")
+        vedettes_du_paquet[langue] = {mot for lot in index.values() for mot, *_ in lot}
         attendu = manifeste["paquets"][nom]["entrees"][langue]
         if compter_entrees(index) != attendu:
             anomalie(f"{langue}.idx contient {compter_entrees(index)} lignes, "
@@ -193,6 +196,7 @@ def verifier_paquet(nom, manifeste):
                 par_tranche.setdefault(tranche, set()).add(mot)
 
         bandes = Counter()
+        expressions_vues.setdefault(langue, 0)
         sans_genre = coupees = sans_traduction = 0
         sens_total = sens_illustres = avec_flexion = 0
         pieges_vus = {}
@@ -205,7 +209,16 @@ def verifier_paquet(nom, manifeste):
             if contenu.get("l") != langue:
                 anomalie(f"{chemin.name} annonce la langue « {contenu.get('l')} »")
             trouves = set()
-            for mot, bande, lectures, _phrases, _voisins in contenu["e"]:
+            for ecrite in contenu["e"]:
+                # Cinq champs pour un mot, six ou sept pour une expression
+                # usuelle — sa provenance, et parfois une explication.
+                mot, bande, lectures = ecrite[0], ecrite[1], ecrite[2]
+                if len(ecrite) > 5:
+                    expressions_vues[langue] += 1
+                    if ecrite[5] not in PROVENANCES:
+                        anomalie(f"« {mot} » : provenance d'expression inconnue « {ecrite[5]} »")
+                    if " " not in mot:
+                        anomalie(f"« {mot} » est marqué expression mais n'a qu'un mot")
                 trouves.add(mot)
                 bandes[bande] += 1
                 if mot in MOTS_PIEGES.get(langue, ()):
@@ -257,7 +270,73 @@ def verifier_paquet(nom, manifeste):
         if manquants and nom == "complet":
             dire(f"  · {langue} : mots pièges absents du dictionnaire — {', '.join(manquants)}")
 
+        # L'index des expressions par mot : chaque renvoi doit aboutir à une
+        # vedette du paquet, et le compte du manifeste doit dire vrai.
+        verifier_expressions(dossier, langue, nom, manifeste, vedettes_du_paquet[langue],
+                             expressions_vues[langue])
+
     dire()
+
+
+# Les provenances qu'une expression peut porter — voir build/expressions.py.
+PROVENANCES = {"dico", "tatoeba", "croisee", "attestee", "editorial"}
+
+
+def verifier_expressions(dossier, langue, nom, manifeste, vedettes, vues):
+    """L'index des expressions par mot, et le compte du manifeste.
+
+    Chaque renvoi de l'index doit aboutir à une vedette du même paquet : un
+    renvoi vers une expression absente ferait un résultat qui ne s'ouvre pas.
+    Les clés doivent être des mots normalisés — la dichotomie de l'application
+    s'appuie sur leur tri. Et le nombre d'expressions écrites dans les tranches
+    doit être celui que le manifeste annonce, à l'entrée près.
+    """
+    chemin = dossier / f"expressions-{langue}.idx"
+    if not chemin.exists():
+        anomalie(f"{chemin.name} absent")
+        return
+    annonce = manifeste["paquets"][nom].get("expressions", {}).get(langue)
+    if annonce != vues:
+        anomalie(f"{nom}/{langue} : {vues} expressions dans les tranches, "
+                 f"le manifeste en annonce {annonce}")
+    lignes = chemin.read_text(encoding="utf-8").splitlines()
+    precedente = ""
+    renvois = aboutissent = 0
+    vedettes_par_langue = {langue: vedettes}
+    for numero, ligne in enumerate(lignes, 1):
+        if not ligne:
+            continue
+        morceaux = ligne.split("	")
+        if len(morceaux) != 2:
+            anomalie(f"{chemin.name} ligne {numero} : {len(morceaux)} champs au lieu de 2")
+            continue
+        mot, liste = morceaux
+        if commun.cle(mot) != mot:
+            anomalie(f"{chemin.name} ligne {numero} : « {mot} » n'est pas une clé normalisée")
+        if mot < precedente:
+            anomalie(f"{chemin.name} ligne {numero} : « {mot} » rompt le tri")
+        precedente = mot
+        for marque in liste.split("|"):
+            renvois += 1
+            if ":" not in marque:
+                anomalie(f"{chemin.name} ligne {numero} : renvoi « {marque} » sans langue")
+                continue
+            l, vedette = marque.split(":", 1)
+            if l not in ("de", "fr"):
+                anomalie(f"{chemin.name} ligne {numero} : langue « {l} » inconnue")
+                continue
+            # La vedette d'une expression de l'autre langue se vérifie dans
+            # l'index de l'autre langue, qu'on lit à la demande.
+            if l not in vedettes_par_langue:
+                autre = charger_index(dossier / f"{l}.idx")
+                vedettes_par_langue[l] = {m for lot in autre.values() for m, *_ in lot}
+            if vedette in vedettes_par_langue[l]:
+                aboutissent += 1
+            else:
+                anomalie(f"{chemin.name} : « {mot} » renvoie à « {vedette} » ({l}), "
+                         f"absent du paquet")
+    dire(f"  · {langue} : {vues} expressions usuelles, {len(lignes)} mots indexés, "
+         f"{aboutissent}/{renvois} renvois aboutissent")
 
 
 def verifier_phrases(nom, manifeste):
@@ -290,7 +369,7 @@ def verifier_phrases(nom, manifeste):
         while (dossier / f"{langue}-{numero:03d}.json").exists():
             contenu = json.loads(
                 (dossier / f"{langue}-{numero:03d}.json").read_text(encoding="utf-8"))
-            for _mot, _bande, _lectures, liste, _voisins in contenu["e"]:
+            for _mot, _bande, _lectures, liste, _voisins, *_expression in contenu["e"]:
                 if liste:
                     illustres += 1
                 for identifiant in liste:
@@ -319,7 +398,7 @@ def verifier_familles(nom, manifeste):
         while (dossier / f"{langue}-{numero:03d}.json").exists():
             contenu = json.loads(
                 (dossier / f"{langue}-{numero:03d}.json").read_text(encoding="utf-8"))
-            for mot, _bande, _lectures, _phrases, voisins in contenu["e"]:
+            for mot, _bande, _lectures, _phrases, voisins, *_expression in contenu["e"]:
                 vedettes.add(mot)
                 entrees.append((mot, voisins))
             numero += 1
@@ -353,7 +432,7 @@ def relire_familles():
         while (dossier / f"{langue}-{numero:03d}.json").exists():
             contenu = json.loads(
                 (dossier / f"{langue}-{numero:03d}.json").read_text(encoding="utf-8"))
-            for mot, bande, _lectures, _phrases, voisins in contenu["e"]:
+            for mot, bande, _lectures, _phrases, voisins, *_expression in contenu["e"]:
                 if voisins and bande <= 1:
                     tous.append((mot, voisins))
             numero += 1
@@ -406,7 +485,7 @@ def relire(manifeste):
             chemin = DATA / "noyau" / f"{langue}-{numero:03d}.json"
             if not chemin.exists():
                 break
-            for mot, bande, _lectures, _phrases, _voisins in json.loads(
+            for mot, bande, _lectures, _phrases, _voisins, *_expression in json.loads(
                     chemin.read_text(encoding="utf-8"))["e"]:
                 if bande == 0:
                     tete.append(mot)

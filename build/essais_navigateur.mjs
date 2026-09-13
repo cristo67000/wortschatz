@@ -197,6 +197,7 @@ async function principal() {
         reseau,
         paquet: Lexique.paquet,
         entreesIndex: Lexique.etat.index.de.debuts.length,
+        entreesAnnoncees: Lexique.manifeste.paquets.noyau.entrees.de,
         chercheDico: Lexique.chercher('Haus').filter(r => !r.perso).map(r => r.mot).slice(0, 3),
         chercheForme: Lexique.chercher('ging').filter(r => !r.perso).map(r => r.mot).slice(0, 2),
         persoCompte: Perso.compte(),
@@ -211,8 +212,9 @@ async function principal() {
       'depuis la page, le réseau est bien coupé', horsLigne.reseau);
     verifier(horsLigne.demarrageFini, 'l’application s’ouvre sans réseau');
     verifier(horsLigne.paquet === 'noyau', 'le dictionnaire est chargé', horsLigne.paquet);
-    verifier(horsLigne.entreesIndex === 12000,
-      'l’index allemand est complet (' + horsLigne.entreesIndex + ' vedettes)');
+    verifier(horsLigne.entreesIndex === horsLigne.entreesAnnoncees && horsLigne.entreesIndex >= 12000,
+      'l’index allemand est complet (' + horsLigne.entreesIndex + ' vedettes, '
+      + 'autant que le manifeste en annonce)');
     verifier(horsLigne.chercheDico.includes('Haus'),
       'la recherche du dictionnaire marche hors ligne', horsLigne.chercheDico);
     verifier(horsLigne.chercheForme.includes('gehen'),
@@ -239,6 +241,183 @@ async function principal() {
     verifier(fiche.aExemple,
       'elle porte ses sens et ses exemples (' + fiche.longueur + ' signes)');
 
+    titre('7. Les expressions usuelles, hors ligne, par l’interface');
+    const expressions = await onglet.evaluer(`
+      document.querySelector('.fiche-fermer').click();
+      await new Promise(x => setTimeout(x, 300));
+      const q = document.querySelector('#q');
+      const taper = async (t) => {
+        q.value = t; q.dispatchEvent(new Event('input', { bubbles: true }));
+        await new Promise(x => setTimeout(x, 350));
+        const groupe = document.querySelector('#resultats-expressions');
+        return { visible: !groupe.hidden,
+                 titre: (groupe.querySelector('h3') || {}).textContent || '',
+                 lignes: [...groupe.querySelectorAll('.resultat .mot')].map(e => e.textContent),
+                 mots: [...document.querySelectorAll('#resultats .resultat .mot')].map(e => e.textContent) };
+      };
+      const feu = await taper('feu');
+      const ahnung = await taper('Ahnung');
+      const gluck = await taper('Gluck');
+      const problem = await taper('Problem');
+      const chance = await taper('chance');
+      const bonjour = await taper('bonjour');
+      // Un clic sur une expression ouvre sa fiche, avec sa section et sa provenance.
+      await taper('Problem');
+      const bouton = [...document.querySelectorAll('#resultats-expressions .resultat')]
+        .find(b => b.querySelector('.mot').textContent === 'kein Problem');
+      bouton.click();
+      await new Promise(x => setTimeout(x, 1200));
+      const fiche = document.querySelector('#fiche-contenu');
+      const texteFiche = fiche.textContent;
+      const boutonApprendre = fiche.querySelector('.apprendre');
+      // Et la fiche d'un mot montre la section en bas.
+      document.querySelector('.fiche-fermer').click();
+      await taper('Ahnung');
+      document.querySelector('#resultats .resultat').click();
+      await new Promise(x => setTimeout(x, 1200));
+      const section = document.querySelector('#fiche-contenu .expressions-usuelles');
+      const dansLaSection = section
+        ? [...section.querySelectorAll('.expression-ligne .mot')].map(e => e.textContent) : [];
+      const titreSection = section ? section.querySelector('h3').textContent : null;
+      const ordre = [...document.querySelectorAll('#fiche-contenu > section, #fiche-contenu > div')]
+        .map(e => e.className.split(' ')[0]);
+      return { feu, ahnung, gluck, problem, chance, bonjour,
+               ficheExpression: { marque: texteFiche.includes('expression'),
+                                  provenance: /éditorial|redaktionell/i.test(texteFiche),
+                                  equivalents: /pas de problème/i.test(texteFiche)
+                                               && /aucun problème/i.test(texteFiche),
+                                  apprendre: !!boutonApprendre },
+               dansLaSection, titreSection, ordre };
+    `);
+    verifier(expressions.feu.visible && expressions.feu.lignes.includes('à petit feu'),
+      '« feu » → groupe « Expressions usuelles » avec « à petit feu »', expressions.feu);
+    verifier(expressions.feu.titre === 'Expressions usuelles',
+      'le groupe porte son titre', expressions.feu.titre);
+    verifier(expressions.feu.mots.includes('feu'),
+      'la recherche des mots n’a pas bougé : « feu » est toujours là');
+    verifier(expressions.ahnung.lignes.includes('keine Ahnung'),
+      '« Ahnung » → « keine Ahnung »', expressions.ahnung.lignes);
+    verifier(expressions.gluck.lignes.includes('viel Glück'),
+      '« Gluck » sans tréma → « viel Glück »', expressions.gluck.lignes);
+    verifier(expressions.problem.lignes.includes('kein Problem'),
+      '« Problem » → « kein Problem »', expressions.problem.lignes);
+    verifier(expressions.chance.lignes.includes('au petit bonheur la chance')
+             && expressions.chance.lignes.includes('viel Glück'),
+      '« chance » → « au petit bonheur la chance » et « viel Glück » (par sa traduction)',
+      expressions.chance.lignes);
+    verifier(expressions.ficheExpression.marque && expressions.ficheExpression.provenance,
+      'la fiche de « kein Problem » dit que c’est une expression, relue à la main');
+    verifier(expressions.ficheExpression.equivalents,
+      'elle montre ses équivalents vérifiés');
+    verifier(expressions.ficheExpression.apprendre, 'elle propose « Apprendre »');
+    verifier(expressions.titreSection === 'Expressions usuelles'
+             && expressions.dansLaSection.includes('keine Ahnung'),
+      'la fiche « Ahnung » propose « keine Ahnung » en bas', expressions.dansLaSection);
+    const positionExpr = expressions.ordre.indexOf('expressions-usuelles');
+    const positionNotes = expressions.ordre.indexOf('mes-notes');
+    verifier(positionExpr !== -1 && positionNotes > positionExpr,
+      'la section vient après les exemples et avant les notes', expressions.ordre);
+
+    titre('7 bis. Le formulaire demande si plusieurs mots font une expression');
+    const formulaire = await onglet.evaluer(`
+      document.querySelector('.fiche-fermer').click();
+      await new Promise(x => setTimeout(x, 300));
+      MesMots.ouvrirFormulaire({ saisie: 'Das ist mir Wurst', langue: 'de' });
+      await new Promise(x => setTimeout(x, 300));
+      const ligne = [...document.querySelectorAll('.champ-perso')]
+        .find(l => l.querySelector('[data-champ="expression"]'));
+      const surPlusieurs = ligne && !ligne.hidden;
+      const champMot = document.querySelector('.formulaire-perso input[name="mot"]');
+      champMot.value = 'Wurst';
+      champMot.dispatchEvent(new Event('input', { bubbles: true }));
+      const surUnSeul = ligne && ligne.hidden;
+      champMot.value = 'Das ist mir Wurst';
+      champMot.dispatchEvent(new Event('input', { bubbles: true }));
+      ligne.querySelector('[data-valeur="oui"]').click();
+      document.querySelector('.formulaire-perso input[name="traductions"]').value = 'je m’en fiche';
+      // On enregistre par le bouton, comme au doigt.
+      const valider = [...document.querySelectorAll('#formulaire-perso button')]
+        .find(b => b.className.indexOf('bouton-principal') !== -1);
+      valider.click();
+      await new Promise(x => setTimeout(x, 800));
+      const brut = Perso.liste().find(m => m.mot === 'Das ist mir Wurst');
+      const cartes = brut ? (await Revision.apprendre(Perso.entree(brut.id))).map(c => c.type).sort() : [];
+      const parWurst = Lexique.chercher('Wurst').some(r => brut && r.perso === brut.id && r.expression);
+      if (brut) await Perso.supprimer(brut.id);
+      return { surPlusieurs, surUnSeul, declaree: !!(brut && brut.expression === true), cartes, parWurst };
+    `);
+    verifier(formulaire.surPlusieurs, 'la question « Expression usuelle ? » apparaît sur plusieurs mots');
+    verifier(formulaire.surUnSeul, 'et disparaît sur un seul');
+    verifier(formulaire.declaree, '« Oui » enregistre la déclaration', formulaire);
+    verifier(JSON.stringify(formulaire.cartes) === JSON.stringify(['vers-de', 'vers-fr']),
+      'deux cartes, aucune de genre, bien que « Wurst » soit un nom', formulaire.cartes);
+    verifier(formulaire.parWurst, '« Wurst » la retrouve, marquée expression');
+
+    titre('7 ter. Un ancien cache de données incomplet ne sert à rien : il part');
+    const perimes = await onglet.evaluer(`
+      // Un cache de l'ancien format, tel qu'un téléchargement interrompu de la
+      // version 3.0 l'aurait laissé : une tranche, pas d'index.
+      const ancien = await caches.open('wortschatz-donnees-2');
+      await ancien.put('data/complet/de-000.json', new Response('{"e":[]}'));
+      const utilisable = await Paquets.ancien(Lexique.manifeste);
+      const effaces = await Paquets.oublierLesPerimes(Lexique.manifeste);
+      return { version: Lexique.manifeste.version, effaces, utilisable,
+               resteAncien: await caches.has('wortschatz-donnees-2'),
+               nomCourant: Paquets.nomDuCache(Lexique.manifeste),
+               completInstalle: await Paquets.complet(Lexique.manifeste) };
+    `);
+    verifier(perimes.version === 3, 'le format des données est en version 3', perimes.version);
+    verifier(perimes.utilisable === null && !perimes.resteAncien && perimes.effaces >= 1,
+      'sans ses index, l’ancien cache n’est pas utilisable et il est effacé');
+    verifier(/^wortschatz-donnees-3-\d{4}-\d{2}-\d{2}$/.test(perimes.nomCourant) && !perimes.completInstalle,
+      'le cache courant porte format et date de construction ; le complet se propose au téléchargement',
+      perimes);
+
+    titre('8. Apprendre une expression, hors ligne — et la réviser avec son sens');
+    const apprise = await onglet.evaluer(`
+      document.querySelector('.fiche-fermer').click();
+      const v = Lexique.vedette('de', 'kein Problem');
+      const e = await Lexique.ouvrir(v);
+      const cartes = await Revision.apprendre(e);
+      // « à petit feu », direction « comprendre », deuxième passage : la
+      // question écrite, sur un sens, avec sa définition.
+      const feu = await Lexique.ouvrir(Lexique.vedette('fr', 'à petit feu'));
+      const cartesFeu = await Revision.apprendre(feu);
+      for (const c of cartesFeu) {
+        if (c.type === 'vers-de') { c.reussites = 1; c.echeance = Date.now() - 1000; await Store.ecrireCarte(c); }
+        else await Store.supprimerCarte(c.id);
+      }
+      for (const c of cartes) await Store.supprimerCarte(c.id);
+      App.basculer('reviser');
+      await new Promise(x => setTimeout(x, 500));
+      [...document.querySelectorAll('#vue-reviser button')]
+        .find(b => /Commencer la séance|Sitzung beginnen/.test(b.textContent)).click();
+      await new Promise(x => setTimeout(x, 1500));
+      const consigne = document.querySelector('#seance-consigne').textContent;
+      const indice = (document.querySelector('#vue-reviser .enonce-indice') || {}).textContent || '';
+      const mot = (document.querySelector('#vue-reviser .enonce-mot') || {}).textContent || '';
+      const saisie = document.querySelector('#vue-reviser input[type="text"], #vue-reviser input:not([type])');
+      // On répond par l'équivalent de l'autre sens.
+      const autreSens = /cuisson/.test(indice) ? 'langsam' : 'auf kleiner Flamme';
+      saisie.value = autreSens;
+      [...document.querySelectorAll('#vue-reviser button')].find(b => /Valider|Prüfen/.test(b.textContent)).click();
+      await new Promise(x => setTimeout(x, 600));
+      const verdict = document.querySelector('#verdict-remarque').textContent;
+      const etatVerdict = document.querySelector('#vue-reviser .verdict, #seance-verdict');
+      for (const c of await Store.cartesDuMot('fr', 'à petit feu')) await Store.supprimerCarte(c.id);
+      return { types: cartes.map(c => c.type).sort(), consigne, indice, mot, autreSens, verdict,
+               texteVerdict: etatVerdict ? etatVerdict.textContent.replace(/\s+/g, ' ').slice(0, 200) : '' };
+    `);
+    verifier(JSON.stringify(apprise.types) === JSON.stringify(['vers-de', 'vers-fr']),
+      '« kein Problem » : deux cartes, aucune de genre', apprise.types);
+    verifier(apprise.mot === 'à petit feu' && /cuisson|durer/.test(apprise.indice),
+      'la question « à petit feu » affiche la définition du sens visé', apprise.indice);
+    verifier(/en allemand|auf Deutsch/.test(apprise.consigne),
+      'la consigne nomme la langue de la réponse — l’allemand', apprise.consigne);
+    verifier(/autre sens|andere Bedeutung/.test(apprise.verdict),
+      'répondre par l’équivalent de l’autre sens (' + apprise.autreSens + ') vaut « presque », et la remarque le dit',
+      apprise);
+
     // Le serveur repart pour l'épreuve suivante.
     serveur = demarrerServeur();
     await attendreServeur(true);
@@ -247,7 +426,7 @@ async function principal() {
     return { uid: ajout.uid, serveur };
   } finally {
     onglet.fermer();
-    fermerChrome(chrome);
+    await fermerChrome(chrome);
   }
 }
 

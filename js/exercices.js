@@ -128,6 +128,37 @@
     return entree.lectures[0] || [];
   }
 
+  /* Les sens d'une entrée qui ont des équivalents, avec leur définition. */
+  function sensTraduits(entree) {
+    const sortie = [];
+    for (const lecture of entree.lectures) {
+      for (const bloc of lecture[4]) {
+        if (bloc[1] && bloc[1].length) {
+          sortie.push({ definition: bloc[0] || '', equivalents: bloc[1].slice() });
+        }
+      }
+    }
+    return sortie;
+  }
+
+  /* Le sens sur lequel porte la question.
+   *
+   * « À petit feu » veut dire « auf kleiner Flamme » pour une cuisson et
+   * « langsam » pour une agonie ; « feu » est Feuer, Ampel ou Feuerwaffe.
+   * Demander « que veut dire à petit feu ? » sans dire lequel, c'est poser une
+   * question à plusieurs bonnes réponses et n'en afficher qu'une. Quand les
+   * sens ont des équivalents distincts et une définition pour les
+   * distinguer, la question en vise un seul, tiré au sort, et le dit. Rend
+   * null quand il n'y a rien à distinguer — un seul sens, ou les mêmes
+   * équivalents partout, comme WikDict en répand souvent. */
+  function sensVise(entree) {
+    const sens = sensTraduits(entree).filter((s) => s.definition);
+    if (sens.length < 2) return null;
+    const distincts = new Set(sens.map((s) => s.equivalents.map(Lexique.cle).sort().join('|')));
+    if (distincts.size < 2) return null;
+    return auHasard(sens);
+  }
+
   function genreDe(entree) {
     for (const lecture of entree.lectures) {
       if (lecture[0] === 'n' && lecture[1]) return lecture[1];
@@ -152,13 +183,21 @@
     return premiereLecture(entree)[0] === 'n';
   }
 
+  /* Une expression : plusieurs mots. Les exercices qui portent sur un mot —
+   * le genre, l'article, le pluriel — ne s'y appliquent pas, et la correction
+   * n'y reproche pas la majuscule : « kein Problem » commence par une
+   * minuscule en vedette, et par une majuscule quand on le dit. */
+  function estExpression(entree) {
+    return Lexique.estExpression(entree);
+  }
+
   /* Le mot précédé de son article, sous chacun de ses genres — ou null quand la
    * question ne se pose pas : ce n'est pas un nom, ou son genre est absent des
    * données. 2 % des noms allemands n'en ont pas, et interroger sur ce qu'on
    * ignore soi-même n'apprend rien à personne. */
   function avecArticle(entree) {
     const table = ARTICLES[entree.langue];
-    if (!table || !estNom(entree)) return null;
+    if (!table || !estNom(entree) || estExpression(entree)) return null;
     const genres = genresDe(entree).filter((genre) => table[genre]);
     if (!genres.length) return null;
     return { genres, formes: genres.map((genre) => table[genre] + ' ' + entree.mot) };
@@ -326,9 +365,22 @@
     if (!brut || !candidats.length) {
       return { verdict: 'faux', attendu: candidats[0] || attendus[0], remarque: null };
     }
-    return reglages.articleExige
+    const verdict = reglages.articleExige
       ? corrigerAvecArticle(brut, candidats, reglages)
       : comparerMot(brut, candidats, reglages);
+    /* Une réponse juste pour un autre sens que celui demandé n'est pas fausse
+     * — on connaît l'expression —, mais ce n'est pas la réponse à la question
+     * posée : « presque », et la remarque dit lequel des sens on demandait. */
+    if (verdict.verdict === 'faux' && reglages.autresSens && reglages.autresSens.length) {
+      const autres = reglages.autresSens.map(nettoyer).filter(Boolean);
+      const ailleurs = autres.length ? comparerMot(brut, autres, reglages) : null;
+      if (ailleurs && ailleurs.verdict !== 'faux') {
+        return { verdict: 'presque', attendu: candidats[0],
+                 remarque: { cle: 'exercice.remarque.autre-sens',
+                             valeurs: { reponse: attendus[0], sens: reglages.contexte || '' } } };
+      }
+    }
+    return verdict;
   }
 
   // ── Fabrication des questions ─────────────────────────────────────────────
@@ -460,7 +512,21 @@
    * exercices qui réclament les deux côtés la filtrent eux-mêmes. */
   async function phrasesDe(entree) {
     if (entree.paires) return entree.paires.slice();
-    return Lexique.phrases(entree.phrases);
+    /* Les phrases d'une entrée sont de deux sortes : celles rangées sous un
+     * sens précis, et celles laissées au niveau du mot. Les exercices
+     * prenaient les secondes seulement — et une expression comme « kein
+     * Problem », dont toutes les phrases sont rangées sous son unique sens,
+     * n'en avait aucune à proposer. On prend les deux : pour la phrase à
+     * trou, une phrase est une phrase. */
+    const numeros = (entree.phrases || []).slice();
+    for (const lecture of entree.lectures || []) {
+      for (const bloc of lecture[4] || []) {
+        for (const numero of (bloc[3] || [])) {
+          if (numeros.indexOf(numero) === -1) numeros.push(numero);
+        }
+      }
+    }
+    return Lexique.phrases(numeros);
   }
 
   /* Construit la question. Renvoie un objet décrivant ce qu'il faut afficher ;
@@ -468,13 +534,28 @@
   async function preparer(carte, entree, options) {
     const phrases = await phrasesDe(entree);
     const type = typeDExercice(carte, entree, phrases, options);
-    const reponses = traductions(entree);
+    /* Les réponses : celles du sens visé quand il y en a un, sinon toutes. Les
+     * équivalents des autres sens restent connus de la correction, qui les
+     * comptera « presque ». Le contexte — la définition du sens — n'est
+     * montré que dans la direction « comprendre » : c'est là qu'il lève
+     * l'ambiguïté. Dans l'autre, la réponse est la vedette quel que soit le
+     * sens, et la définition pourrait la contenir. */
+    const vise = sensVise(entree);
+    const reponses = vise ? vise.equivalents : traductions(entree);
+    const autresSens = vise
+      ? traductions(entree).filter((t) => reponses.indexOf(t) === -1) : [];
+    const contexte = vise ? vise.definition : null;
     /* La langue dans laquelle on attend la réponse. Elle ne se déduit pas du
      * nom de l'exercice : « reconnaître le sens » d'une entrée française veut
      * dire répondre en allemand. C'est pourtant ce que la consigne doit
      * annoncer, sans quoi on lit « Que veut dire ce mot ? » devant « maison »
      * en devant répondre « Haus ». */
     const autreLangue = carte.langue === 'de' ? 'fr' : 'de';
+    /* Une expression n'est jamais un nom pour la correction : on ne lui
+     * reproche ni majuscule ni article. `estNom` sert la casse allemande des
+     * substantifs, et « kein Problem » n'en est pas un, quoi qu'en dise la
+     * nature de son premier mot. */
+    const nom = estNom(entree) && !estExpression(entree);
 
     if (type === 'genre') {
       return {
@@ -492,6 +573,7 @@
         { texte: reponses[0], juste: true },
       ].concat(leurres.map((a) => ({ texte: traductions(a)[0], juste: false }))));
       return { type, carte, entree, enonce: entree.mot, options,
+               indice: contexte || undefined,
                attendu: reponses[0], langueReponse: autreLangue };
     }
 
@@ -516,8 +598,14 @@
         type, carte, entree,
         enonce: forme && carte.langue === 'de' ? forme.formes[0] : entree.mot,
         attendu: reponses[0],
+        /* Toutes les traductions enregistrées sont acceptées : « kein
+         * Problem » se dit « pas de problème » ou « aucun problème », et les
+         * deux sont attestées. Rien d'autre ne l'est — une variante qui n'a
+         * pas été enregistrée n'est pas devinée. */
         attendus: reponses,
-        estNom: estNom(entree),
+        autresSens,
+        indice: contexte || undefined,
+        estNom: nom,
         langueReponse: autre,
       };
     }
@@ -611,7 +699,7 @@
       if (troue) {
         return { type, carte, entree, enonce: troue.texte, indice: cible || null,
                  attendu: troue.mot, attendus: [troue.mot, entree.mot],
-                 estNom: estNom(entree), langueReponse: carte.langue };
+                 estNom: nom, langueReponse: carte.langue };
       }
     }
 
@@ -637,7 +725,7 @@
     if (type === 'ecoute') {
       return { type, carte, entree, enonce: null, aEcouter: entree.mot,
                attendu: entree.mot, attendus: [entree.mot],
-               estNom: estNom(entree), langueReponse: carte.langue };
+               estNom: nom, langueReponse: carte.langue };
     }
 
     // Par défaut, et pour tout ce qui précède qui n'a pas abouti : la saisie.
@@ -657,7 +745,7 @@
       enonce: reponses.slice(0, 2).join(', '),
       attendu: entree.mot,
       attendus: [entree.mot],
-      estNom: estNom(entree),
+      estNom: estNom(entree) && !estExpression(entree),
       langueReponse: carte.langue,
     };
   }
@@ -683,7 +771,7 @@
   racine.Exercices = {
     ARTICLES,
     corriger, distancePour: distance, nettoyer, decouper,
-    traductions, genreDe, genresDe, estNom, avecArticle,
+    traductions, genreDe, genresDe, estNom, estExpression, avecArticle,
     formeFlechie, synonymesDe,
     preparer, typeDExercice, trouer, melanger, phrasesDe,
   };

@@ -71,6 +71,10 @@
 
       <ul id="resultats" role="listbox" aria-label="Résultats" hidden></ul>
 
+      <div id="resultats-expressions" hidden></div>
+
+      <ul id="resultats-suite" role="listbox" aria-label="Autres mots" hidden></ul>
+
       <button id="b-ajouter-liste" type="button" class="bouton-discret ajouter-mot"
               data-t="perso.ajouter.autre" hidden></button>
 
@@ -260,6 +264,14 @@
 
   </main>
 
+  <div id="donnees-anciennes" class="bandeau-fixe" role="status" aria-live="polite" hidden>
+    <p id="donnees-anciennes-texte"></p>
+    <div class="maj-boutons">
+      <button id="b-donnees-mettre-a-jour" type="button" class="bouton-principal"
+              data-t="donnees.anciennes.bouton"></button>
+      <button id="b-donnees-plus-tard" type="button" class="lien-discret" data-t="maj.plus-tard"></button>
+    </div>
+  </div>
   <div id="mise-a-jour" role="status" aria-live="polite" hidden>
     <p id="mise-a-jour-texte" data-t="maj.prete"></p>
     <div class="maj-boutons">

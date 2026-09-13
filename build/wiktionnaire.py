@@ -91,6 +91,38 @@ GENRES = {"masculine": "masc", "feminine": "fem", "neuter": "neut"}
 # Les natures qui n'apprennent rien : formes fléchies isolées, caractères.
 NATURES_ECARTEES = {"character", "punct", "symbol", "romanization"}
 
+# Les natures qui font d'une suite de mots une expression : locution, formule,
+# proverbe. Une entrée de cette nature vaut d'être gardée même sans traduction,
+# parce qu'elle atteste qu'on a affaire à une expression et non à une phrase
+# quelconque — c'est ce que Tatoeba, qui traduit tout, ne sait pas dire.
+NATURES_D_EXPRESSION = {"phrase", "intj", "proverb", "prep_phrase", "adv_phrase"}
+
+# Les catégories par lesquelles chaque édition range ses expressions : c'est
+# la taxonomie du Wiktionnaire lui-même, plus sûre que la nature grammaticale —
+# le Wiktionnaire français dit de « simple comme bonjour » que c'est un
+# adjectif, et le range dans « Locutions adjectivales » et « Expressions ».
+#
+# « Locutions nominales » est écarté à dessein : c'est la catégorie des noms
+# composés — « base de données », « pomme de terre » —, qui ont leur fiche
+# comme les autres mots mais ne sont pas des tournures. « Wortverbindung »,
+# côté allemand, est de la même famille et n'est pas retenu non plus.
+#
+# Deux degrés. Une expression au sens propre — idiotisme, proverbe,
+# « Expressions en français », « Redewendung » — vaut d'être montrée même
+# sans équivalent connu : sa définition et sa reconnaissance sont la
+# moitié du travail. Une locution grammaticale — verbale, adverbiale,
+# adjectivale — est une catégorie bien plus large, où « faire du vélo »
+# voisine avec « tomber dans les pommes » : celles-là n'entrent qu'avec un
+# équivalent, ou au moins une phrase traduite qui les montre.
+CATEGORIES_D_IDIOME = re.compile(
+    r"^(Redewendung|Sprichwort|Expressions|Idiotismes|Proverbes)\b")
+CATEGORIES_DE_LOCUTION = re.compile(r"^Locutions(?!\s+nominales)\b")
+
+# L'autre langue de l'application, pour chaque édition. Chaque édition décrit
+# aussi des mots de l'autre langue — le Wiktionnaire français explique
+# « keine Ahnung » en français —, et cette explication vaut d'être lue.
+AUTRE = {"de": "fr", "fr": "de"}
+
 
 def mots_de(texte):
     """Compte grossier des mots d'une phrase, pour la juger en longueur."""
@@ -357,7 +389,7 @@ def compacter(entree, langue):
     api = next((nettoyer_api(s.get("ipa")) for s in entree.get("sounds", ())
                 if s.get("ipa")), "")
 
-    return {
+    compact = {
         "m": entree["word"],
         "p": entree.get("pos") or "",
         "g": genre,
@@ -367,6 +399,25 @@ def compacter(entree, langue):
         "syn": mots_lies(entree, "synonyms"),
         "ant": mots_lies(entree, "antonyms"),
     }
+    degre = degre_d_idiome(entree)
+    if degre:
+        compact["idiome"] = degre
+    return compact
+
+
+def degre_d_idiome(entree):
+    """Ce que le Wiktionnaire dit de cette entrée : « idiome », « locution »,
+    ou rien. L'idiome l'emporte quand les deux catégories sont posées."""
+    degre = ""
+    for categorie in entree.get("categories", ()):
+        nom = categorie.get("name") if isinstance(categorie, dict) else categorie
+        if not nom:
+            continue
+        if CATEGORIES_D_IDIOME.match(nom):
+            return "idiome"
+        if CATEGORIES_DE_LOCUTION.match(nom):
+            degre = "locution"
+    return degre
 
 
 # --- Lecture du dump --------------------------------------------------------
@@ -402,23 +453,40 @@ def extraire(chemin, langue, vedettes, journal=None):
     la quasi-totalité ne sera jamais cherchée par un apprenant, et dont la
     plupart ne traduisent rien.
     """
+    autre = AUTRE.get(langue)
     motif = motif_de_langue(chemin, langue)
-    lues = retenues = neuves = 0
+    motif_autre = motif_de_langue(chemin, autre) if autre else None
+    lues = retenues = neuves = expressions = croisees = 0
     debut = time.time()
 
     with gzip.open(chemin, "rt", encoding="utf-8", errors="replace") as flux:
         for ligne in flux:
             lues += 1
-            if motif and motif not in ligne:
+            dans_la_langue = not motif or motif in ligne
+            dans_l_autre = bool(motif_autre) and motif_autre in ligne
+            if not dans_la_langue and not dans_l_autre:
                 continue
             try:
                 entree = json.loads(ligne)
             except ValueError:
                 continue
-            if entree.get("lang_code") != langue:
-                continue
             mot = entree.get("word") or ""
             if not mot:
+                continue
+
+            # L'autre langue, décrite par cette édition : on ne retient que les
+            # expressions, avec leurs gloses. « keine Ahnung » expliqué en
+            # français par le Wiktionnaire français — c'est court, c'est
+            # attesté, et c'est souvent l'équivalent lui-même.
+            if entree.get("lang_code") == autre:
+                if entree.get("pos") in NATURES_D_EXPRESSION and " " in mot:
+                    croisees += 1
+                    yield {"m": mot, "l": autre, "p": entree.get("pos") or "",
+                           "croise": 1,
+                           "g": [s["glosses"][0].strip() for s in entree.get("senses", ())
+                                 if s.get("glosses")][:3]}
+                continue
+            if entree.get("lang_code") != langue:
                 continue
             if entree.get("pos") in NATURES_ECARTEES:
                 continue
@@ -428,12 +496,20 @@ def extraire(chemin, langue, vedettes, journal=None):
                 continue
             if not connue:
                 # Une vedette absente de WikDict ne mérite d'être gardée que si
-                # le Wiktionnaire la traduit : ceci est un dictionnaire
-                # bilingue, pas une encyclopédie.
-                if not any(bloc["tr"] for bloc in compact["s"]):
+                # le Wiktionnaire la traduit — ceci est un dictionnaire
+                # bilingue, pas une encyclopédie — ou si elle est une
+                # expression : une locution, une formule, un proverbe. Là,
+                # l'attestation vaut par elle-même ; l'équivalent viendra
+                # peut-être d'ailleurs, et sinon la fiche le dira.
+                if " " in mot and (entree.get("pos") in NATURES_D_EXPRESSION
+                                   or compact.get("idiome")):
+                    compact["fx"] = 1
+                    expressions += 1
+                elif not any(bloc["tr"] for bloc in compact["s"]):
                     continue
-                compact["n"] = 1
-                neuves += 1
+                else:
+                    compact["n"] = 1
+                    neuves += 1
             retenues += 1
             yield compact
 
@@ -450,6 +526,8 @@ def extraire(chemin, langue, vedettes, journal=None):
         journal["lues"] = lues
         journal["retenues"] = retenues
         journal["neuves"] = neuves
+        journal["expressions"] = expressions
+        journal["croisees"] = croisees
 
 
 def vedettes_de(fichier_tei):
@@ -481,7 +559,12 @@ def moutures():
 
 
 def charger(langue):
-    """L'extrait, rangé par vedette. Un mot peut avoir plusieurs natures."""
+    """L'extrait, rangé par vedette. Un mot peut avoir plusieurs natures.
+
+    Les enregistrements « croisés » — l'autre langue décrite par cette
+    édition — n'y figurent pas : `charger_croises()` les rend à part, car ils
+    ne décrivent pas les mêmes mots.
+    """
     chemin = chemin_extrait(langue)
     if not chemin.exists():
         raise SystemExit(
@@ -493,8 +576,32 @@ def charger(langue):
             if not ligne:
                 continue
             enregistrement = json.loads(ligne)
+            if enregistrement.get("croise"):
+                continue
             par_mot.setdefault(enregistrement["m"], []).append(enregistrement)
     return par_mot
+
+
+def charger_croises(edition):
+    """Les expressions de l'autre langue, décrites par cette édition.
+
+    Rend `{clé: [enregistrement, …]}` ; chaque enregistrement porte la graphie
+    `m`, la nature `p` et les gloses `g` dans la langue de l'édition.
+    """
+    chemin = chemin_extrait(edition)
+    if not chemin.exists():
+        return {}
+    par_cle = {}
+    with chemin.open("r", encoding="utf-8") as flux:
+        for ligne in flux:
+            ligne = ligne.strip()
+            if not ligne:
+                continue
+            enregistrement = json.loads(ligne)
+            if not enregistrement.get("croise"):
+                continue
+            par_cle.setdefault(commun.cle(enregistrement["m"]), []).append(enregistrement)
+    return par_cle
 
 
 # --- Programme --------------------------------------------------------------
@@ -540,6 +647,8 @@ def main():
         duree = time.time() - debut
         print(f"  ✓ {journal['lues']:,} lignes lues, {journal['retenues']:,} retenues"
               f" dont {journal['neuves']:,} vedettes neuves traduites"
+              f" et {journal['expressions']:,} expressions sans traduction,"
+              f" + {journal['croisees']:,} expressions de l'autre langue"
               f", en {duree:.0f} s".replace(",", " "))
         print(f"  → {sortie.name}, {commun.humain(sortie.stat().st_size)}")
 

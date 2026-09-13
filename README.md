@@ -62,6 +62,36 @@ d'en retirer. Un retrait ne demande pas confirmation : il s'annule, et remet la
 carte telle qu'elle était — intervalle, facilité, réussites. Retirer un mot puis
 le rajouter par sa fiche, au contraire, en refait un mot neuf.
 
+**Les expressions usuelles.** Taper « feu » donne « à petit feu », « Ahnung »
+donne « keine Ahnung », « chance » donne « au petit bonheur la chance » — et
+aussi « viel Glück », par sa traduction. L'index des vedettes ne sait trouver
+que des débuts de mot ; un second index, par mot, range chaque expression sous
+chacun de ses mots et sous ceux de ses traductions, dans les deux langues. Les
+expressions forment un groupe à part sous les résultats, et chaque fiche de mot
+se termine par celles qui le contiennent. Une expression s'apprend comme un
+mot, dans les deux directions, sans carte de genre — on n'apprend pas « der »
+sur « kein Problem ». Ce qui fait l'expression, c'est sa provenance, pas ses
+espaces : « base de données » reste un nom. Pour un mot à soi de plusieurs
+mots, le formulaire pose la question — expression usuelle, oui ou non — et
+n'y répond pas à votre place.
+
+Quand une entrée a plusieurs sens aux équivalents distincts — « à petit feu »
+est *auf kleiner Flamme* pour une cuisson et *langsam* pour une agonie —, la
+question de révision en vise **un**, montre sa définition, et attend ses
+équivalents ; répondre par ceux d'un autre sens vaut « presque », et la
+remarque nomme le sens demandé. Dans la direction « produire », la réponse
+est la vedette quel que soit le sens : l'énoncé n'aligne alors que les
+équivalents d'un même sens.
+
+Ce que les sources n'ont pas ou traduisent mal, un petit supplément relu à la
+main le corrige — [build/expressions_editoriales.json](build/expressions_editoriales.json)
+dit ce qu'il ajoute, ce qu'il écarte, et pourquoi. Les expressions sans
+équivalent connu restent consultables, marquées telles, après les autres.
+
+Ce qui fait qu'une suite de mots est une expression et non un nom composé, et
+d'où viennent les équivalents des formules que les tables de traduction
+ignorent, est dit dans [build/SOURCES.md](build/SOURCES.md).
+
 **Mes notes.** Chaque fiche porte une section où l'on écrit ce qu'aucun
 dictionnaire ne sait : le moyen mnémotechnique qu'on s'est trouvé, le piège où
 l'on retombe, la phrase où l'on a rencontré le mot. Les notes sont à part du
@@ -138,6 +168,55 @@ Deux paquets sont produits :
   décision de l'utilisateur. Les Réglages affichent le paquet actif, son poids
   sur l'appareil, le nombre d'entrées traduites, et qu'il est utilisable hors
   ligne.
+
+### Les expressions usuelles, en chiffres
+
+| | noyau | complet |
+|---|---|---|
+| expressions allemandes traduites | 507 | 1 549 |
+| expressions françaises traduites | 1 581 | 2 906 |
+| expressions allemandes sans équivalent (consultation seule) | 0 | 2 030 |
+| expressions françaises sans équivalent (consultation seule) | 0 | 6 712 |
+| poids du paquet | 22.8 Mo | 80.7 Mo |
+
+Le noyau ne reçoit que des expressions traduites, faites de ses propres mots,
+et tout le supplément éditorial ; son budget est passé de 22 à 23 Mo pour les
+accueillir, et le dit dans `construire.py`. Le paquet complet porte en plus les
+expressions que le Wiktionnaire atteste sans leur connaître d'équivalent —
+elles se lisent, avec leur définition, mais ne se révisent pas ; leur fiche le
+dit, les résultats les marquent et les placent après les autres, et les
+Réglages donnent les deux nombres.
+
+### Quand le dictionnaire complet change de mouture
+
+Le format des données passe en version 3, et chaque construction est une
+**mouture** : les tranches gardent leur nom mais plus leur contenu, et un
+téléchargement ne redemande jamais ce qui est déjà là. Mélanger l'index d'une
+mouture aux tranches d'une autre donnerait un dictionnaire troué. Le passage
+suit donc trois règles, que `js/paquets.js` tient et que
+`build/essais_mise_a_jour.mjs` éprouve :
+
+1. **Rien n'est perdu.** Le paquet complet téléchargé sous la mouture d'avant
+   reste **lisible** tant que le nouveau n'est pas entier : `Lexique` le lit
+   directement dans son cache, par l'API Cache — ni réseau ni service worker
+   entre les deux, donc rien qui puisse y substituer un fichier d'une autre
+   mouture. Une révision sur un mot absent du noyau s'ouvre comme avant.
+2. **Rien n'est mélangé.** Chaque mouture a son cache, nommé par le format et
+   la date de construction (`wortschatz-donnees-3-2026-09-13`). Le service
+   worker ne sert les données que depuis la coquille et le cache de *sa*
+   mouture ; le nouveau paquet se télécharge à côté, avec un paramètre
+   d'adresse qui déjoue même le service worker de la version d'avant.
+3. **On le dit.** Un bandeau et les Réglages annoncent qu'un nouveau
+   téléchargement est nécessaire, ce qu'il apporte, ce qu'il pèse, et que
+   l'ancien paquet sert jusqu'au bout. L'ancien n'est effacé qu'une fois le
+   nouveau complet ; interrompre le téléchargement ne détruit rien.
+
+Une carte de révision garde le numéro de tranche du jour où elle est née ;
+une mouture déplace les mots d'une tranche à l'autre. `Lexique.ouvrir`
+redemande donc à l'index où le mot vit aujourd'hui quand la tranche gardée ne
+le porte plus — sans quoi la révision sautait la carte en silence.
+
+Le noyau, les mots personnels, les notes et les révisions ne bougent pas.
 
 ### Ce que la version 3 a ajouté au dictionnaire, mesuré
 
@@ -271,6 +350,13 @@ build/traductions.py   les tables de traduction du Wiktionnaire, et les
 build/mesurer_gain.py  ce que la construction a gagné, chiffres à l'appui
 ```
 
+La version 3.1 en ajoute un :
+
+```
+build/expressions.py   reconnaître les expressions usuelles, compléter les
+                       formules que les tables ignorent, et les indexer par mot
+```
+
 ## Trois pièges, pour qui reprendrait le code
 
 **`cle()` existe en deux exemplaires.** `build/commun.py` range les mots sous
@@ -329,6 +415,7 @@ Un service worker demande un vrai navigateur. Deux fichiers en lancent un :
 ```bash
 node build/essais_navigateur.mjs  # mode hors ligne, serveur arrêté pour de bon
 node build/essais_profils.mjs     # export d'un profil de navigateur à un autre
+node build/essais_mise_a_jour.mjs # la version de main, puis celle-ci, au même endroit
 ```
 
 Ils pilotent un Chrome par le protocole DevTools — Node porte un WebSocket
@@ -341,6 +428,16 @@ l'importe dans un second profil vierge.
 C'est la seule façon d'éprouver ce que l'application promet. La compilation de
 `sw.js` et le contrôle de sa liste de pré-cache disent que rien n'a été oublié ;
 ils ne disent pas que le mode hors ligne marche.
+
+Le troisième joue une mise à jour réelle : il sert la version de `main` (un
+`git worktree`, effacé à la fin), y installe le dictionnaire complet et
+apprend un mot absent du noyau ; puis il sert la version en cours **au même
+port** — l'origine ne change pas, les caches et le service worker sont ceux
+d'un vrai déploiement — et vérifie que la carte s'ouvre toujours, qu'aucune
+expression de la nouvelle mouture ne se glisse dans l'ancienne, que le bandeau
+et les Réglages le disent, qu'un téléchargement interrompu ne détruit rien,
+que le téléchargement complet remplace l'ancien d'un bloc, et que tout tient
+hors ligne.
 
 ### Et sur le site publié
 

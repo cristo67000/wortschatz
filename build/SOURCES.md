@@ -126,6 +126,98 @@ L'appariement des sens avec ceux de WikDict est décrit dans
 `build/alignement.py` et mesuré par `build/verifier.py` : **95,7 % des sens
 allemands et 84,9 % des sens français du noyau** portent au moins un exemple.
 
+### Les expressions usuelles
+
+Depuis la version 3.1, l'application distingue les **expressions usuelles** —
+locutions, tournures, formules de conversation, proverbes — des mots à
+plusieurs morceaux qui restent des mots (« base de données », « Republik
+Kuba »). Elles se cherchent par n'importe lequel de leurs mots, dans les deux
+langues, et se retrouvent au bas de la fiche de chacun. `build/expressions.py`
+les reconnaît, les complète et les indexe ; trois sources s'y ajoutent, dans cet
+ordre de confiance.
+
+**1. Le dictionnaire lui-même.** WikDict et les tables de traduction du
+Wiktionnaire portent déjà des milliers d'expressions traduites, mêlées aux
+mots. On les reconnaît à leur nature — verbe, adverbe, adjectif, interjection,
+locution, ou rien du tout, car DBnary laisse les tournures allemandes sans
+nature — et à la taxonomie du Wiktionnaire lui-même, qui range « simple comme
+bonjour » dans « Expressions en français » alors qu'il en fait un adjectif.
+Les noms et noms propres sont écartés, les verbes pronominaux aussi.
+
+**2. Une attestation lexicale, un équivalent de Tatoeba.** « kein Problem »,
+« viel Glück », « keine Ahnung » n'ont de traduction dans aucune table, et de
+page ni dans l'édition allemande ni dans la française du Wiktionnaire. Le
+**Wiktionnaire anglais** les décrit — c'est ce qu'on lui demande, et rien
+d'autre, ses gloses étant en anglais :
+
+- `https://kaikki.org/dictionary/German/pos-{phrase,intj,proverb,prep_phrase}/…`
+- `https://kaikki.org/dictionary/French/pos-{phrase,intj,proverb,prep_phrase}/…`
+  — huit fichiers, 5,4 Mo en tout, mêmes licence et provenance que le reste du
+  Wiktionnaire (CC BY-SA, GFDL).
+
+L'équivalent vient alors de **Tatoeba**, où ces formules figurent en phrases
+complètes traduites par des locuteurs — mais seulement sur deux signaux
+indépendants : plusieurs traductions distinctes de la même phrase, ou une
+expression que deux éditions du Wiktionnaire décrivent. Tatoeba aligne des
+phrases, pas des expressions : « Nach links ! » se traduit par « Tourne à
+gauche ! », qui n'est pas l'équivalent de « nach links ». On ne prend jamais
+une phrase de Tatoeba seule pour une expression. Et chaque équivalent relevé
+passe encore deux filtres : rien qui reste en suspens (« Alors là… »), rien qui
+déborde l'expression de plus de deux mots (« Je te souhaite bonne chance » pour
+« viel Glück » traduit la phrase, pas la formule) ; trois équivalents au plus,
+les mieux attestés d'abord. Plusieurs traductions ne prouvent pas qu'une
+traduction convient à tous les emplois : ce que Tatoeba donne est attesté **en
+contexte**, et la fiche le dit.
+
+**3. L'édition d'en face.** Le Wiktionnaire français décrit « keine Ahnung » en
+français — « Aucune idée. Je n'en sais rien. » — et l'allemand décrit des
+expressions françaises en allemand. Une glose de quatre mots au plus est un
+équivalent ; une glose plus longue est une explication, gardée pour ce qu'elle
+est et affichée sous la vedette. Cette source n'atteste rien à elle seule :
+elle enrichit ce que sa propre édition ou l'anglaise a déjà attesté.
+
+**4. Le supplément éditorial.** Les sources s'arrêtent où elles s'arrêtent :
+« alles gut », « moins que rien », « simple comme bonjour » n'ont d'équivalent
+nulle part, « Ich habe keine Lust » n'a de page dans aucune édition — c'est une
+phrase, pas un lemme, et pourtant c'est ce qu'on dit. Et une table de
+traduction se trompe parfois : WikDict rend « au petit bonheur la chance » par
+« querbeet », qui veut dire « pêle-mêle ». Pour cela il y a
+[`expressions_editoriales.json`](expressions_editoriales.json) : une poignée
+d'entrées relues à la main, avec pour chacune ses sens, ses équivalents
+vérifiés, un exemple rédigé et traduit, une explication de contexte quand il
+en faut, et — c'est le plus important — la liste de ce qu'on a **écarté** des
+sources et pourquoi, écrite pour être contredite. Le supplément passe en
+dernier, par-dessus tout : une entrée qui existait garde sa vedette, sa
+prononciation, ses formes et ses citations du Wiktionnaire (chaque sens dit
+lesquelles il reprend), et reçoit les sens et les équivalents relus. Sa
+provenance devient `editorial`, et la fiche dit que des mains humaines sont
+passées. Le supplément n'est pas une source de plus : c'est un correctif, et
+il doit rester petit.
+
+Ce qui n'a ni traduction ni équivalent attesté n'est pas inventé. Une expression
+que le Wiktionnaire range lui-même parmi ses expressions entre tout de même,
+avec sa définition et, s'il s'en trouve, une phrase de Tatoeba qui la contient —
+mais sa fiche dit qu'aucun équivalent n'est connu, elle ne se révise pas, les
+résultats la placent après les expressions traduites avec la mention « sans
+équivalent — à consulter », et le manifeste compte les deux à part
+(`expressions_traduites`, `expressions_sans_equivalent`). Le noyau, lui, n'en
+reçoit aucune : il ne contient que des expressions traduites, faites de ses
+propres mots — et tout le supplément éditorial.
+
+Chaque expression dit sa provenance sur sa fiche : `dico` (une table de
+traduction), `tatoeba`, `croisee` (glose de l'édition d'en face), `attestee`
+(définition seule), `editorial` (relue à la main).
+
+L'index par mot (`expressions-<langue>.idx`) est **complet** : chaque
+expression y figure sous chacun de ses mots et de ceux de ses traductions,
+sans plafond. « de » réunit près de deux mille expressions dans le paquet
+complet ; une ligne de cinquante kilooctets se lit en une dichotomie, tandis
+qu'un plafond aurait rendu la quarante-et-unième introuvable pour toujours, y
+compris par « de » suivi d'un second mot qui l'aurait isolée. Sous chaque mot,
+les expressions traduites passent devant les autres ; c'est à l'affichage de
+n'en montrer que six, puis deux douzaines à chaque « Voir plus », jusqu'à la
+dernière.
+
 ## 4. Ce que nous ne pouvons pas utiliser
 
 Deux dictionnaires ont été demandés, envisagés, et écartés — non par choix

@@ -117,7 +117,7 @@ async function principal() {
     console.log('      ' + path.basename(fichier) + ' — '
       + readFileSync(fichier, 'utf8').length + ' octets');
 
-    fermerChrome(chromeA);
+    await fermerChrome(chromeA);
 
     titre('Profil B — un navigateur vierge importe le fichier');
     const chromeB = await lancerChrome({ port: 9413, profil: profilB });
@@ -192,7 +192,7 @@ async function principal() {
         '« FFI », sa note et ses cartes survivent au rechargement du profil B', apres);
     } finally {
       ongletB.fermer();
-      fermerChrome(chromeB);
+      await fermerChrome(chromeB);
     }
   } finally {
     serveur.kill();
