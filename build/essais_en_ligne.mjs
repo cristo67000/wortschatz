@@ -58,10 +58,10 @@ async function principal() {
                onglets: [...document.querySelectorAll('#onglets button')]
                  .map(b => b.textContent.replace(/[^\\p{L} ]/gu, '').trim()) };
     `);
-    verifier(identite.construit === '2026-09-06',
-      'les données servies sont celles de la version 3', identite.construit);
-    verifier(identite.entrees.de === 63280 && identite.entrees.fr === 49108,
-      'le dictionnaire élargi est annoncé', identite.entrees);
+    verifier(identite.construit === '2026-09-13',
+      'les données servies sont celles de la version 3.1', identite.construit);
+    verifier(identite.entrees.de === 65240 && identite.entrees.fr === 55957,
+      'le dictionnaire élargi, avec ses expressions, est annoncé', identite.entrees);
     verifier(identite.onglets.length === 5 && identite.onglets.includes('Mes mots'),
       'les cinq onglets sont là', identite.onglets);
 
@@ -228,7 +228,57 @@ async function principal() {
         + readFileSync(fichier, 'utf8').length + ' octets');
     }
 
-    titre('7. Après fermeture et réouverture du navigateur');
+    titre('7. Les expressions usuelles, par l’interface');
+    const expressions = await onglet.evaluer(`
+      const q = document.querySelector('#q');
+      const taper = async (t) => {
+        q.value = t; q.dispatchEvent(new Event('input', { bubbles: true }));
+        await new Promise(x => setTimeout(x, 500));
+        const groupe = document.querySelector('#resultats-expressions');
+        return { visible: !groupe.hidden,
+                 lignes: [...groupe.querySelectorAll('.resultat .mot')].map(e => e.textContent) };
+      };
+      const bonheur = await taper('bonheur');
+      const ahnung = await taper('Ahnung');
+      const gluck = await taper('Gluck');
+      // La fiche du mot « Glück » se termine par ses expressions.
+      document.querySelector('#resultats .resultat').click();
+      await new Promise(x => setTimeout(x, 1500));
+      const section = document.querySelector('#fiche-contenu .expressions-usuelles');
+      const dansLaFiche = section
+        ? [...section.querySelectorAll('.expression-ligne .mot')].map(e => e.textContent) : [];
+      const ordre = [...document.querySelectorAll('#fiche-contenu > section, #fiche-contenu > div')]
+        .map(e => e.className.split(' ')[0]);
+      // On ouvre « viel Glück » depuis la fiche, et on l'apprend.
+      const ligne = section && [...section.querySelectorAll('.expression-ligne')]
+        .find(b => b.querySelector('.mot').textContent === 'viel Glück');
+      if (ligne) ligne.click();
+      await new Promise(x => setTimeout(x, 1500));
+      const texteFiche = document.querySelector('#fiche-contenu').textContent;
+      const apprendre = document.querySelector('#fiche-contenu .apprendre');
+      if (apprendre) apprendre.click();
+      await new Promise(x => setTimeout(x, 800));
+      const cartes = (await Store.cartesDuMot('de', 'viel Glück')).map(c => c.type).sort();
+      document.querySelector('.fiche-fermer').click();
+      return { bonheur, ahnung, gluck, dansLaFiche, ordre, ouverte: !!ligne,
+               provenance: /éditorial|redaktionell/i.test(texteFiche),
+               equivalent: /bonne chance/i.test(texteFiche), cartes };
+    `);
+    verifier(expressions.bonheur.visible && expressions.bonheur.lignes.includes('au petit bonheur la chance'),
+      '« bonheur » → groupe « Expressions usuelles » avec « au petit bonheur la chance »', expressions.bonheur);
+    verifier(expressions.ahnung.lignes.includes('keine Ahnung'), '« Ahnung » → « keine Ahnung »', expressions.ahnung);
+    verifier(expressions.gluck.lignes.includes('viel Glück'), '« Gluck » sans tréma → « viel Glück »', expressions.gluck);
+    verifier(expressions.dansLaFiche.includes('viel Glück'),
+      'la fiche « Glück » se termine par ses expressions, dont « viel Glück »', expressions.dansLaFiche);
+    verifier(expressions.ordre.indexOf('expressions-usuelles') !== -1
+             && expressions.ordre.indexOf('mes-notes') > expressions.ordre.indexOf('expressions-usuelles'),
+      'la section vient après les exemples et avant les notes', expressions.ordre);
+    verifier(expressions.ouverte && expressions.provenance && expressions.equivalent,
+      'la fiche « viel Glück » s’ouvre depuis là, avec sa provenance et « bonne chance »');
+    verifier(JSON.stringify(expressions.cartes) === JSON.stringify(['vers-de', 'vers-fr']),
+      '« viel Glück » ajoutée aux révisions : deux cartes, aucune de genre', expressions.cartes);
+
+    titre('8. Après fermeture et réouverture du navigateur');
     await onglet.naviguer(SITE);
     const apres = await onglet.evaluer(`
       ${PRET}
