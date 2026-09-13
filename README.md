@@ -342,6 +342,48 @@ C'est la seule façon d'éprouver ce que l'application promet. La compilation de
 `sw.js` et le contrôle de sa liste de pré-cache disent que rien n'a été oublié ;
 ils ne disent pas que le mode hors ligne marche.
 
+### Et sur le site publié
+
+Les deux précédents travaillent sur un serveur local, donc sur les fichiers du
+disque. Deux autres prennent le site tel qu'il est servi.
+
+```bash
+node build/essais_en_ligne.mjs    # recherche, ajout d'un mot, notes, export
+```
+
+Celui-ci ne passe pas par les fonctions internes : il tape dans le champ de
+recherche, clique le bouton d'ajout, remplit le formulaire, écrit une note,
+appuie sur « Exporter » et relit le fichier arrivé sur le disque. Ce qu'il
+éprouve est ce qu'un doigt ferait.
+
+```bash
+node build/essais_migration_en_ligne.mjs semer     # AVANT de publier
+#   … publier la nouvelle version, attendre le déploiement …
+node build/essais_migration_en_ligne.mjs relever   # après
+node build/essais_migration_en_ligne.mjs nettoyer  # ne rien laisser traîner
+```
+
+Celui-là éprouve la seule migration qui compte : celle d'une application posée
+sur un écran d'accueil depuis des mois, avec ses cartes, ses échéances et ses
+réglages, à qui l'on sert un jour une version neuve. Elle ne s'éprouve pas après
+coup — il faut avoir semé les données **avec l'ancienne version encore en
+ligne**, d'où les deux temps.
+
+`semer` relève l'état exact de chaque carte et l'écrit dans un fichier ;
+`relever` le relit et compare, champ par champ. L'empreinte passe par un fichier
+et non par la ligne de commande, et ce n'est pas un détail : un identifiant de
+carte contient des caractères nuls — c'est le séparateur de
+`Store.identifiant()` — qu'aucun shell ne transporte. JSON les échappe en
+`\u0000`, le fichier reste du texte lisible, et `JSON.parse` les rend intacts.
+
+Le profil de navigateur et l'empreinte vivent dans le répertoire temporaire du
+système, jamais dans le dépôt : un profil pèse quelques dizaines de méga-octets
+et contient des bases de données. `WORTSCHATZ_ESSAIS` les place ailleurs,
+`WORTSCHATZ_SITE` vise un autre déploiement, et `nettoyer` efface tout.
+
+Ces profils sont créés pour l'occasion et n'ont rien à voir avec le navigateur
+de qui que ce soit : aucune donnée personnelle réelle n'est lue ni touchée.
+
 `build/mesurer_alignement.py` répond à la seule question dont dépend la
 version 2 : combien de significations ont vraiment leur exemple. Il affiche un
 échantillon reproductible d'appariements, à relire — aucun programme ne sait

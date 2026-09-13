@@ -10,17 +10,41 @@
  * version**, avant la fusion.
  *
  *     node build/essais_migration_en_ligne.mjs semer     # avant la fusion
+ *     …publier la nouvelle version, attendre le déploiement…
  *     node build/essais_migration_en_ligne.mjs relever   # après le déploiement
+ *     node build/essais_migration_en_ligne.mjs nettoyer  # ne rien laisser traîner
  *
- * Le profil de navigateur est un dossier à part, créé pour l'occasion et gardé
- * entre les deux temps. Il n'a rien à voir avec le navigateur de qui que ce
- * soit : aucune donnée personnelle réelle n'est touchée.
+ * ── Où vit l'atelier ───────────────────────────────────────────────────────
+ *
+ * Dans un dossier du répertoire temporaire du système, jamais dans le dépôt :
+ * un profil de navigateur pèse quelques dizaines de méga-octets, contient des
+ * bases de données et n'a rien à faire sous git. `WORTSCHATZ_ESSAIS` permet de
+ * le placer ailleurs.
+ *
+ * Ce profil est créé pour l'occasion et n'a rien à voir avec le navigateur de
+ * qui que ce soit : aucune donnée personnelle réelle n'est touchée, et
+ * `nettoyer` l'efface.
+ *
+ * ── L'empreinte passe par un fichier ───────────────────────────────────────
+ *
+ * `semer` relève l'état exact des cartes et l'écrit ; `relever` le relit. Elle
+ * ne peut pas passer par la ligne de commande : un identifiant de carte contient
+ * des caractères nuls — c'est le séparateur de `Store.identifiant()` — et aucun
+ * shell ne les transporte. Le fichier, lui, les garde tels quels.
  */
-import { mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { lancerChrome, fermerChrome, ouvrirOnglet } from './pilote_chrome.mjs';
 
-const SITE = 'https://cristo67000.github.io/wortschatz/';
-const PROFIL = 'C:\\wz\\profil-migration';
+const SITE = process.env.WORTSCHATZ_SITE
+  || 'https://cristo67000.github.io/wortschatz/';
+
+/* L'atelier : le profil de navigateur et l'empreinte, hors du dépôt. */
+const ATELIER = process.env.WORTSCHATZ_ESSAIS
+  || path.join(tmpdir(), 'wortschatz-essais-migration');
+const PROFIL = path.join(ATELIER, 'profil');
+const EMPREINTE = path.join(ATELIER, 'empreinte.json');
 
 let fautes = 0;
 let passees = 0;
@@ -44,6 +68,7 @@ const ATTENDRE_PRET = `
 
 async function semer() {
   mkdirSync(PROFIL, { recursive: true });
+  console.log('Atelier : ' + ATELIER);
   const chrome = await lancerChrome({ port: 9421, profil: PROFIL });
   const onglet = await ouvrirOnglet(chrome, 'about:blank');
   try {
@@ -133,10 +158,17 @@ async function semer() {
              && seme.reglages.langue === 'de', 'quatre réglages modifiés', seme.reglages);
     verifier(seme.historique.length === 2, '2 mots consultés', seme.historique);
 
+    /* JSON échappe les caractères nuls en `\\u0000` : le fichier reste du texte
+     * lisible, et `JSON.parse` les rend intacts à la relecture. C'est tout ce
+     * qu'il fallait, et c'est ce qu'une ligne de commande ne sait pas faire. */
+    writeFileSync(EMPREINTE, JSON.stringify({
+      cartes: seme.cartes, journal: seme.journal,
+      reglages: seme.reglages, historique: seme.historique,
+    }, null, 1), 'utf8');
     console.log('');
-    console.log('EMPREINTE À CONSERVER :');
-    console.log(JSON.stringify({ cartes: seme.cartes, journal: seme.journal,
-                                 reglages: seme.reglages, historique: seme.historique }));
+    console.log('Empreinte écrite : ' + EMPREINTE);
+    console.log('Publiez la nouvelle version, puis : node '
+      + 'build/essais_migration_en_ligne.mjs relever');
   } finally {
     onglet.fermer();
     fermerChrome(chrome);
@@ -252,14 +284,57 @@ async function relever(empreinte) {
   }
 }
 
-const commande = process.argv[2];
-const suite = commande === 'semer'
-  ? semer()
-  : relever(JSON.parse(process.argv[3] || '{}'));
+function nettoyer() {
+  if (!existsSync(ATELIER)) {
+    console.log('Rien à nettoyer : ' + ATELIER + ' n’existe pas.');
+    return Promise.resolve();
+  }
+  rmSync(ATELIER, { recursive: true, force: true });
+  console.log('Effacé : ' + ATELIER);
+  return Promise.resolve();
+}
 
-suite.then(() => {
-  console.log('');
-  console.log(fautes ? `${passees} contrôles passés, ${fautes} ÉCHEC(S).`
-                     : `${passees} contrôles passés.`);
-  process.exit(fautes ? 1 : 0);
-}).catch((e) => { console.error('\nÉchec inattendu :', e); process.exit(1); });
+function lireEmpreinte() {
+  if (!existsSync(EMPREINTE)) {
+    throw new Error(
+      'Aucune empreinte dans ' + EMPREINTE + '.'
+      + ' Lancez d’abord « semer », avec l’ancienne version encore en ligne.');
+  }
+  return JSON.parse(readFileSync(EMPREINTE, 'utf8'));
+}
+
+const COMMANDES = {
+  semer: () => semer(),
+  relever: () => relever(lireEmpreinte()),
+  nettoyer: () => nettoyer(),
+};
+
+const commande = process.argv[2];
+if (!COMMANDES[commande]) {
+  console.error('Usage : node build/essais_migration_en_ligne.mjs '
+    + '<semer|relever|nettoyer>');
+  console.error('');
+  console.error('  semer     installe la version en ligne dans un profil neuf,');
+  console.error('            et lui donne des cartes, un journal, des réglages');
+  console.error('  relever   sert la nouvelle version au même profil, et compare');
+  console.error('  nettoyer  efface le profil et l’empreinte');
+  process.exit(2);
+}
+
+/* `lireEmpreinte()` lève quand elle manque : on l'appelle donc à l'intérieur de
+ * la promesse, pour que le message arrive sans pile d'appels — qui lance
+ * « relever » trop tôt doit lire une phrase, pas une trace. */
+Promise.resolve()
+  .then(COMMANDES[commande])
+  .then(() => {
+    if (commande === 'nettoyer') return;
+    console.log('');
+    console.log(fautes ? `${passees} contrôles passés, ${fautes} ÉCHEC(S).`
+                       : `${passees} contrôles passés.`);
+  })
+  .then(() => process.exit(fautes ? 1 : 0))
+  .catch((e) => {
+    console.error('');
+    console.error(e && e.message ? e.message : e);
+    process.exit(1);
+  });
