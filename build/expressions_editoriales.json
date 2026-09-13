@@ -1,0 +1,199 @@
+{
+  "a_propos": [
+    "Supplément éditorial de Wortschatz : des expressions usuelles que les sources",
+    "importées n'ont pas, ou qu'elles traduisent mal. Chaque entrée a été relue à",
+    "la main ; ses équivalents sont vérifiés, ses exemples rédigés pour l'occasion.",
+    "Une entrée qui existe déjà dans le dictionnaire voit ses sens et ses",
+    "équivalents remplacés par ceux-ci ; ses citations du Wiktionnaire sont gardées",
+    "quand `reprend` le demande, ses phrases de Tatoeba sont réattribuées comme",
+    "pour toute expression. `ecartes` dit ce qu'on a retiré, et pourquoi : c'est",
+    "écrit pour être contredit. Provenance sur la fiche : « editorial ».",
+    "Licence : CC BY-SA 4.0, comme le reste des données."
+  ],
+  "entrees": [
+    {
+      "langue": "fr", "mot": "à petit feu", "nature": "adv",
+      "sens": [
+        {
+          "definition": "À feu doux et longuement, en parlant de cuisson.",
+          "reprend": "cuisson",
+          "equivalents": ["auf kleiner Flamme", "bei schwacher Hitze"],
+          "exemples": [["Laissez mijoter la sauce à petit feu pendant une heure.",
+                        "Lassen Sie die Soße eine Stunde auf kleiner Flamme köcheln."]]
+        },
+        {
+          "definition": "Lentement, en faisant durer — une souffrance, une fin : mourir, tuer à petit feu.",
+          "reprend": "durer",
+          "equivalents": ["langsam", "nach und nach"],
+          "exemples": [["Cette attente le tuait à petit feu.",
+                        "Dieses Warten brachte ihn langsam um."]]
+        }
+      ],
+      "explication": "Im übertragenen Sinn nicht »auf kleiner Flamme« — das heißt: mit gebremstem Einsatz —, sondern »langsam«: jemanden langsam zu Tode quälen, langsam dahinsiechen.",
+      "ecartes": [
+        {"equivalent": "auf kleiner Flamme (au sens figuré)",
+         "pourquoi": "WikDict donne une seule traduction pour les deux sens ; au figuré, l'allemand « auf kleiner Flamme » veut dire « en sourdine, sans forcer », pas « en faisant durer »."}
+      ]
+    },
+    {
+      "langue": "fr", "mot": "au petit bonheur la chance", "nature": "adv",
+      "sens": [
+        {
+          "definition": "Au hasard, sans méthode, en s'en remettant à la chance.",
+          "reprend": "*",
+          "equivalents": ["aufs Geratewohl", "auf gut Glück"],
+          "exemples": [["Faute de plan, il a choisi au petit bonheur la chance.",
+                        "Mangels Plan hat er aufs Geratewohl gewählt."]]
+        }
+      ],
+      "ecartes": [
+        {"equivalent": "querbeet",
+         "pourquoi": "« querbeet » veut dire « à travers tout, pêle-mêle » (querbeet lesen : lire de tout) ; il ne rend pas l'idée de s'en remettre au hasard."}
+      ]
+    },
+    {
+      "langue": "fr", "mot": "moins que rien", "nature": "locution",
+      "sens": [
+        {
+          "definition": "Personne sans valeur, que l'on méprise : « un moins que rien ».",
+          "equivalents": ["ein Nichts", "eine Null", "ein Niemand"],
+          "exemples": [["Il la traite comme une moins que rien.",
+                        "Er behandelt sie wie ein Nichts."]]
+        },
+        {
+          "definition": "Presque rien, très peu — en parlant d'un prix, d'une valeur.",
+          "reprend": "importance",
+          "equivalents": ["so gut wie nichts", "fast nichts"],
+          "exemples": [["Ça m'a coûté moins que rien.",
+                        "Das hat mich so gut wie nichts gekostet."]]
+        }
+      ]
+    },
+    {
+      "langue": "fr", "mot": "simple comme bonjour", "nature": "adj",
+      "sens": [
+        {
+          "definition": "Très facile, évident.",
+          "reprend": "facile",
+          "equivalents": ["kinderleicht", "ein Kinderspiel"],
+          "exemples": [["Ne t'inquiète pas, c'est simple comme bonjour.",
+                        "Keine Sorge, das ist kinderleicht."]]
+        }
+      ]
+    },
+    {
+      "langue": "de", "mot": "alles gut", "nature": "interjection",
+      "sens": [
+        {
+          "definition": "Beruhigende Formel: alles ist in Ordnung, kein Grund zur Sorge.",
+          "equivalents": ["tout va bien", "pas de souci", "c'est bon"],
+          "exemples": [["Alles gut, ich habe schon bezahlt.",
+                        "Pas de souci, j'ai déjà payé."]]
+        },
+        {
+          "definition": "Als Frage: ist alles in Ordnung?",
+          "equivalents": ["ça va ?", "tout va bien ?"],
+          "exemples": [["Alles gut bei dir?", "Tout va bien pour toi ?"]]
+        }
+      ],
+      "explication": "Formule qui rassure ou clôt un sujet ; en question, « Alles gut ? » demande si tout va bien."
+    },
+    {
+      "langue": "de", "mot": "alles klar", "nature": "interjection",
+      "sens": [
+        {
+          "definition": "Zustimmung oder Bestätigung: verstanden, einverstanden.",
+          "equivalents": ["d'accord", "entendu", "compris"],
+          "exemples": [["Wir treffen uns um acht. – Alles klar!",
+                        "On se retrouve à huit heures. – D'accord !"]]
+        },
+        {
+          "definition": "Als Frage: ist alles in Ordnung?",
+          "equivalents": ["ça va ?", "tout va bien ?"],
+          "exemples": [["Alles klar bei dir?", "Ça va, toi ?"]]
+        }
+      ],
+      "explication": "Marque qu'on a compris ou qu'on est d'accord ; en question, « Alles klar ? » demande si tout va bien.",
+      "ecartes": [
+        {"equivalent": "C'est clair",
+         "pourquoi": "calque relevé dans la glose du Wiktionnaire français : en français, « c'est clair » marque une évidence, pas l'assentiment."}
+      ]
+    },
+    {
+      "langue": "de", "mot": "kein Problem", "nature": "locution",
+      "sens": [
+        {
+          "definition": "Formel der Zustimmung oder Beschwichtigung: das lässt sich leicht erledigen, das macht nichts.",
+          "equivalents": ["pas de problème", "aucun problème", "pas de souci"],
+          "exemples": [["Kannst du mir helfen? – Kein Problem!",
+                        "Tu peux m'aider ? – Pas de problème !"]]
+        }
+      ]
+    },
+    {
+      "langue": "de", "mot": "viel Glück", "nature": "interjection",
+      "sens": [
+        {
+          "definition": "Wunsch, dass jemandem etwas gelingen möge.",
+          "equivalents": ["bonne chance"],
+          "exemples": [["Viel Glück bei der Prüfung!", "Bonne chance pour l'examen !"]]
+        }
+      ],
+      "ecartes": [
+        {"equivalent": "Je te souhaite bonne chance",
+         "pourquoi": "traduction d'une phrase entière de Tatoeba, pas de la formule."}
+      ]
+    },
+    {
+      "langue": "de", "mot": "keine Ahnung", "nature": "locution",
+      "sens": [
+        {
+          "definition": "Ich weiß es nicht — kurze, umgangssprachliche Antwort.",
+          "equivalents": ["aucune idée", "pas la moindre idée", "je n'en sais rien"],
+          "exemples": [["Wo ist Tom? – Keine Ahnung.", "Où est Tom ? – Aucune idée."]]
+        }
+      ],
+      "explication": "Réponse familière pour dire qu'on ne sait pas.",
+      "ecartes": [
+        {"equivalent": "Alors là…",
+         "pourquoi": "réplique évasive relevée dans Tatoeba, trop incomplète pour valoir seule comme réponse attendue."}
+      ]
+    },
+    {
+      "langue": "de", "mot": "macht nichts", "nature": "locution",
+      "sens": [
+        {
+          "definition": "Das ist nicht schlimm, das spielt keine Rolle.",
+          "reprend": "*",
+          "equivalents": ["ça ne fait rien", "ce n'est pas grave", "pas grave"],
+          "exemples": [["Entschuldigung, ich bin zu spät. – Macht nichts!",
+                        "Désolé, je suis en retard. – Ça ne fait rien !"]]
+        }
+      ]
+    },
+    {
+      "langue": "de", "mot": "Ich habe keine Lust", "nature": "locution",
+      "sens": [
+        {
+          "definition": "Ich mag nicht, ich möchte das nicht tun.",
+          "equivalents": ["je n'ai pas envie", "ça ne me dit rien"],
+          "exemples": [["Ich habe keine Lust, heute auszugehen.",
+                        "Je n'ai pas envie de sortir aujourd'hui."],
+                       ["Kommst du mit? – Nein, ich habe keine Lust.",
+                        "Tu viens ? – Non, je n'ai pas envie."]]
+        }
+      ],
+      "explication": "Se dit de ce qu'on n'a pas envie de faire ; avec « dazu » — « Ich habe keine Lust dazu » —, je n'en ai pas envie."
+    },
+    {
+      "langue": "de", "mot": "keine Lust haben", "nature": "v",
+      "sens": [
+        {
+          "definition": "Etwas nicht tun mögen.",
+          "equivalents": ["ne pas avoir envie"],
+          "exemples": [["Er hat keine Lust zu arbeiten.", "Il n'a pas envie de travailler."]]
+        }
+      ]
+    }
+  ]
+}

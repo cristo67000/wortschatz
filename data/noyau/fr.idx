@@ -95,7 +95,7 @@ a peine	à peine	0	3	kaum, eben, schwerlich
 a perdre haleine	à perdre haleine	0	3	am Anschlag arbeiten
 a perfection	à perfection	0	3	perfekt
 a perte de vue	à perte de vue	0	3	Soweit das Auge reicht
-a petit feu	à petit feu	0	3	auf kleiner Flamme
+a petit feu	à petit feu	0	3	auf kleiner Flamme, bei schwacher Hitze, langsam
 a peu pres	à peu près	0	3	fast, beinahe, etwa
 a pic	à pic	0	3	Absturz
 a pied	à pied	0	3	fußläufig, zu Fuß
@@ -1230,7 +1230,7 @@ au naturel	au naturel	1	3	naturfarbe
 au niveau de	au niveau de	1	3	Höhe, Bereich, Niveau
 au nom de	au nom de	1	3	im Namen, i. A., im Auftrag
 au pas de charge	au pas de charge	1	3	im Eiltempo
-au petit bonheur la chance	au petit bonheur la chance	1	3	querbeet
+au petit bonheur la chance	au petit bonheur la chance	1	3	aufs Geratewohl, auf gut Glück
 au pied du mur	au pied du mur	1	3	Zugzwang, mit dem Rücken zur Wand
 au plus tard	au plus tard	1	3	spätestens, allerspätestens
 au point que	au point que	1	3	bis zum Punkt
@@ -1889,7 +1889,7 @@ bonne	bonne	2	0	gut, Mädchen, Dienstmädchen
 bonne annee	bonne année	2	3	frohes neues Jahr, prosit Neujahr
 bonne chance	bonne chance	2	3	viel Glück
 bonne continuation	bonne continuation	2	3	Weiterhin alles Gute
-bonne journee	bonne journée	2	3	Schönen Tag, Einen schönen Tag noch, Einen schönen Tag dir …
+bonne journee	bonne journée	2	3	Schönen Tag, Einen schönen Tag noch
 bonne nuit	bonne nuit	2	3	gute Nacht
 bonne soiree	bonne soirée	2	3	Einen schönen Abend noch
 bonnement	bonnement	2	2	naiv, gutgläubig
@@ -2147,9 +2147,8 @@ byzance	Byzance	2	2	Byzantion
 c	C	2	0	C, Sprache C
 c'est bon	c’est bon	2	3	Das schmeckt gut, Das ist in Ordnung, Stimmt so
 c'est ca	c’est ça	2	3	Richtig, Das war's, Das ist es
-c'est de l'hebreu	c’est de l’hébreu	2	3	Das sind für mich böhmische Dörfer
 c'est de la merde	c’est de la merde	2	3	Das ist Mist
-c'est du chinois	c’est du chinois	2	3	Ich verstehe nur Bahnhof, Das sind für mich böhmische Dörfer
+c'est du chinois	c’est du chinois	2	3	Ich verstehe nur Bahnhof
 c'est la meilleure	c’est la meilleure	2	3	Das ist das Beste, Das ist der Beste, Das ist die Beste
 c'est la vie	c’est la vie	2	3	So ist das Leben
 c'est moi	c’est moi	2	3	Das bin ich, Ich bin’s
@@ -2159,11 +2158,10 @@ ca alors	ça alors	2	3	Jetzt schlägt's dreizehn, Na so was, Na sowas
 ca arrive	ça arrive	2	3	Das passiert, Es passiert
 ca et la	çà et là	2	3	hier und da, hier und dort
 ca ira	ça ira	2	3	Das wird gehen, Das legt sich
-ca marche	ça marche	2	3	Abgemacht, In Ordnung, Es klappt
+ca marche	ça marche	2	3	Abgemacht, Es klappt, Funktioniert das
 ca ne fait rien	ça ne fait rien	2	3	Das macht nichts, Macht nichts, Es spielt keine Rolle
 ca passe creme	ça passe crème	2	3	flutschen, geschmiert
 ca passe ou ca casse	ça passe ou ça casse	2	3	mag es biegen oder brechen
-ca promet	ça promet	2	3	Das fängt ja gut an
 ca roule	ça roule	2	3	Einverstanden, okay, kein Thema
 ca suffit	ça suffit	2	3	Es genügt, Es reicht, Es ist genug
 ca te va bien	ça te va bien	2	3	Das steht dir gut, Du siehst toll aus
@@ -2698,8 +2696,8 @@ chiffre	chiffre	2	1	Zahl, Ziffer, Zahlzeichen
 chiffre romain	chiffre romain	2	3	römische Ziffer
 chiffrer	chiffrer	2	2	beziffern
 chignole	chignole	2	2	Handbohrer
-chignon	chignon	3	2	Dutt, Haarknoten
-chili	Chili	3	2	Chile
+chignon	chignon	2	2	Dutt, Haarknoten
+chili	Chili	2	2	Chile
 chimere	chimère	3	2	Täuschung, Hirngespinst, Chimäre
 chimie	chimie	3	1	Chemie
 chimique	chimique	3	1	chemisch
@@ -3598,8 +3596,8 @@ cruaute	cruauté	3	2	Grausamkeit
 cruche	cruche	3	2	Kanne, Krug
 crucial	crucial	3	1	lebenswichtig, essenziell
 crucifier	crucifier	3	2	kreuzigen
-cruel	cruel	4	1	grausam
-cruellement	cruellement	4	2	bitter, schmerzlich, grausam
+cruel	cruel	3	1	grausam
+cruellement	cruellement	3	2	bitter, schmerzlich, grausam
 crustace	crustacé	4	2	Schalentier, Krebstier, Krustentier
 cryogenique	cryogénique	4	2	kryogen, kryogenisch
 cryptographie	cryptographie	4	2	Kryptografie, Kryptographie
@@ -4498,8 +4496,8 @@ dualite	dualité	4	2	Dualität
 dubai	Dubaï	4	2	Dubai
 dubitatif	dubitatif	4	2	skeptisch, zweifelnd
 dublin	Dublin	4	2	Dublin
-duc	duc	5	2	Herzog
-duchesse	duchesse	5	2	Herzogin
+duc	duc	4	2	Herzog
+duchesse	duchesse	4	2	Herzogin
 duel	duel	5	2	Duell, Zweikampf, Dual
 dument	dûment	5	2	ordnungsgemäß, gebührend
 dune	dune	5	2	Düne
@@ -5398,8 +5396,8 @@ exagere	exagéré	5	2	maßlos, übertrieben
 exagerer	exagérer	5	1	übertreiben
 examen	examen	5	0	Prüfung, Test, Examen
 examiner	examiner	5	1	examinieren, prüfen, erforschen
-exasperer	exaspérer	6	2	Nerv, übersteigern, auf die Nerven fallen
-exaucer	exaucer	6	2	erhören
+exasperer	exaspérer	5	2	Nerv, übersteigern, auf die Nerven fallen
+exaucer	exaucer	5	2	erhören
 excedentaire	excédentaire	6	2	überschüssig
 exceder	excéder	6	2	überschreiten
 excellent	excellent	6	0	hervorragend, ausgezeichnet, vorzüglich
@@ -6298,8 +6296,8 @@ glaive	glaive	6	2	Schwert, Kurzschwert
 gland	gland	6	1	Eichel, Quaste, Troddel
 glande	glande	6	2	Drüse
 glander	glander	6	2	gammeln
-glaner	glaner	7	2	nachlesen
-glas	glas	7	2	Totenglocke
+glaner	glaner	6	2	nachlesen
+glas	glas	6	2	Totenglocke
 glissant	glissant	7	1	glatt, glitschig
 glisser	glisser	7	1	rutschen, gleiten, glitschen
 global	global	7	1	ganz, gesamt
@@ -7198,8 +7196,8 @@ intentionnel	intentionnel	7	2	vorsätzlich
 intentionnellement	intentionnellement	7	2	Absicht, absichtlich, vorsätzlich
 interaction	interaction	7	1	Interaktion
 interagir	interagir	7	2	interagieren
-interconnecter	interconnecter	8	2	verbinden, verflechten, zusammenschalten
-interdiction	interdiction	8	2	Verbot, Interdikt
+interconnecter	interconnecter	7	2	verbinden, verflechten, zusammenschalten
+interdiction	interdiction	7	2	Verbot, Interdikt
 interdire	interdire	8	2	verbieten
 interdit	interdit	8	0	verboten
 interessant	intéressant	8	0	interessant
@@ -7471,7 +7469,7 @@ jus	jus	8	1	Saft
 jus de chaussette	jus de chaussette	8	3	Muckefuck
 jusque	jusque	8	2	bis
 juste	juste	8	0	nur, richtig, knapp
-juste ciel	juste ciel	8	3	Mein lieber Herr Gesangverein, Mein lieber Scholli, Mein li…
+juste ciel	juste ciel	8	3	Mein lieber Scholli, Mein lieber Schwan, Gütiger Himmel
 justement	justement	8	1	gerade, genau, eben
 justice	justice	8	1	Gerechtigkeit, Justiz
 justification	justification	8	2	Rechtfertigung
@@ -8098,8 +8096,8 @@ mannequin	mannequin	8	2	Model, Mannequin, Dressman
 manoeuvre	manœuvre	8	2	Gut, Manöver, Handlanger
 manoeuvrer	manœuvrer	8	2	manövrieren
 manoir	manoir	8	2	Herrenhaus
-manque	manque	9	0	Fehler, Mangel, Manko
-manquer	manquer	9	0	fehlen, abgehen, vermissen
+manque	manque	8	0	Fehler, Mangel, Manko
+manquer	manquer	8	0	fehlen, abgehen, vermissen
 manquer a	manquer à	9	3	brechen
 manquer de	manquer de	9	3	Mangel
 mante	mante	9	2	Gottesanbeterin, Fangschrecke
@@ -8549,6 +8547,7 @@ moindre	moindre	9	0	gering, kleiner, geringer
 moine	moine	9	1	Mönch, Bettvorwärmer, Bettwärmer
 moineau	moineau	9	2	Spatz, Sperling
 moins	moins	9	0	wenig, weniger, wenigste
+moins que rien	moins que rien	9	3	ein Nichts, eine Null, ein Niemand
 moins-que-rien	moins-que-rien	9	2	Niemand
 mois	mois	9	0	Monat
 moise	Moïse	9	2	Moses, Mose
@@ -8998,7 +8997,7 @@ numerique	numérique	9	1	zahlenmäßig, numerisch
 numerisation	numérisation	9	2	Digitalisierung
 numero	numéro	9	0	Nummer
 numero un	numéro un	9	3	Nummer eins
-numero vert	numéro vert	10	3	Freephone
+numero vert	numéro vert	9	3	Freephone
 numeroter	numéroter	10	2	nummerieren
 nuptial	nuptial	10	2	hochzeitlich
 nuque	nuque	10	2	Nacken, Genick
@@ -9898,7 +9897,7 @@ pittoresque	pittoresque	10	2	malerisch, pittoresk
 pivoine	pivoine	10	2	Pfingstrose, Päonie
 pixel	pixel	10	2	Pixel, Bildpunkt
 pizza	pizza	10	1	Pizza
-pizzeria	pizzeria	11	2	Pizzeria
+pizzeria	pizzeria	10	2	Pizzeria
 placard	placard	11	1	Schrank, Anschlag, Plakat
 place	place	11	0	Platz, Stelle, Fleck
 placer	placer	11	1	stellen, setzen, legen
@@ -10798,7 +10797,7 @@ ravin	ravin	11	2	Schlucht
 ravioli	ravioli	11	2	Ravioli, Maultaschen
 ravir	ravir	11	1	nehmen, wegnehmen, rauben
 ravissant	ravissant	11	1	charmant, lieblich, allerliebst
-ravisseur	ravisseur	12	2	Entführer, Wegelagerer, Freibeuter
+ravisseur	ravisseur	11	2	Entführer, Wegelagerer, Freibeuter
 raviver	raviver	12	2	wieder anfachen, wieder aufleben lassen, wieder erwachen la…
 rayer	rayer	12	1	streichen, durchstreichen, ausstreichen
 rayer de la carte	rayer de la carte	12	3	ausradieren
@@ -11271,7 +11270,6 @@ ride	ride	12	2	Falte, Runzel, Dünung
 rideau	rideau	12	1	Vorhang, Gardine, Store
 ridicule	ridicule	12	1	lächerlich, Lächerlichkeit
 rien	rien	12	0	nichts, nix
-rien a cirer	rien à cirer	12	3	Damit habe ich nichts am Hut
 rien ne presse	rien ne presse	12	3	es besteht keine Eile
 rien ne va plus	rien ne va plus	12	3	nichts geht mehr, Nichts geht mehr
 rien que	rien que	12	3	nur, nichts als, schon allein
@@ -11698,8 +11696,8 @@ secretariat	secrétariat	12	2	Sekretariat
 secretement	secrètement	12	2	heimlich, insgeheim
 secte	secte	12	2	Sekte
 secteur	secteur	12	1	Bereich, Sektor
-section	section	13	2	Sektion, Halbzug
-sectionner	sectionner	13	2	zerlegen, sezieren, zergliedern
+section	section	12	2	Sektion, Halbzug
+sectionner	sectionner	12	2	zerlegen, sezieren, zergliedern
 securite	sécurité	13	0	Sicherheit, Geborgenheit
 sedatif	sédatif	13	2	Schmerzmittel, Beruhigungsmittel
 seducteur	séducteur	13	2	Schwerenöter
@@ -11855,6 +11853,7 @@ silhouette	silhouette	13	2	Silhouette, Schattenriß, Schattenbild
 sillon	sillon	13	2	Falte, Furche, Runzel
 simon	Simon	13	2	Simon
 simple	simple	13	0	einfach, schlicht
+simple comme bonjour	simple comme bonjour	13	3	kinderleicht, ein Kinderspiel
 simplement	simplement	13	0	nur, einfach
 simples	simples	13	1	Heilkräuter
 simplicite	simplicité	13	2	Einfachheit
@@ -12598,7 +12597,7 @@ tete de turc	tête de Turc	13	3	Lukas, Hau den Lukas
 tete-a-tete	tête-à-tête	13	2	Tête-à-Tête
 teter	téter	13	2	an der Brust trinken
 teton	téton	13	2	Brustwarze
-tetu	têtu	14	1	eigensinnig, dickköpfig, starrköpfig
+tetu	têtu	13	1	eigensinnig, dickköpfig, starrköpfig
 texas	Texas	14	2	Texas
 texte	texte	14	0	Text
 textile	textile	14	2	Gewebe, Gewirk, Textilindustrie
@@ -13066,7 +13065,7 @@ ultrason	ultrason	14	2	Ultraschall
 ultraviolet	ultraviolet	14	2	ultraviolett, Ultraviolett, UV-Strahlung
 ulysse	Ulysse	14	2	Odysseus
 un	un	14	0	ein, eins, eine
-un ange passe	un ange passe	14	3	Ein Engel fliegt durch die Stube, Ein Engel geht durchs Zim…
+un ange passe	un ange passe	14	3	Ein Engel geht durchs Zimmer
 un argent fou	un argent fou	14	3	Heidengeld
 un certain nombre de	un certain nombre de	14	3	einige, mehrere, etliche
 un homme a la mer	un homme à la mer	14	3	Mann über Bord
@@ -13489,7 +13488,7 @@ voyageur	voyageur	14	1	Reisende, Reisender
 voyant	voyant	14	1	Hellseher, Sehende, Sehender
 voyante	voyante	14	2	Wahrsagerin, Hellseherin, Sehende
 voyelle	voyelle	14	2	Vokal, Selbstlaut
-voyons voir	voyons voir	14	3	Schauen wir mal, Mal sehen, Sehen wir uns das mal an
+voyons voir	voyons voir	14	3	Schauen wir mal, Mal sehen, Lass sehen
 voyou	voyou	14	1	Taugenichts
 vrai	vrai	14	0	echt, recht, wahr
 vraiment	vraiment	14	0	wirklich, ehrlich, tatsächlich
@@ -13498,7 +13497,7 @@ vraisemblablement	vraisemblablement	14	2	wahrscheinlich
 vrille	vrille	14	2	Ranke
 vtt	VTT	14	2	Mountainbike, MTB, ATB
 vue	vue	14	0	Auge, Aussicht, Sehvermögen
-vulgaire	vulgaire	15	1	an, hart, grob
+vulgaire	vulgaire	14	1	an, hart, grob
 vulnerable	vulnérable	15	2	verletzlich, verletzbar, angreifbar
 vuvuzela	vuvuzela	15	2	Vuvuzela
 wagner	Wagner	15	2	Wagner

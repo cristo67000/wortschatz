@@ -166,6 +166,26 @@
         max: 400 });
     corps.appendChild(traductions.bloc);
 
+    /* Plusieurs mots : expression usuelle, ou nom composé ? On le demande, on
+     * ne le devine pas — « base de données » a trois mots et reste un nom,
+     * « Ich habe keine Lust » en a quatre et se cherche par « Lust ». La
+     * question n'apparaît que quand le mot a plusieurs morceaux, et ne change
+     * rien aux cartes déjà créées : elle vaut pour la suite. */
+    const ligneExpression = element('div', 'champ-perso');
+    ligneExpression.appendChild(element('span', null, I18n.t('perso.champ.expression')));
+    const boutonsExpression = segments('expression', ['non', 'oui'],
+      Perso.estExpression(depart) ? 'oui' : 'non',
+      (v) => I18n.t(v === 'oui' ? 'commun.oui' : 'commun.non'));
+    ligneExpression.appendChild(boutonsExpression);
+    ligneExpression.appendChild(element('span', 'discret',
+      I18n.t('perso.champ.expression.note')));
+    corps.appendChild(ligneExpression);
+    function montrerExpression() {
+      ligneExpression.hidden = !/\s/.test(mot.saisie.value.trim());
+    }
+    mot.saisie.addEventListener('input', montrerExpression);
+    montrerExpression();
+
     // ── Ce qui est facultatif se replie ────────────────────────────────────
     const details = element('details', 'perso-details');
     details.appendChild(element('summary', null, I18n.t('perso.details')));
@@ -308,6 +328,7 @@
         traductions: traductions.saisie.value,
         nature: choixDe(boutonsNature),
         genre: boutonsGenre ? choixDe(boutonsGenre) : '',
+        expression: choixDe(boutonsExpression) === 'oui',
         pluriel: pluriel.saisie.value,
         formes: formes.saisie.value,
         exemple: exemple.saisie.value,

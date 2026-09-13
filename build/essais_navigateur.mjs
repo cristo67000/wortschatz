@@ -283,9 +283,9 @@ async function principal() {
         .map(e => e.className.split(' ')[0]);
       return { feu, ahnung, gluck, problem, chance, bonjour,
                ficheExpression: { marque: texteFiche.includes('expression'),
-                                  provenance: texteFiche.includes('Tatoeba'),
-                                  equivalents: texteFiche.includes('Pas de problème')
-                                               && texteFiche.includes('Aucun problème'),
+                                  provenance: /éditorial|redaktionell/i.test(texteFiche),
+                                  equivalents: /pas de problème/i.test(texteFiche)
+                                               && /aucun problème/i.test(texteFiche),
                                   apprendre: !!boutonApprendre },
                dansLaSection, titreSection, ordre };
     `);
@@ -306,9 +306,9 @@ async function principal() {
       '« chance » → « au petit bonheur la chance » et « viel Glück » (par sa traduction)',
       expressions.chance.lignes);
     verifier(expressions.ficheExpression.marque && expressions.ficheExpression.provenance,
-      'la fiche de « kein Problem » dit que c’est une expression, et d’où elle vient');
+      'la fiche de « kein Problem » dit que c’est une expression, relue à la main');
     verifier(expressions.ficheExpression.equivalents,
-      'elle montre ses deux équivalents attestés');
+      'elle montre ses équivalents vérifiés');
     verifier(expressions.ficheExpression.apprendre, 'elle propose « Apprendre »');
     verifier(expressions.titreSection === 'Expressions usuelles'
              && expressions.dansLaSection.includes('keine Ahnung'),
@@ -317,6 +317,58 @@ async function principal() {
     const positionNotes = expressions.ordre.indexOf('mes-notes');
     verifier(positionExpr !== -1 && positionNotes > positionExpr,
       'la section vient après les exemples et avant les notes', expressions.ordre);
+
+    titre('7 bis. Le formulaire demande si plusieurs mots font une expression');
+    const formulaire = await onglet.evaluer(`
+      document.querySelector('.fiche-fermer').click();
+      await new Promise(x => setTimeout(x, 300));
+      MesMots.ouvrirFormulaire({ saisie: 'Das ist mir Wurst', langue: 'de' });
+      await new Promise(x => setTimeout(x, 300));
+      const ligne = [...document.querySelectorAll('.champ-perso')]
+        .find(l => l.querySelector('[data-champ="expression"]'));
+      const surPlusieurs = ligne && !ligne.hidden;
+      const champMot = document.querySelector('.formulaire-perso input[name="mot"]');
+      champMot.value = 'Wurst';
+      champMot.dispatchEvent(new Event('input', { bubbles: true }));
+      const surUnSeul = ligne && ligne.hidden;
+      champMot.value = 'Das ist mir Wurst';
+      champMot.dispatchEvent(new Event('input', { bubbles: true }));
+      ligne.querySelector('[data-valeur="oui"]').click();
+      document.querySelector('.formulaire-perso input[name="traductions"]').value = 'je m’en fiche';
+      // On enregistre par le bouton, comme au doigt.
+      const valider = [...document.querySelectorAll('#formulaire-perso button')]
+        .find(b => b.className.indexOf('bouton-principal') !== -1);
+      valider.click();
+      await new Promise(x => setTimeout(x, 800));
+      const brut = Perso.liste().find(m => m.mot === 'Das ist mir Wurst');
+      const cartes = brut ? (await Revision.apprendre(Perso.entree(brut.id))).map(c => c.type).sort() : [];
+      const parWurst = Lexique.chercher('Wurst').some(r => brut && r.perso === brut.id && r.expression);
+      if (brut) await Perso.supprimer(brut.id);
+      return { surPlusieurs, surUnSeul, declaree: !!(brut && brut.expression === true), cartes, parWurst };
+    `);
+    verifier(formulaire.surPlusieurs, 'la question « Expression usuelle ? » apparaît sur plusieurs mots');
+    verifier(formulaire.surUnSeul, 'et disparaît sur un seul');
+    verifier(formulaire.declaree, '« Oui » enregistre la déclaration', formulaire);
+    verifier(JSON.stringify(formulaire.cartes) === JSON.stringify(['vers-de', 'vers-fr']),
+      'deux cartes, aucune de genre, bien que « Wurst » soit un nom', formulaire.cartes);
+    verifier(formulaire.parWurst, '« Wurst » la retrouve, marquée expression');
+
+    titre('7 ter. Le paquet complet de la version 3.0 n’est plus lu tel quel');
+    const perimes = await onglet.evaluer(`
+      // Un cache de l'ancien format, comme en laisserait la version 3.0.
+      const ancien = await caches.open('wortschatz-donnees-2');
+      await ancien.put('data/complet/de-000.json', new Response('{"e":[]}'));
+      const effaces = await Paquets.oublierLesPerimes(Lexique.manifeste);
+      return { version: Lexique.manifeste.version, effaces,
+               resteAncien: await caches.has('wortschatz-donnees-2'),
+               nomCourant: Paquets.nomDuCache(Lexique.manifeste.version),
+               completInstalle: await Paquets.complet(Lexique.manifeste) };
+    `);
+    verifier(perimes.version === 3, 'le format des données est en version 3', perimes.version);
+    verifier(!perimes.resteAncien && perimes.effaces >= 1,
+      'le cache « wortschatz-donnees-2 » est effacé : ses tranches n’ont plus le bon contenu');
+    verifier(perimes.nomCourant === 'wortschatz-donnees-3' && !perimes.completInstalle,
+      'le paquet complet se propose de nouveau au téléchargement', perimes);
 
     titre('8. Apprendre une expression, hors ligne');
     const apprise = await onglet.evaluer(`

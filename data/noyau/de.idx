@@ -310,7 +310,8 @@ allergie	Allergie	0	2	allergie
 allerhand	allerhand	0	2	fort, trop fort, un tas de
 allerlei	allerlei	0	2	divers, toute sorte
 allerliebst	allerliebst	0	2	ravissant, très cher et tendre
-alles klar	alles klar	0	3	C'est clair, Tout va bien
+alles gut	alles gut	0	3	tout va bien, pas de souci, c'est bon
+alles klar	alles klar	0	3	d'accord, entendu, compris
 alles zu seiner zeit	alles zu seiner Zeit	0	3	Chaque chose en son temps, Tout en son temps
 allesfresser	Allesfresser	0	2	omnivore
 allgegenwartig	allgegenwärtig	0	2	omniprésent
@@ -897,7 +898,7 @@ aufsuchen	aufsuchen	0	1	aller, visiter
 auftauchen	auftauchen	0	2	montrer, surgir, apparaître
 auftauen	auftauen	0	2	fondre, dégeler, décongeler
 aufteilen	aufteilen	0	2	partager, diviser, partitionner
-auftrag	Auftrag	0	1	demande, commande, ordre
+auftrag	Auftrag	1	1	demande, commande, ordre
 auftragen	auftragen	1	1	demander, charger, apporter
 auftreten	Auftreten	1	2	comportement, conduite, apparition
 auftreten	auftreten	1	1	jouer, produire, marcher
@@ -1797,7 +1798,7 @@ bildung	Bildung	1	1	éducation, formation, enseignement
 bildungssystem	Bildungssystem	1	2	système éducatif
 bill	Bill	1	2	Bill
 billard	Billard	1	2	billard
-billig	billig	1	1	juste, correct, raisonnable
+billig	billig	2	1	juste, correct, raisonnable
 billigen	billigen	2	2	approuver, cautionner
 billion	Billion	2	2	billion
 binden	binden	2	1	lier
@@ -2694,10 +2695,10 @@ eifrig	eifrig	2	1	enthousiaste, assidu
 eigelb	Eigelb	2	2	jaune, jaune d’œuf
 eigen	eigen	2	0	propre, à soi, particulier
 eigenartig	eigenartig	2	2	bizarre, particulier, singulier
-eigenlob stinkt	Eigenlob stinkt	2	3	Il est laid de se vanter, Qui se loue, s'emboue
+eigenlob stinkt	Eigenlob stinkt	2	3	Qui se loue, s'emboue
 eigennutz	Eigennutz	2	2	égoïsme, intérêt personnel
 eigens	eigens	2	2	exprès, tout exprès
-eigenschaft	Eigenschaft	2	1	propriété, trait de caractère, caractéristiques
+eigenschaft	Eigenschaft	3	1	propriété, trait de caractère, caractéristiques
 eigensinn	Eigensinn	3	2	entêtement, obstination
 eigensinnig	eigensinnig	3	2	volontaire, têtu, obstiné
 eigenstandig	eigenständig	3	2	indépendant, autonome
@@ -3597,7 +3598,7 @@ fernseher	Fernseher	3	0	téléviseur, téléspectateur
 fernsehgerat	Fernsehgerät	3	2	télé, téléviseur, poste de télévision
 fernsehprogramm	Fernsehprogramm	3	2	programme de télévision
 fernsehsender	Fernsehsender	3	2	chaîne, chaîne de télévision, émetteur de télévision
-fernsehsendung	Fernsehsendung	3	2	émission télévisée
+fernsehsendung	Fernsehsendung	4	2	émission télévisée
 fernsehserie	Fernsehserie	4	2	série télévisé
 fernsehturm	Fernsehturm	4	2	tour de télévision
 ferse	Ferse	4	2	talon
@@ -4302,7 +4303,7 @@ geschaftsreise	Geschäftsreise	4	2	voyage d'affaires
 geschatzt	geschätzt	4	2	estimé
 geschehen	Geschehen	4	2	événement
 geschehen	geschehen	4	0	arriver, passer, produire
-geschehen ist geschehen	geschehen ist geschehen	4	3	Ce qui est fait, est fait, On ne refait pas l'histoire
+geschehen ist geschehen	geschehen ist geschehen	4	3	On ne refait pas l'histoire
 geschehen lassen	geschehen lassen	4	3	s'abstenir
 geschehnis	Geschehnis	4	2	événement
 gescheit	gescheit	4	1	intelligent, raisonnable
@@ -4497,7 +4498,7 @@ goldfisch	Goldfisch	4	2	poisson rouge, cyprin doré, carassin doré
 goldgraber	Goldgräber	4	2	chercheur d'or
 goldmedaille	Goldmedaille	4	2	médaille d'or
 goldmunze	Goldmünze	4	2	pièce d’or
-goldstuck	Goldstück	4	2	trésor, chou, chouchou
+goldstuck	Goldstück	5	2	trésor, chou, chouchou
 golem	Golem	5	2	golem
 golf	Golf	5	1	golf, golfe
 gonnen	gönnen	5	2	se réjouir, s'offrir
@@ -4716,7 +4717,7 @@ handarbeit	Handarbeit	5	2	fait-main, travail manuel
 handbremse	Handbremse	5	2	frein à main
 handbuch	Handbuch	5	2	manuel
 handchen	Händchen	5	2	menotte
-hande hoch	Hände hoch	5	3	Haut les mains, Les mains en l'air, Levez les mains en l'air
+hande hoch	Hände hoch	5	3	Haut les mains, Les mains en l'air
 handel	Handel	5	1	marché, commerce
 handeln	Handeln	5	1	action
 handeln	handeln	5	0	faire, avec, commerce
@@ -5208,6 +5209,7 @@ ich bin nicht religios	ich bin nicht religiös	5	3	Je ne suis pas religieux, Je 
 ich bin vegetarier	ich bin Vegetarier	5	3	Je suis végétarien, Je suis un végétarien
 ich habe eine frage	ich habe eine Frage	5	3	J'ai une question, J'ai une demande
 ich habe kein geld	ich habe kein Geld	5	3	Je n'ai pas d'argent, Je n'ai aucun argent, Je suis sans ar…
+ich habe keine lust	Ich habe keine Lust	5	3	je n'ai pas envie, ça ne me dit rien
 ich hasse dich	ich hasse dich	5	3	Je te hais, Je te déteste
 ich liebe dich	ich liebe dich	5	3	je t’aime, je t'aime
 ich mag dich	ich mag dich	5	3	Je t'aime bien, Tu me plais
@@ -5396,8 +5398,8 @@ internetseite	Internetseite	5	2	site web, page web
 internetzugang	Internetzugang	5	2	accès Internet, accès à Internet
 interpretieren	interpretieren	5	2	interpréter
 intervall	Intervall	5	2	intervalle
-interview	Interview	5	2	entrevue, interview
-interviewen	interviewen	5	2	interroger, interviewer
+interview	Interview	6	2	entrevue, interview
+interviewen	interviewen	6	2	interroger, interviewer
 intoleranz	Intoleranz	6	2	intolérance
 intrige	Intrige	6	2	intrigue
 intuition	Intuition	6	2	intuition
@@ -5710,9 +5712,10 @@ kehrseite	Kehrseite	6	2	envers, revers
 keim	Keim	6	2	prémices, germe
 keimen	keimen	6	2	pousser, germer
 kein	kein	6	0	aucun
-kein problem	kein Problem	6	3	Pas de problème, Aucun problème
+kein problem	kein Problem	6	3	pas de problème, aucun problème, pas de souci
 kein wunder	kein Wunder	6	3	étonnant
-keine ahnung	keine Ahnung	6	3	Aucune idée, Pas la moindre idée, Je n'en sais rien
+keine ahnung	keine Ahnung	6	3	aucune idée, pas la moindre idée, je n'en sais rien
+keine lust haben	keine Lust haben	6	3	ne pas avoir envie
 keiner	keiner	6	0	aucun
 keinerlei	keinerlei	6	1	ne…vraiment aucun
 keinesfalls	keinesfalls	6	2	en aucune façon, en aucun cas, en aucune manière
@@ -6295,9 +6298,9 @@ landstrasse	Landstraße	6	2	route, route départementale, Landstraße
 landstrich	Landstrich	6	2	portion de territoire
 landtier	Landtier	6	2	animal terrestre
 landung	Landung	6	2	atterrissage, débarquement, atterissage
-landwirt	Landwirt	6	2	paysan, fermier, agriculteur
-landwirtschaft	Landwirtschaft	6	2	agriculture
-landwirtschaftlich	landwirtschaftlich	6	2	agricole, agronomique
+landwirt	Landwirt	7	2	paysan, fermier, agriculteur
+landwirtschaft	Landwirtschaft	7	2	agriculture
+landwirtschaftlich	landwirtschaftlich	7	2	agricole, agronomique
 lang	lang	7	0	long, longtemps
 lange	Länge	7	1	longueur, durée, longitude
 lange	lange	7	0	longtemps
@@ -6651,7 +6654,7 @@ machbar	machbar	7	2	faisable
 machen	machen	7	0	faire, effectuer
 machenschaft	Machenschaft	7	2	machination
 macht	Macht	7	0	pouvoir, puissance
-macht nichts	macht nichts	7	3	Ça ne fait rien
+macht nichts	macht nichts	7	3	ça ne fait rien, ce n'est pas grave, pas grave
 machthaber	Machthaber	7	2	détenteur du pouvoir
 machtig	mächtig	7	1	puissant
 machtlos	machtlos	7	2	impuissant
@@ -6854,7 +6857,7 @@ meile	Meile	7	1	mille, mile, lieue
 meilenweit	meilenweit	7	2	à plusieurs lieue, éloigné de plusieurs lieue
 mein	mein	7	0	mon, ma
 mein gott	mein Gott	7	3	Mon Dieu
-mein lieber scholli	mein lieber Scholli	7	3	Mince, Mon Dieu, Juste ciel
+mein lieber scholli	mein lieber Scholli	7	3	Mince, Juste ciel, Eh ben, mon vieux
 mein lieber schwan	mein lieber Schwan	7	3	Mon Dieu, Juste ciel
 meinen	meinen	7	0	dire, vouloir dire, penser
 meinerseits	meinerseits	7	2	pour ma part, de mon côté, de ma part
@@ -7195,9 +7198,9 @@ musse	Muße	7	2	oisiveté, loisirs
 mussen	müssen	7	0	devoir
 mussig	müßig	7	2	inutile, oiseux, oiseuse
 mussiggang	Müßiggang	7	2	oisiveté, fainéantise
-muster	Muster	7	2	patron, modèle, motif
-mustern	mustern	7	2	examiner, toiser
-mut	Mut	7	0	confiance, assurance, courage
+muster	Muster	8	2	patron, modèle, motif
+mustern	mustern	8	2	examiner, toiser
+mut	Mut	8	0	confiance, assurance, courage
 mutig	mutig	8	1	courageux, brave
 mutmasslich	mutmaßlich	8	2	présumé
 mutter	Mutter	8	0	mère, maman, écrou
@@ -7487,7 +7490,7 @@ norwegisch	Norwegisch	8	2	norvégien
 norwegisch	norwegisch	8	2	norvégien, norvégienne
 not	Not	8	1	misère, détresse
 not	not	8	2	nécessaire
-not macht erfinderisch	Not macht erfinderisch	8	3	La nécessité est mère de l'invention, la nécessité est la m…
+not macht erfinderisch	Not macht erfinderisch	8	3	la nécessité est la mère de l'invention
 notaufnahme	Notaufnahme	8	2	admission d'urgence, urgences
 notausgang	Notausgang	8	2	sortie de secours
 note	Note	8	1	note, note verbale
@@ -8095,9 +8098,9 @@ pullover	Pullover	8	1	pull-over, tricot, jersey
 puls	Puls	8	2	pouls
 pult	Pult	8	2	pupitre
 pulver	Pulver	8	2	poudre
-pummelig	pummelig	8	2	grassouillet, potelé
-pumpen	pumpen	8	2	pomper
-punkt	Punkt	8	0	point, endroit, ciron
+pummelig	pummelig	9	2	grassouillet, potelé
+pumpen	pumpen	9	2	pomper
+punkt	Punkt	9	0	point, endroit, ciron
 punktlich	pünktlich	9	0	ponctuel, ponctuellement
 punktlichkeit	Pünktlichkeit	9	2	ponctualité, régularité
 puppe	Puppe	9	1	poupée, poupon, poupard
@@ -8995,9 +8998,9 @@ schreibtischschublade	Schreibtischschublade	9	2	tiroir de bureau
 schreibweise	Schreibweise	9	2	orthographe, manière d'écrire, style d'écriture
 schreien	schreien	9	0	crier, hurler, pousser des cris
 schrein	Schrein	9	2	châsse, reliquaire, sanctuaire
-schreiner	Schreiner	9	2	menuisier, ébéniste
-schreiten	schreiten	9	1	aller, avant, enjamber
-schrift	Schrift	9	1	écrit, traité, écriture
+schreiner	Schreiner	10	2	menuisier, ébéniste
+schreiten	schreiten	10	1	aller, avant, enjamber
+schrift	Schrift	10	1	écrit, traité, écriture
 schriftart	Schriftart	10	2	police, police de caractères, police d'écriture
 schriftlich	schriftlich	10	2	écrit
 schriftsteller	Schriftsteller	10	1	auteur, écrivain
@@ -9376,7 +9379,7 @@ sms	SMS	10	2	SMS, texto, message SMS
 snob	Snob	10	2	snob
 so	so	10	0	bien, bon, aussi
 so gut wie	so gut wie	10	3	pratiquement, quasiment
-so ist das leben	so ist das Leben	10	3	C'est la vie, Ainsi va la vie, C'est comme ça la vie
+so ist das leben	so ist das Leben	10	3	C'est la vie, C'est comme ça la vie, La vie est comme ça
 so weit, so gut	so weit, so gut	10	3	tout, aller, bien
 sobald	sobald	10	1	dès que
 socke	Socke	10	1	chaussette
@@ -9895,9 +9898,9 @@ sumpf	Sumpf	10	2	marais, marécage
 sunde	Sünde	10	1	péché
 sundenbock	Sündenbock	10	2	bouc émissaire
 sunder	Sünder	10	2	pécheur
-sundigen	sündigen	10	2	pécher, pécher par
-super	Super	10	2	supercarburant
-super	super	10	2	super
+sundigen	sündigen	11	2	pécher, pécher par
+super	Super	11	2	supercarburant
+super	super	11	2	super
 superheld	Superheld	11	2	super-héros
 supermarkt	Supermarkt	11	1	supermarché
 supernova	Supernova	11	2	supernova
@@ -10795,9 +10798,9 @@ unwahr	unwahr	11	2	faux, erroné
 unwahrheit	Unwahrheit	11	2	contrevérité, non-vérité
 unwahrscheinlich	unwahrscheinlich	11	1	improbable
 unweigerlich	unweigerlich	11	2	immanquablement
-unweit	unweit	11	2	à proximité de, non loin de
-unwetter	Unwetter	11	2	tempête
-unwiderstehlich	unwiderstehlich	11	2	irrésistible
+unweit	unweit	12	2	à proximité de, non loin de
+unwetter	Unwetter	12	2	tempête
+unwiderstehlich	unwiderstehlich	12	2	irrésistible
 unwissen	Unwissen	12	2	ignorance
 unwissenheit	Unwissenheit	12	1	ignorance
 unwohl	unwohl	12	2	inconfortable
@@ -11340,7 +11343,7 @@ videospiel	Videospiel	12	2	jeu vidéo
 viech	Viech	12	2	bœuf, bourrin
 vieh	Vieh	12	2	bétail, bestiaux, brute
 viel	viel	12	0	bien, beaucoup
-viel gluck	viel Glück	12	3	Bonne chance, Je te souhaite bonne chance
+viel gluck	viel Glück	12	3	bonne chance
 vielen dank	vielen Dank	12	3	Merci beaucoup, Mille mercis
 vielerorts	vielerorts	12	2	un peu partout
 vielfach	vielfach	12	2	multiple
@@ -11425,7 +11428,7 @@ von etwas wind bekommen	von etwas Wind bekommen	12	3	avoir vent
 von heute auf morgen	von heute auf morgen	12	3	du jour au lendemain, aujourd’hui pour demain, d’un jour à …
 von luft und liebe leben	von Luft und Liebe leben	12	3	vivre d’amour et d’eau fraiche
 von nichts kommt nichts	von nichts kommt nichts	12	3	On n'a rien sans rien, Rien ne produit rien, De rien, rien …
-von wegen	von wegen	12	3	Mon cul, Mon œil, Tu parles
+von wegen	von wegen	12	3	Mon œil, Tu parles, Des clous
 von zeit zu zeit	von Zeit zu Zeit	12	3	de temps en temps
 vonnoten	vonnöten	12	2	nécessaire, nécessairement
 vor	vor	12	0	de, à cause de, avant
@@ -11695,9 +11698,9 @@ wechselgeld	Wechselgeld	12	2	monnaie, change, monnaie rendue
 wechselkurs	Wechselkurs	12	2	taux de change
 wechseln	wechseln	12	0	faire, monnaie, changer
 wechselseitig	wechselseitig	12	2	réciproque
-wecken	wecken	12	0	réveiller, éveiller
-wecker	Wecker	12	1	réveil, réveil-matin, Wecker
-wedeln	wedeln	12	2	agiter, remuer, chasser
+wecken	wecken	13	0	réveiller, éveiller
+wecker	Wecker	13	1	réveil, réveil-matin, Wecker
+wedeln	wedeln	13	2	agiter, remuer, chasser
 weder	weder	13	0	ni
 weder hand noch fuss haben	weder Hand noch Fuß haben	13	3	n’avoir ni queue ni tête
 weder noch	weder noch	13	3	ni, mi-figue, mi-raisin
@@ -11906,7 +11909,7 @@ wie	wie	13	0	comme, comment
 wie bitte	wie bitte	13	3	plaît-il
 wie ein lauffeuer	wie ein Lauffeuer	13	3	comme une traînée de poudre
 wie geht's	wie geht’s	13	3	Quoi de neuf, Comment ça va
-wie heissen sie	wie heißen Sie	13	3	Comment vous appelez-vous, Comment est-ce que vous vous app…
+wie heissen sie	wie heißen Sie	13	3	Comment vous appelez-vous
 wie heisst du	wie heißt du	13	3	Comment est-ce que tu t'appelles, Comment tu t’appelles, Co…
 wie spat ist es	wie spät ist es	13	3	Il est quelle heure, quelle heure est-il
 wie viel	wie viel	13	3	combien

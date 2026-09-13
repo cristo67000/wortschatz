@@ -380,6 +380,11 @@ def reordonner_par_utilite(dictionnaires, positions):
     for langue in ("de", "fr"):
         autre = rangs["fr" if langue == "de" else "de"]
         for entree in dictionnaires[langue].values():
+            # Ce qu'une main a ordonné reste dans cet ordre : le supplément
+            # éditorial met en tête le sens et l'équivalent qu'il juge
+            # premiers, et c'est le premier qui sert de réponse attendue.
+            if entree.get("expression") == expressions.SOURCE_EDITORIALE:
+                continue
             avant = premiere_traduction(entree)
             for lecture in entree["lectures"]:
                 for definition_et_trads in lecture[4]:
@@ -666,6 +671,18 @@ def main():
     attestations_en = expressions.charger_attestations_en(SOURCES)
     expressions.ajouter_formules(dictionnaires, extraits, croises, attestations_en,
                                  paires_alignees, journal_expr)
+    # Le supplément éditorial passe en dernier, par-dessus tout : ce qu'une
+    # main a relu l'emporte sur ce qu'une table a aligné. Ses exemples rédigés
+    # entrent au corpus, en tête des candidates de leur expression.
+    supplement = expressions.charger_supplement()
+    editoriaux = {"de": {}, "fr": {}}
+    for langue, mot, de, fr in expressions.appliquer_supplement(
+            dictionnaires, supplement, journal_expr):
+        paires_alignees.append((de, fr))
+        editoriaux[langue].setdefault(mot, []).append((1000, len(paires_alignees) - 1))
+    print(f"  {journal_expr['editoriales_creees']} créées et "
+          f"{journal_expr['editoriales_corrigees']} corrigées par le supplément éditorial "
+          f"({len(supplement)} entrées relues)")
     # Où le corpus emploie chaque expression retenue : ces paires deviendront
     # leurs exemples, par le même chemin que celles des mots.
     reperees = expressions.reperer_dans_le_corpus(
@@ -682,6 +699,8 @@ def main():
         for k, lot in reperees[langue].items():
             for mot in par_cle.get(k, ()):
                 supplements[langue][mot] = lot[:expressions.EXEMPLES_PAR_EXPRESSION * 2]
+        for mot, lot in editoriaux[langue].items():
+            supplements[langue][mot] = lot + supplements[langue].get(mot, [])
     illustrees = {l: sum(1 for k in reperees[l] if reperees[l][k]) for l in ("de", "fr")}
     print(f"  {illustrees['de']} expressions allemandes et {illustrees['fr']} françaises "
           f"trouvées telles quelles dans le corpus")
@@ -759,7 +778,13 @@ def main():
     DATA.mkdir(parents=True)
 
     manifeste = {
-        "version": 2,
+        # La version du **format** des données, qui nomme le cache du paquet
+        # complet (`wortschatz-donnees-<version>`). Elle change quand des
+        # fichiers gardent leur nom mais plus leur contenu : un téléchargement
+        # ne redemande pas ce qui est déjà là, et un index neuf sur des
+        # tranches périmées donnerait un dictionnaire troué. 3 : les
+        # expressions usuelles (sixième et septième champ, index par mot).
+        "version": 3,
         "construit": time.strftime("%Y-%m-%d"),
         "moutures": moutures,
         "moutures_wiktionnaire": wiktionnaire.moutures(),
@@ -832,14 +857,17 @@ def main():
             nb_expressions[langue] = sum(1 for e in selections[langue] if e.get("expression"))
             sans_equivalent[langue] = sum(
                 1 for e in selections[langue]
-                if e.get("expression") == expressions.SOURCE_ATTESTEE)
+                if e.get("expression") and not expressions.est_traduite(e))
             print(f"  {nom:8} expressions-{langue}.idx : {nb_mots} mots, "
-                  f"{nb_expressions[langue]} expressions")
+                  f"{nb_expressions[langue]} expressions dont "
+                  f"{nb_expressions[langue] - sans_equivalent[langue]} traduites")
 
         manifeste["paquets"][nom] = {
             "entrees": comptes,
             "traduites": traduites,
             "expressions": nb_expressions,
+            "expressions_traduites": {l: nb_expressions[l] - sans_equivalent[l]
+                                      for l in ("de", "fr")},
             "expressions_sans_equivalent": sans_equivalent,
             "phrases": len(vivier),
             "octets": octets,

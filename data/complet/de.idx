@@ -2215,7 +2215,7 @@ alles auf eine karte setzen	alles auf eine Karte setzen	2	3	mettre tous ses œuf
 alles beim alten lassen	alles beim Alten lassen	2	3	
 alles durch die rosarote brille sehen	alles durch die rosarote Brille sehen	2	3	
 alles fit im schritt	alles fit im Schritt	2	3	
-alles gut	alles gut	2	3	
+alles gut	alles gut	2	3	tout va bien, pas de souci, c'est bon
 alles gute zum geburtstag	alles Gute zum Geburtstag	2	3	joyeux anniversaire, bonne fête, bon anniversaire
 alles hat ein ende	alles hat ein Ende	2	3	
 alles hat ein ende, nur die wurst hat zwei	alles hat ein Ende, nur die Wurst hat zwei	2	3	tout avoir un fin sauf la saucisse qui en avoir deux
@@ -2224,7 +2224,7 @@ alles in butter	alles in Butter	2	3	ça roule, baigner dans l’huile
 alles in einen topf werfen	alles in einen Topf werfen	2	3	mettre tout dans le même panier, mettre tout dans le même s…
 alles in ordnung	alles in Ordnung	2	3	
 alles in schwarzen farben malen	alles in schwarzen Farben malen	2	3	voir tout en noir
-alles klar	alles klar	2	3	C'est clair, Tout va bien
+alles klar	alles klar	2	3	d'accord, entendu, compris
 alles oder nichts	alles oder nichts	2	3	
 alles paletti	alles paletti	2	3	ça baigne, c’est good, est) tiguidou
 alles uber einen kamm scheren	alles über einen Kamm scheren	2	3	
@@ -14784,7 +14784,7 @@ eigenkirche	Eigenkirche	16	3	église privé
 eigenleben	Eigenleben	16	3	vie propre
 eigenliebe	Eigenliebe	16	3	amour propre
 eigenlob	Eigenlob	16	3	autosatisfaction, éloge de soi, éloge de soi-même
-eigenlob stinkt	Eigenlob stinkt	16	3	Il est laid de se vanter, Qui se loue, s'emboue
+eigenlob stinkt	Eigenlob stinkt	16	3	Qui se loue, s'emboue
 eigenmachtig	eigenmächtig	16	3	arbitraire, arbitrairement
 eigenname	Eigenname	16	3	nom propre
 eigennutz	Eigennutz	16	2	égoïsme, intérêt personnel
@@ -22000,7 +22000,7 @@ geschaftszimmer	Geschäftszimmer	24	3	bureau d'entreprise
 geschatzt	geschätzt	24	2	estimé
 geschehen	Geschehen	24	2	événement
 geschehen	geschehen	24	0	arriver, passer, produire
-geschehen ist geschehen	geschehen ist geschehen	24	3	Ce qui est fait, est fait, On ne refait pas l'histoire
+geschehen ist geschehen	geschehen ist geschehen	24	3	On ne refait pas l'histoire
 geschehen lassen	geschehen lassen	24	3	s'abstenir
 geschehnis	Geschehnis	24	2	événement
 gescheit	gescheit	24	1	intelligent, raisonnable
@@ -24254,7 +24254,7 @@ handbreit	Handbreit	26	3	largeur de paume
 handbremse	Handbremse	26	2	frein à main
 handbuch	Handbuch	26	2	manuel
 handchen	Händchen	26	2	menotte
-hande hoch	Hände hoch	26	3	Haut les mains, Les mains en l'air, Levez les mains en l'air
+hande hoch	Hände hoch	26	3	Haut les mains, Les mains en l'air
 handel	Handel	26	1	marché, commerce
 handeln	Handeln	26	1	action
 handeln	handeln	26	0	faire, avec, commerce
@@ -26919,6 +26919,7 @@ ich habe eine frage	ich habe eine Frage	29	3	J'ai une question, J'ai une demande
 ich habe fertig	ich habe fertig	29	3	fini, en avoir marre, en avoir assez
 ich habe hunger	ich habe Hunger	29	3	
 ich habe kein geld	ich habe kein Geld	29	3	Je n'ai pas d'argent, Je n'ai aucun argent, Je suis sans ar…
+ich habe keine lust	Ich habe keine Lust	29	3	je n'ai pas envie, ça ne me dit rien
 ich habe mich verlaufen	ich habe mich verlaufen	29	3	
 ich hasse dich	ich hasse dich	29	3	Je te hais, Je te déteste
 ich heisse	ich heiße	29	3	
@@ -26997,7 +26998,7 @@ igelstellung	Igelstellung	29	3	hérisson
 igersheim	Igersheim	29	3	Igersheim
 igh	IGH	29	3	CIJ
 igitt	igitt	29	3	beurk
-iglu	Iglu	29	3	igloo, iglou
+iglu	Iglu	30	3	igloo, iglou
 ignobel	ignobel	30	3	indigne
 ignorant	ignorant	30	3	ignorant
 ignoranz	Ignoranz	30	2	ignorance, inobservation
@@ -27897,7 +27898,7 @@ interglazial	interglazial	30	3	interglaciaire
 interhotel	Interhotel	30	3	hôtel de la chaîne Interhotel
 interieur	Interieur	30	3	intérieur
 interim	Interim	30	3	intérim
-interimsschein	Interimsschein	30	3	certificat provisoire
+interimsschein	Interimsschein	31	3	certificat provisoire
 interinstitutionell	interinstitutionell	31	3	interinstitutionnel
 interjektion	Interjektion	31	3	interjection
 interkonfessionell	interkonfessionell	31	3	interconfessionnel
@@ -28797,7 +28798,7 @@ jemanden ungespitzt in den boden hauen	jemanden ungespitzt in den Boden hauen	31
 jemanden ungespitzt in den boden rammen	jemanden ungespitzt in den Boden rammen	31	3	
 jemanden ungespitzt in den boden schlagen	jemanden ungespitzt in den Boden schlagen	31	3	
 jemanden unter der fuchtel haben	jemanden unter der Fuchtel haben	31	3	
-jemanden unter die erde bringen	jemanden unter die Erde bringen	31	3	
+jemanden unter die erde bringen	jemanden unter die Erde bringen	32	3	
 jemanden unter druck setzen	jemanden unter Druck setzen	32	3	
 jemanden unter seine fittiche nehmen	jemanden unter seine Fittiche nehmen	32	3	prendre sous son aile, couver de ses ailes, couvrir de ses …
 jemanden vom hocker hauen	jemanden vom Hocker hauen	32	3	
@@ -29697,7 +29698,7 @@ karfreitagsabkommen	Karfreitagsabkommen	32	3	accord du Vendredi saint
 karg	karg	32	2	pauvre, maigre, aride
 karibib	Karibib	32	3	Karibib
 karibik	Karibik	32	3	Caraïbes
-karibikinsel	Karibikinsel	32	3	île de la mer des Caraïbes
+karibikinsel	Karibikinsel	33	3	île de la mer des Caraïbes
 karibikkuste	Karibikküste	33	3	côte caribéenne
 karibikurlaub	Karibikurlaub	33	3	vacances aux Caraïbes
 karibisch	karibisch	33	3	caribéen, caraïbéen
@@ -30152,19 +30153,20 @@ kein heuriger hase sein	kein heuriger Hase sein	33	3	ne pas être un lapin de tr
 kein kind von traurigkeit sein	kein Kind von Traurigkeit sein	33	3	
 kein kommentar	kein Kommentar	33	3	
 kein krosus sein	kein Krösus sein	33	3	
-kein problem	kein Problem	33	3	Pas de problème, Aucun problème
+kein problem	kein Problem	33	3	pas de problème, aucun problème, pas de souci
 kein schoner zug von jemandem sein	kein schöner Zug von jemandem sein	33	3	
 kein sterbenswortchen sagen	kein Sterbenswörtchen sagen	33	3	
 kein unbeschriebenes blatt sein	kein unbeschriebenes Blatt sein	33	3	
 kein wasserchen truben konnen	kein Wässerchen trüben können	33	3	prendre des airs de sainte-nitouche
 kein wunder	kein Wunder	33	3	étonnant
 kein zuckerschlecken sein	kein Zuckerschlecken sein	33	3	fête, être de la tarte, ne pas être des farces
-keine ahnung	keine Ahnung	33	3	Aucune idée, Pas la moindre idée, Je n'en sais rien
+keine ahnung	keine Ahnung	33	3	aucune idée, pas la moindre idée, je n'en sais rien
 keine aktien in etwas haben	keine Aktien in etwas haben	33	3	
 keine antwort ist auch eine antwort	keine Antwort ist auch eine Antwort	33	3	
 keine augen im kopf haben	keine Augen im Kopf haben	33	3	
 keine eier in der hose haben	keine Eier in der Hose haben	33	3	avoir des couilles
 keine hand ruhren	keine Hand rühren	33	3	
+keine lust haben	keine Lust haben	33	3	ne pas avoir envie
 keine menschenseele	keine Menschenseele	33	3	pas âme qui vive
 keine rolle spielen	keine Rolle spielen	33	3	
 keine sau	keine Sau	33	3	
@@ -30596,8 +30598,8 @@ kinetische energie	kinetische Energie	33	3	énergie cinétique
 kingston	Kingston	33	3	Kingston
 kingstown	Kingstown	33	3	Kingstown
 kinkerlitzchen	Kinkerlitzchen	33	3	bricoles
-kinmen	Kinmen	33	3	Kinmen
-kinn	Kinn	33	2	menton
+kinmen	Kinmen	34	3	Kinmen
+kinn	Kinn	34	2	menton
 kinnlade	Kinnlade	34	3	mandibule
 kino	Kino	34	0	cinéma, ciné
 kinobesitzer	Kinobesitzer	34	3	propriétaire de cinéma
@@ -31496,8 +31498,8 @@ komitologie	Komitologie	34	3	comitologie
 komma	Komma	34	1	virgule, comma
 kommafehler	Kommafehler	34	3	faute de virgule
 kommandant	Kommandant	34	2	commandant
-kommandeur	Kommandeur	34	3	commandant
-kommandieren	kommandieren	34	2	commander
+kommandeur	Kommandeur	35	3	commandant
+kommandieren	kommandieren	35	2	commander
 kommandozeile	Kommandozeile	35	3	ligne de commande
 komme, was wolle	komme, was wolle	35	3	
 kommen	kommen	35	0	aller, venir, arriver
@@ -32396,8 +32398,8 @@ krankheitsherd	Krankheitsherd	35	3	foyer infectieux
 krankheitsrisiko	Krankheitsrisiko	35	3	risque de maladie
 krankheitsubertragung	Krankheitsübertragung	35	3	transmission de maladie
 krankheitsursache	Krankheitsursache	35	3	cause de la maladie
-krankheitsverlauf	Krankheitsverlauf	35	3	forme de maladie, évolution de la maladie
-kranklachen	kranklachen	35	3	marrer, mourir de rire, avoir le piton collé
+krankheitsverlauf	Krankheitsverlauf	36	3	forme de maladie, évolution de la maladie
+kranklachen	kranklachen	36	3	marrer, mourir de rire, avoir le piton collé
 krankmachen	krankmachen	36	3	rendre malade
 krankschiessen	krankschießen	36	3	blesser le gibier
 krankschreiben	krankschreiben	36	3	mettre en arrêt de travail, prescrire un arrêt de travail à
@@ -33296,8 +33298,8 @@ kutschwagen	Kutschwagen	36	3	coche
 kutte	Kutte	36	3	froc
 kuttel	Kuttel	36	3	tripe, intestins
 kuttelhof	Kuttelhof	36	3	abattoir, étal
-kuttelsuppe	Kuttelsuppe	36	3	soupe aux tripes
-kutter	Kutter	36	3	chalutier, cotre
+kuttelsuppe	Kuttelsuppe	37	3	soupe aux tripes
+kutter	Kutter	37	3	chalutier, cotre
 kuvert	Kuvert	37	3	couvert, enveloppe
 kuwait	Kuwait	37	3	Koweït
 kuwaiter	Kuwaiter	37	3	Koweïtien
@@ -34196,8 +34198,8 @@ leerverkauf	Leerverkauf	37	3	vente à découvert
 leerverkaufer	Leerverkäufer	37	3	vendeur à découvert
 leerverkauferin	Leerverkäuferin	37	3	vendeuse à découvert
 leerzeichen	Leerzeichen	37	2	espace
-leerzeile	Leerzeile	37	3	interligne
-leerzug	Leerzug	37	3	train vide, train à vide
+leerzeile	Leerzeile	38	3	interligne
+leerzug	Leerzug	38	3	train vide, train à vide
 leeuwarden	Leeuwarden	38	3	Leeuwarden
 legal	legal	38	2	légal, légale
 legaldefinition	Legaldefinition	38	3	définition légale
@@ -35096,8 +35098,8 @@ loslegen	loslegen	38	2	envoyer, balancer, cracher sa Valda
 loslich	löslich	38	3	soluble
 loslichkeit	Löslichkeit	38	3	solubilité
 losmachen	losmachen	38	3	démarrer, appareiller, lâcher ( amarre ), larguer
-loss	Löss	38	3	lœss
-losschwimmen	losschwimmen	38	3	partir, commencer, nager
+loss	Löss	39	3	lœss
+losschwimmen	losschwimmen	39	3	partir, commencer, nager
 lossturmen	losstürmen	39	0	partir comme une flèche
 losung	Lösung	39	0	solution, dissolution
 losungsmittel	Lösungsmittel	39	2	solvant, dissolvant
@@ -35494,7 +35496,7 @@ machination	Machination	39	3	machination
 machinieren	machinieren	39	3	intriguer
 machismo	Machismo	39	3	machisme
 macht	Macht	39	0	pouvoir, puissance
-macht nichts	macht nichts	39	3	Ça ne fait rien
+macht nichts	macht nichts	39	3	ça ne fait rien, ce n'est pas grave, pas grave
 machtanspruch	Machtanspruch	39	3	prétention au pouvoir
 machterhalt	Machterhalt	39	3	préservation du pouvoir
 machterhaltung	Machterhaltung	39	3	préservation du pouvoir
@@ -35996,8 +35998,8 @@ mara	Mara	39	3	lièvre des pampas, mara, Mara
 marabu	Marabu	39	3	marabout, marabout d'Afrique
 maracuja	Maracuja	39	3	fruit de la passion, maracuja
 maradi	Maradi	39	3	Maradi, région de Maradi
-marane	Maräne	39	3	corégone, lavaret, féra
-marasmus	Marasmus	39	3	marasme
+marane	Maräne	40	3	corégone, lavaret, féra
+marasmus	Marasmus	40	3	marasme
 marathe	Marathe	40	3	Marathe
 marathi	Marathi	40	3	marathi, marâthî
 marathon	Marathon	40	2	marathon
@@ -36694,7 +36696,7 @@ mein	mein	40	0	mon, ma
 mein gott	mein Gott	40	3	Mon Dieu
 mein lieber herr gesangsverein	mein lieber Herr Gesangsverein	40	3	
 mein lieber herr gesangverein	mein lieber Herr Gesangverein	40	3	
-mein lieber scholli	mein lieber Scholli	40	3	Mince, Mon Dieu, Juste ciel
+mein lieber scholli	mein lieber Scholli	40	3	Mince, Juste ciel, Eh ben, mon vieux
 mein lieber schwan	mein lieber Schwan	40	3	Mon Dieu, Juste ciel
 mein name ist hase	mein Name ist Hase	40	3	
 mein vater erklart mir jeden sonntag unsere neun planeten	Mein Vater erklärt mir jeden Sonntag unsere neun Planeten	40	3	Mon vélo tourne mal, je suis un nouveau piéton
@@ -36896,8 +36898,8 @@ menschheitsgeschichte	Menschheitsgeschichte	40	3	histoire de l'humanité
 menschheitstraum	Menschheitstraum	40	3	rêve de l'humanité
 menschlich	menschlich	40	0	humain
 menschliche natur	menschliche Natur	40	3	nature humaine
-menschlicher fehler	menschlicher Fehler	40	3	erreur humaine
-menschlicher korper	menschlicher Körper	40	3	corps humain
+menschlicher fehler	menschlicher Fehler	41	3	erreur humaine
+menschlicher korper	menschlicher Körper	41	3	corps humain
 menschlicher schutzschild	menschlicher Schutzschild	41	3	bouclier humain
 menschliches	Menschliches	41	3	humain
 menschliches wesen	menschliches Wesen	41	3	être humain
@@ -37796,8 +37798,8 @@ mittrager	Mitträger	41	3	co-organisateur, co-fondateur, partenaire associé
 mittrainieren	mittrainieren	41	3	s’entraîner avec
 mittsommer	Mittsommer	41	3	solstice d'été
 mittsommernacht	Mittsommernacht	41	3	nuit du solstice d'été
-mittwoch	Mittwoch	41	1	mercredi
-mittwochnacht	Mittwochnacht	41	3	nuit du vendredi au samedi
+mittwoch	Mittwoch	42	1	mercredi
+mittwochnacht	Mittwochnacht	42	3	nuit du vendredi au samedi
 mittwochs	mittwochs	42	2	le mercredi
 mitunter	mitunter	42	2	parfois
 mitverantwortlich	mitverantwortlich	42	3	coresponsable
@@ -38696,8 +38698,8 @@ mutterkirche	Mutterkirche	42	3	paroisse mère, église mère
 mutterkonzern	Mutterkonzern	42	3	société mère
 mutterkorn	Mutterkorn	42	3	ergot de seigle, ergot du seigle
 mutterkuchen	Mutterkuchen	42	3	placenta
-mutterland	Mutterland	42	3	métropole, pays d'attache
-mutterleib	Mutterleib	42	3	ventre maternel
+mutterland	Mutterland	43	3	métropole, pays d'attache
+mutterleib	Mutterleib	43	3	ventre maternel
 mutterlich	mütterlich	43	3	maternelle, maternel, maternellement
 mutterlicherseits	mütterlicherseits	43	2	du côté maternel
 mutterliebe	Mutterliebe	43	3	amour maternel
@@ -39596,8 +39598,8 @@ neophyt	Neophyt	43	3	néophyte
 neophytensack	Neophytensack	43	3	sac pour plantes néophytes, sac à néophytes
 neophytin	Neophytin	43	3	néophyte
 neopren	Neopren	43	3	néprène
-neopronomen	Neopronomen	43	3	néopronom
-nepal	Nepal	43	2	Népal
+neopronomen	Neopronomen	44	3	néopronom
+nepal	Nepal	44	2	Népal
 nepalese	Nepalese	44	3	Népalais
 nepalesin	Nepalesin	44	3	Népalaise
 nepalesisch	Nepalesisch	44	3	népalais, nepâlî
@@ -40313,7 +40315,7 @@ nostalgie	Nostalgie	44	3	nostalgie
 not	Not	44	1	misère, détresse
 not	not	44	2	nécessaire
 not kennt kein gebot	Not kennt kein Gebot	44	3	nécessité fait loi
-not macht erfinderisch	Not macht erfinderisch	44	3	La nécessité est mère de l'invention, la nécessité est la m…
+not macht erfinderisch	Not macht erfinderisch	44	3	la nécessité est la mère de l'invention
 not-op	Not-OP	44	3	opération de secours
 notabene	notabene	44	3	nota bene
 notabitur	Notabitur	44	3	baccalauréat anticipé
@@ -40496,8 +40498,8 @@ nur noch ein schatten seiner selbst sein	nur noch ein Schatten seiner selbst sei
 nur uber meine leiche	nur über meine Leiche	44	3	jamais de la vie, il faudra me passer sur le corps
 nuraghe	Nuraghe	44	3	nuraghe
 nurdachhaus	Nurdachhaus	44	3	maison en A
-nuristan	Nuristan	44	3	Nouristan
-nurnberg	Nürnberg	44	3	Nuremberg
+nuristan	Nuristan	45	3	Nouristan
+nurnberg	Nürnberg	45	3	Nuremberg
 nurnberger	Nürnberger	45	3	Nurembergeois
 nurnbergerin	Nürnbergerin	45	3	nurembourgeoise
 nusantara	Nusantara	45	3	Nusantara
@@ -41396,8 +41398,8 @@ orthotrope platte	orthotrope Platte	45	3	dalle orthotrope
 ortlich	örtlich	45	1	local, locale, locorégional
 ortlichkeit	Örtlichkeit	45	3	lieu-dit, localité
 ortolan	Ortolan	45	3	bruant ortolan
-ortsadverb	Ortsadverb	45	3	adverbe de lieu
-ortsanfang	Ortsanfang	45	3	début de localité
+ortsadverb	Ortsadverb	46	3	adverbe de lieu
+ortsanfang	Ortsanfang	46	3	début de localité
 ortsangabe	Ortsangabe	46	3	indication de lieu
 ortsansassig	ortsansässig	46	3	local
 ortsausgang	Ortsausgang	46	3	sortie de la localité
@@ -42296,8 +42298,8 @@ pazifikinsel	Pazifikinsel	46	3	île de l'océan Pacifique
 pazifiksonne	Pazifiksonne	46	3	soleil du Pacifique
 pazifisch	pazifisch	46	3	pacifique
 pazifischer feuerring	Pazifischer Feuerring	46	3	ceinture de feu du Pacifique
-pazifischer ozean	Pazifischer Ozean	46	3	Pacifique, océan Pacifique, Océan Pacifique
-pazifismus	Pazifismus	46	3	pacifisme
+pazifischer ozean	Pazifischer Ozean	47	3	Pacifique, océan Pacifique, Océan Pacifique
+pazifismus	Pazifismus	47	3	pacifisme
 pazifist	Pazifist	47	2	pacifiste
 pazifistisch	pazifistisch	47	3	pacifiste
 pc	PC	47	2	PC, P. C., micro-ordinateur
@@ -43196,8 +43198,8 @@ plan	plan	47	3	plat, plain
 plan b	Plan B	47	3	alternative, plan B
 planck-ara	Planck-Ära	47	3	ère de Planck
 planck-lange	Planck-Länge	47	3	longueur de Planck
-planck-temperatur	Planck-Temperatur	47	3	température de Planck
-planck-zeit	Planck-Zeit	47	3	temps de Planck, durée de Planck
+planck-temperatur	Planck-Temperatur	48	3	température de Planck
+planck-zeit	Planck-Zeit	48	3	temps de Planck, durée de Planck
 plane	Plane	48	2	bâche
 planegg	Planegg	48	3	Planegg
 planen	Planen	48	3	planification
@@ -44096,8 +44098,8 @@ privatmann	Privatmann	48	3	particulier, pensionné, rentier
 privatmeinung	Privatmeinung	48	3	avis personnel, opinion personnel
 privatmensch	Privatmensch	48	3	personne privé
 privatmuseum	Privatmuseum	48	3	musée privé
-privatnummer	Privatnummer	48	3	numéro de téléphone privé, numéro privé
-privatpark	Privatpark	48	3	parc privé
+privatnummer	Privatnummer	49	3	numéro de téléphone privé, numéro privé
+privatpark	Privatpark	49	3	parc privé
 privatpatient	Privatpatient	49	3	patient du secteur privé
 privatpatientin	Privatpatientin	49	3	patient du secteur privé
 privatperson	Privatperson	49	3	particulier, particulière
@@ -44996,8 +44998,8 @@ radionachricht	Radionachricht	49	3	message radiodiffusé
 radionuklidbatterie	Radionuklidbatterie	49	3	batterie atomique
 radiophonie	Radiophonie	49	3	radiophonie
 radioprogramm	Radioprogramm	49	3	programme radio
-radiorekorder	Radiorekorder	49	3	radiocassette
-radiorohre	Radioröhre	49	3	tube électronique
+radiorekorder	Radiorekorder	50	3	radiocassette
+radiorohre	Radioröhre	50	3	tube électronique
 radiosender	Radiosender	50	2	station de radio, chaîne de radio
 radiosendung	Radiosendung	50	3	émission de radio
 radiosonde	Radiosonde	50	3	radiosonde
@@ -45896,8 +45898,8 @@ reisepass	Reisepass	50	1	passeport
 reiseplan	Reiseplan	50	2	plan de voyage
 reiserucktrittsversicherung	Reiserücktrittsversicherung	50	3	assurance annulation
 reisetag	Reisetag	50	3	jour de voyage, journée de voyage
-reisetasche	Reisetasche	50	3	fourre-tout, fourretout, sac de voyage
-reiseveranstalter	Reiseveranstalter	50	3	voyagiste, tour-opérateur
+reisetasche	Reisetasche	51	3	fourre-tout, fourretout, sac de voyage
+reiseveranstalter	Reiseveranstalter	51	3	voyagiste, tour-opérateur
 reiseveranstalterin	Reiseveranstalterin	51	3	voyagiste, tour-opératrice
 reiseverbot	Reiseverbot	51	3	interdiction de voyager
 reisewagen	Reisewagen	51	3	voiture de tourisme
@@ -46796,8 +46798,8 @@ romme	Rommé	51	3	rami
 rommersheim	Rommersheim	51	3	Rommersheim
 roncesvalles	Roncesvalles	51	3	Roncevaux
 rondo	Rondo	51	3	rondeau, rondo
-rontgen	röntgen	51	3	radiographier
-rontgenanlage	Röntgenanlage	51	3	installation de radiographie
+rontgen	röntgen	52	3	radiographier
+rontgenanlage	Röntgenanlage	52	3	installation de radiographie
 rontgenaufnahme	Röntgenaufnahme	52	3	radio, radiographie, scopie
 rontgenbild	Röntgenbild	52	3	radiographie
 rontgengerat	Röntgengerät	52	3	appareil de radiographie
@@ -47696,8 +47698,8 @@ sardana	Sardana	52	3	sardane
 sarde	Sarde	52	3	Sarde
 sardelle	Sardelle	52	3	anchois, engraulis, engraule
 sardin	Sardin	52	3	Sarde
-sardine	Sardine	52	3	sardine, célan
-sardinien	Sardinien	52	3	Sardaigne
+sardine	Sardine	53	3	sardine, célan
+sardinien	Sardinien	53	3	Sardaigne
 sardinier	Sardinier	53	3	Sarde
 sardisch	Sardisch	53	3	sarde
 sardisch	sardisch	53	3	sarde
@@ -48596,8 +48598,8 @@ schleimpilz	Schleimpilz	53	3	myxomycète, champignon amiboïde, champignon-anima
 schleitheim	Schleitheim	53	3	Schleitheim
 schlemihl	Schlemihl	53	3	malheureux, roublard
 schlemmen	schlemmen	53	3	faire, bonbance, festoyer
-schlemmer	Schlemmer	53	3	gourmand
-schlendern	schlendern	53	2	flâner
+schlemmer	Schlemmer	54	3	gourmand
+schlendern	schlendern	54	2	flâner
 schleppen	schleppen	54	2	amener, traîner, déporter
 schlepper	Schlepper	54	3	tracteur, remorqueur, hercheur
 schleppkabel	Schleppkabel	54	3	câble trainant
@@ -49496,8 +49498,8 @@ schwach	schwach	54	1	mauvais, clair, faible
 schwache	Schwäche	54	1	faible, faiblesse
 schwache deklination	schwache Deklination	54	3	déclinaison faible
 schwacheln	schwächeln	54	3	s'affaiblir, se relâcher
-schwachen	schwächen	54	2	affaiblir
-schwaches verb	schwaches Verb	54	3	verbe faible
+schwachen	schwächen	55	2	affaiblir
+schwaches verb	schwaches Verb	55	3	verbe faible
 schwachkopf	Schwachkopf	55	2	débile
 schwachlich	schwächlich	55	2	faible, lacunaire, déficient
 schwachmat	Schwachmat	55	3	poulet
@@ -50396,8 +50398,8 @@ senfkorn	Senfkorn	55	3	graine de moutarde
 senfol	Senföl	55	3	huile de moutarde
 senfsaat	Senfsaat	55	3	graine de moutarde
 senftiegel	Senftiegel	55	3	moutardier
-senftopfchen	Senftöpfchen	55	3	pot à moutarde
-senftube	Senftube	55	3	tube de moutarde
+senftopfchen	Senftöpfchen	56	3	pot à moutarde
+senftube	Senftube	56	3	tube de moutarde
 sengen	sengen	56	3	brûler, flamber
 sengerich	Sengerich	56	3	Sengerich
 sengoku-zeit	Sengoku-Zeit	56	3	époque Sengoku
@@ -51279,7 +51281,7 @@ so	so	56	0	bien, bon, aussi
 so genannt	so genannt	56	3	
 so gott will	so Gott will	56	3	
 so gut wie	so gut wie	56	3	pratiquement, quasiment
-so ist das leben	so ist das Leben	56	3	C'est la vie, Ainsi va la vie, C'est comme ça la vie
+so ist das leben	so ist das Leben	56	3	C'est la vie, C'est comme ça la vie, La vie est comme ça
 so lala	so lala	56	3	comme ci comme ça, couci-couça
 so sicher wie das amen in der kirche	so sicher wie das Amen in der Kirche	56	3	
 so wahr mir gott helfe	so wahr mir Gott helfe	56	3	que Dieu me vienne en aide, ainsi Dieu me soit en aide, ain…
@@ -51296,8 +51298,8 @@ sockenblume	Sockenblume	56	3	fleur des elfes
 sockenpuppe	Sockenpuppe	56	3	faux-nez, poupée de chiffon
 soda	Soda	56	3	natron
 sodann	sodann	56	3	encore, ensuite, en plus
-sodass	sodass	56	2	de sorte que, si bien que, à tel point que
-sodawasser	Sodawasser	56	3	eau gazeuse, eau minérale gazeuse
+sodass	sodass	57	2	de sorte que, si bien que, à tel point que
+sodawasser	Sodawasser	57	3	eau gazeuse, eau minérale gazeuse
 sodbrennen	Sodbrennen	57	2	brûlures d'estomac, pyrosis
 sodom	Sodom	57	3	Sodome
 sodomie	Sodomie	57	3	zoophilie
@@ -52196,8 +52198,8 @@ sport	Sport	57	1	sport
 sport ist mord	Sport ist Mord	57	3	
 sport-bh	Sport-BH	57	3	soutien-gorge sport
 sportart	Sportart	57	2	discipline, discipline sportive
-sportbekleidung	Sportbekleidung	57	3	vêtements de sport
-sportbeutel	Sportbeutel	57	3	sac de sport
+sportbekleidung	Sportbekleidung	58	3	vêtements de sport
+sportbeutel	Sportbeutel	58	3	sac de sport
 sportereignis	Sportereignis	58	3	événement sportif
 sportergebnis	Sportergebnis	58	3	résultat sportif
 sportfest	Sportfest	58	3	fête du sport
@@ -53096,8 +53098,8 @@ steuerflucht	Steuerflucht	58	3	évasion fiscale
 steuerfluchtling	Steuerflüchtling	58	3	évadé fiscal
 steuerfrau	Steuerfrau	58	3	timonière, barreuse
 steuerfrei	steuerfrei	58	3	en franchise, exonéré
-steuerfreibetrag	Steuerfreibetrag	58	3	montant non imposable
-steuergeld	Steuergeld	58	3	deniers publics
+steuerfreibetrag	Steuerfreibetrag	59	3	montant non imposable
+steuergeld	Steuergeld	59	3	deniers publics
 steuergerat	Steuergerät	59	3	unité de commande électronique
 steuergerechtigkeit	Steuergerechtigkeit	59	3	équité fiscal
 steuergeschenk	Steuergeschenk	59	3	cadeau fiscal
@@ -53996,8 +53998,8 @@ suffragette	Suffragette	59	3	suffragette
 sufi	Sufi	59	3	soufi, soufiste
 sufismus	Sufismus	59	3	soufisme, sufisme
 sufist	Sufist	59	3	soufi
-sugardaddy	Sugardaddy	59	3	papa-gâteau, sugar daddy
-suggerieren	suggerieren	59	3	suggérer, laisser entendre
+sugardaddy	Sugardaddy	60	3	papa-gâteau, sugar daddy
+suggerieren	suggerieren	60	3	suggérer, laisser entendre
 suggestiv	suggestiv	60	3	suggestif
 suggestivfrage	Suggestivfrage	60	3	question suggestive
 suhlen	suhlen	60	3	souiller, vautrer
@@ -54896,8 +54898,8 @@ telefonkontakt	Telefonkontakt	60	3	contact téléphonique
 telefonnetz	Telefonnetz	60	3	réseau téléphonique
 telefonnummer	Telefonnummer	60	1	numéro de téléphone, numéro d'appel téléphonique
 telefonterror	Telefonterror	60	3	harcèlement téléphonique
-telefonverbindung	Telefonverbindung	60	3	liaison téléphonique
-telefonvorwahl	Telefonvorwahl	60	3	préfixe, indicatif
+telefonverbindung	Telefonverbindung	61	3	liaison téléphonique
+telefonvorwahl	Telefonvorwahl	61	3	préfixe, indicatif
 telefonzelle	Telefonzelle	61	2	cabine téléphonique, Publiphone, publiphone
 telefonzellentur	Telefonzellentür	61	3	porte de cabine téléphonique
 telefonzentrale	Telefonzentrale	61	3	standard téléphonique
@@ -55796,8 +55798,8 @@ totenbeschworung	Totenbeschwörung	61	3	nécromancie
 totenbuch	Totenbuch	61	3	livre des morts
 totenfleck	Totenfleck	61	3	lividités cadavériques
 totenglocke	Totenglocke	61	3	glas
-totengraber	Totengräber	61	3	fossoyeur, nécrophore
-totengraberin	Totengräberin	61	3	fossoyeuse
+totengraber	Totengräber	62	3	fossoyeur, nécrophore
+totengraberin	Totengräberin	62	3	fossoyeuse
 totenkopf	Totenkopf	62	3	tête de mort
 totenkult	Totenkult	62	3	culte des morts
 totenlager	Totenlager	62	3	lit de mort
@@ -56696,8 +56698,8 @@ typisch	typisch	62	1	typique
 typischerweise	typischerweise	62	3	typiquement
 typo	Typo	62	3	faute de frappe
 typometer	Typometer	62	3	typomètre
-typus	Typus	62	1	type
-tyrann	Tyrann	62	2	tyran, tyranneau
+typus	Typus	63	1	type
+tyrann	Tyrann	63	2	tyran, tyranneau
 tyrannei	Tyrannei	63	2	tyrannie
 tyrannosaurus	Tyrannosaurus	63	3	tyrannosaure, Tyrannosaurus
 tyrannosaurus rex	Tyrannosaurus Rex	63	3	tyrannosaure
@@ -57596,8 +57598,8 @@ ungezogen	ungezogen	63	2	mal élevé
 ungezwungen	ungezwungen	63	3	décontracté, non guindé
 ungiftig	ungiftig	63	3	atoxique, non toxique
 unglaubig	ungläubig	63	2	incroyant, incrédule, incroyante
-unglaubige	Ungläubige	63	3	infidèle, incroyante, mécréante
-unglaubiger	Ungläubiger	63	3	mécréant
+unglaubige	Ungläubige	64	3	infidèle, incroyante, mécréante
+unglaubiger	Ungläubiger	64	3	mécréant
 unglaublich	unglaublich	64	1	incroyable, invraisemblable
 ungleich	ungleich	64	2	différent
 ungleichgewicht	Ungleichgewicht	64	3	déséquilibre
@@ -58496,8 +58498,8 @@ velodrom	Velodrom	64	3	vélodrome
 velosolex	Vélosolex	64	3	VéloSolex ®, Vélosolex
 velotasche	Velotasche	64	3	sacoche de vélo
 veloursleder	Veloursleder	64	3	daim
-veloziped	Veloziped	64	3	vélocipède
-velozitat	Velozität	64	3	vitesse, allure
+veloziped	Veloziped	65	3	vélocipède
+velozitat	Velozität	65	3	vitesse, allure
 veluwemeer	Veluwemeer	65	3	Veluwemeer
 vena azygos	Vena azygos	65	3	azygos, veine azygos
 vendetta	Vendetta	65	3	vengeance, vendetta
@@ -59396,8 +59398,8 @@ verschrumpeln	verschrumpeln	65	3	se racornir, se ratatiner
 verschulden	verschulden	65	2	causer, provoquer, endetter
 verschuldet	verschuldet	65	3	endetté
 verschuldung	Verschuldung	65	3	endettement
-verschulen	verschulen	65	3	transplanter
-verschutten	verschütten	65	2	renverser, répandre, recouvrir
+verschulen	verschulen	66	3	transplanter
+verschutten	verschütten	66	2	renverser, répandre, recouvrir
 verschweigen	verschweigen	66	2	taire, omettre
 verschweissen	verschweißen	66	3	souder
 verschwenden	verschwenden	66	1	gaspiller, dissiper, dilapider
@@ -59822,7 +59824,7 @@ viehzaun	Viehzaun	66	3	clôture pour le bétail
 viehzucht	Viehzucht	66	3	élevage
 viel	viel	66	0	bien, beaucoup
 viel geschrei und wenig wolle	viel Geschrei und wenig Wolle	66	3	
-viel gluck	viel Glück	66	3	Bonne chance, Je te souhaite bonne chance
+viel gluck	viel Glück	66	3	bonne chance
 viel holz vor der hutte haben	viel Holz vor der Hütte haben	66	3	
 viel um die ohren haben	viel um die Ohren haben	66	3	avoir du pain sur la planche
 viel wind um etwas machen	viel Wind um etwas machen	66	3	
@@ -60275,7 +60277,7 @@ von sich aus	von sich aus	66	3
 von tuten und blasen keine ahnung haben	von Tuten und Blasen keine Ahnung haben	66	3	
 von vornherein	von vornherein	66	3	d'emblée
 von wannen	von wannen	66	3	d’où
-von wegen	von wegen	66	3	Mon cul, Mon œil, Tu parles
+von wegen	von wegen	66	3	Mon œil, Tu parles, Des clous
 von zeit zu zeit	von Zeit zu Zeit	66	3	de temps en temps
 vonnoten	vonnöten	66	2	nécessaire, nécessairement
 vonstattengehen	vonstattengehen	66	3	développer, dérouler, poursuivre
@@ -60296,8 +60298,8 @@ vor sich hin	vor sich hin	66	3	tout, seul, devant
 vor versammelter mannschaft	vor versammelter Mannschaft	66	3	
 vor-	vor-	66	3	anté-
 vorab	vorab	66	3	préalablement, au préalable
-vorabend	Vorabend	66	2	veille
-vorahnung	Vorahnung	66	2	pressentiment, présentiment
+vorabend	Vorabend	67	2	veille
+vorahnung	Vorahnung	67	2	pressentiment, présentiment
 voran	voran	67	1	en avant, en tête
 voranbringen	voranbringen	67	2	faire avancer
 vorangehen	vorangehen	67	2	aller, avant, avancer
@@ -61196,8 +61198,8 @@ waschekorb	Wäschekorb	67	3	panier à linge
 wascheleine	Wäscheleine	67	3	corde à linge
 waschemangel	Wäschemangel	67	3	essoreuse à rouleaux
 waschemann	Wäschemann	67	3	colporteur de lingerie
-waschen	Waschen	67	2	lavage
-waschen	waschen	67	0	laver, blanchir
+waschen	Waschen	68	2	lavage
+waschen	waschen	68	0	laver, blanchir
 waschepuff	Wäschepuff	68	3	panier à linge, corbeille à linge
 wascher	Wäscher	68	3	blanchisseur
 wascherei	Wäscherei	68	3	laverie, blanchisserie
@@ -62096,8 +62098,8 @@ wenfall	Wenfall	68	3	accusatif
 wengen	Wengen	68	3	Wengen, La Valle
 wenig	wenig	68	0	peu, peu de, quelques
 wenigstens	wenigstens	68	1	au moins
-wenn	wenn	68	0	si, quand, lorsque
-wenn alle stricke reissen	wenn alle Stricke reißen	68	3	dans le pire des cas
+wenn	wenn	69	0	si, quand, lorsque
+wenn alle stricke reissen	wenn alle Stricke reißen	69	3	dans le pire des cas
 wenn die katze aus dem haus ist, tanzen die mause auf dem tisch	wenn die Katze aus dem Haus ist, tanzen die Mäuse auf dem Tisch	69	3	quand le chat n’est pas là, les souris dansent, le chat par…
 wenn es hoch kommt	wenn es hoch kommt	69	3	
 wenn man vom teufel spricht	wenn man vom Teufel spricht	69	3	quand on parle du loup
@@ -62432,7 +62434,7 @@ wie gehts	wie gehts	69	3
 wie geradert sein	wie gerädert sein	69	3	
 wie gestochen	wie gestochen	69	3	
 wie gewonnen, so zerronnen	wie gewonnen, so zerronnen	69	3	le gain aussitôt dévoré que touché
-wie heissen sie	wie heißen Sie	69	3	Comment vous appelez-vous, Comment est-ce que vous vous app…
+wie heissen sie	wie heißen Sie	69	3	Comment vous appelez-vous
 wie heisst du	wie heißt du	69	3	Comment est-ce que tu t'appelles, Comment tu t’appelles, Co…
 wie im bilderbuch	wie im Bilderbuch	69	3	
 wie in abrahams schoss	wie in Abrahams Schoß	69	3	sein d’Abraham
@@ -62996,8 +62998,8 @@ wohnstrasse	Wohnstraße	69	3	rue de quartier résidentiel
 wohnstube	Wohnstube	69	3	salle de séjour, salon
 wohnung	Wohnung	69	0	appartement, demeure, domicile
 wohnungsamt	Wohnungsamt	69	3	office du logement, service du logement
-wohnungsbau	Wohnungsbau	69	3	construction de logement
-wohnungsbesichtigung	Wohnungsbesichtigung	69	3	visite du logement
+wohnungsbau	Wohnungsbau	70	3	construction de logement
+wohnungsbesichtigung	Wohnungsbesichtigung	70	3	visite du logement
 wohnungsbesitzer	Wohnungsbesitzer	70	3	propriétaire un appartement
 wohnungsbrand	Wohnungsbrand	70	3	incendie appartement
 wohnungsdurchsuchung	Wohnungsdurchsuchung	70	3	perquisition appartement
@@ -63896,8 +63898,8 @@ zentralafrikanische republik	Zentralafrikanische Republik	70	3	République centr
 zentralanatolien	Zentralanatolien	70	3	Anatolie centrale
 zentralarchiv	Zentralarchiv	70	3	archives centrales
 zentralasien	Zentralasien	70	2	Asie centrale
-zentralbank	Zentralbank	70	2	banque centrale
-zentralbibliothek	Zentralbibliothek	70	3	bibliothèque centrale
+zentralbank	Zentralbank	71	2	banque centrale
+zentralbibliothek	Zentralbibliothek	71	3	bibliothèque centrale
 zentrale	Zentrale	71	3	siège, quartier général, centrale
 zentraleuropa	Zentraleuropa	71	3	Europe centrale
 zentralfriedhof	Zentralfriedhof	71	3	cimetière central
@@ -64796,8 +64798,8 @@ zusammenhalt	Zusammenhalt	71	3	cohésion
 zusammenhalten	zusammenhalten	71	2	être solidaire, lier ensemble
 zusammenhang	Zusammenhang	71	1	rapport, relation, lien
 zusammenhangen	zusammenhängen	71	2	dépendre de, être en rapport avec
-zusammenhangend	zusammenhängend	71	3	cohérent
-zusammenhanglosigkeit	Zusammenhanglosigkeit	71	3	raideur, rudesse
+zusammenhangend	zusammenhängend	72	3	cohérent
+zusammenhanglosigkeit	Zusammenhanglosigkeit	72	3	raideur, rudesse
 zusammenhelfen	zusammenhelfen	72	3	s'entraider
 zusammenhocken	zusammenhocken	72	3	être asseoir ensemble
 zusammenklappen	zusammenklappen	72	3	s’écrouler, s’effondrer

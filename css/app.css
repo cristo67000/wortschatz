@@ -1152,3 +1152,10 @@ textarea.saisie-perso { resize: vertical; line-height: 1.5; }
 
 .dictionnaire-detail { margin: .2rem 0 .8rem; }
 .etat-installe { color: var(--das); font-weight: 600; }
+
+/* Une expression sans équivalent se lit, mais ne s'apprend pas : sa ligne
+   pâlit, et la mention prend la place de la traduction absente. */
+.resultat.sans-equivalent .mot,
+.expression-ligne.sans-equivalent .mot { opacity: .7; font-weight: 500; }
+.resultat.sans-equivalent .traduction,
+.expression-ligne.sans-equivalent .traduction { font-style: italic; }

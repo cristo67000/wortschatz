@@ -824,7 +824,7 @@ a perfection	à perfection	0	3	perfekt
 a perpetuite	à perpétuité	0	3	lebenslang
 a perte	à perte	0	3	
 a perte de vue	à perte de vue	0	3	Soweit das Auge reicht
-a petit feu	à petit feu	0	3	auf kleiner Flamme
+a petit feu	à petit feu	0	3	auf kleiner Flamme, bei schwacher Hitze, langsam
 a petit manger, bien boire	à petit manger, bien boire	0	3	
 a petits pas	à petits pas	0	3	
 a peu de chose pres	à peu de chose près	0	3	
@@ -4945,7 +4945,7 @@ au passage	au passage	5	3
 au peril de	au péril de	5	3	
 au petit bonheur	au petit bonheur	5	3	
 au petit bonheur de	au petit bonheur de	5	3	
-au petit bonheur la chance	au petit bonheur la chance	5	3	querbeet
+au petit bonheur la chance	au petit bonheur la chance	5	3	aufs Geratewohl, auf gut Glück
 au pied	au pied	5	3	
 au pied de la lettre	au pied de la lettre	5	3	
 au pied du mur	au pied du mur	5	3	Zugzwang, mit dem Rücken zur Wand
@@ -8221,7 +8221,7 @@ bonne fete	bonne fête	9	3
 bonne fille	bonne fille	9	3	
 bonne foi	bonne foi	9	3	Aufrichtigkeit
 bonne fortune	bonne fortune	9	3	unverhoffter Glücksfall
-bonne journee	bonne journée	9	3	Schönen Tag, Einen schönen Tag noch, Einen schönen Tag dir …
+bonne journee	bonne journée	9	3	Schönen Tag, Einen schönen Tag noch
 bonne mere	bonne mère	9	3	
 bonne nuit	bonne nuit	9	3	gute Nacht
 bonne poire	bonne poire	9	3	
@@ -9298,14 +9298,14 @@ c'est coton	c’est coton	10	3
 c'est dans la poche	c’est dans la poche	10	3	
 c'est dans les vieux pots qu'on fait la meilleure soupe	c’est dans les vieux pots qu’on fait la meilleure soupe	10	3	
 c'est dans les vieux pots qu'on fait les meilleures confitures	c’est dans les vieux pots qu’on fait les meilleures confitures	10	3	
-c'est de l'hebreu	c’est de l’hébreu	10	3	Das sind für mich böhmische Dörfer
+c'est de l'hebreu	c’est de l’hébreu	10	3	
 c'est de la balle	c’est de la balle	10	3	
 c'est de la couille de loup	c’est de la couille de loup	10	3	
 c'est de la merde	c’est de la merde	10	3	Das ist Mist
 c'est de la moutarde apres diner	c’est de la moutarde après dîner	10	3	
 c'est dire	c’est dire	10	3	
 c'est du beau	c’est du beau	10	3	
-c'est du chinois	c’est du chinois	10	3	Ich verstehe nur Bahnhof, Das sind für mich böhmische Dörfer
+c'est du chinois	c’est du chinois	10	3	Ich verstehe nur Bahnhof
 c'est du gateau	c’est du gâteau	10	3	
 c'est du tout cuit	c’est du tout cuit	10	3	
 c'est egal	c’est égal	10	3	ist egal
@@ -9391,14 +9391,14 @@ ca ira	ça ira	10	3	Das wird gehen, Das legt sich
 ca m'en touche une sans faire bouger l'autre	ça m’en touche une sans faire bouger l’autre	10	3	
 ca m'est egal	ça m’est égal	10	3	das ist mir egal
 ca mange pas de pain	ça mange pas de pain	10	3	
-ca marche	ça marche	10	3	Abgemacht, In Ordnung, Es klappt
+ca marche	ça marche	10	3	Abgemacht, Es klappt, Funktioniert das
 ca ne fait rien	ça ne fait rien	10	3	Das macht nichts, Macht nichts, Es spielt keine Rolle
 ca ne mange pas de pain	ça ne mange pas de pain	10	3	Das isst kein Brot., Das kann nicht schaden., Das kostet ni…
 ca par exemple	ça par exemple	10	3	
 ca parle	ça parle	10	3	
 ca passe creme	ça passe crème	10	3	flutschen, geschmiert
 ca passe ou ca casse	ça passe ou ça casse	10	3	mag es biegen oder brechen
-ca promet	ça promet	10	3	Das fängt ja gut an
+ca promet	ça promet	10	3	
 ca roule	ça roule	10	3	Einverstanden, okay, kein Thema
 ca sonne	ça sonne	10	3	
 ca suffit	ça suffit	10	3	Es genügt, Es reicht, Es ist genug
@@ -29423,7 +29423,7 @@ jusquiame noire	jusquiame noire	32	3	Schwarzes Bilsenkraut, schwarzes Bilsenkrau
 justaucorps	justaucorps	32	3	Wams, Justaucorps
 juste	juste	32	0	nur, richtig, knapp
 juste a temps	juste à temps	32	3	
-juste ciel	juste ciel	32	3	Mein lieber Herr Gesangverein, Mein lieber Scholli, Mein li…
+juste ciel	juste ciel	32	3	Mein lieber Scholli, Mein lieber Schwan, Gütiger Himmel
 juste milieu	juste milieu	32	3	goldenen Mittelweg, goldene Mitte
 justement	justement	32	1	gerade, genau, eben
 justice	justice	32	1	Gerechtigkeit, Justiz
@@ -34667,7 +34667,7 @@ moineau friquet	moineau friquet	38	3	Feldsperling
 moineau gris	moineau gris	38	3	Graukopfsperling
 moineau soulcie	moineau soulcie	38	3	ateinsperling
 moins	moins	38	0	wenig, weniger, wenigste
-moins que rien	moins que rien	38	3	
+moins que rien	moins que rien	38	3	ein Nichts, eine Null, ein Niemand
 moins-que-rien	moins-que-rien	38	2	Niemand
 moires	Moires	38	3	Moiren
 mois	mois	38	0	Monat
@@ -45916,7 +45916,7 @@ riebeckite	riébeckite	51	3	Riebeckit
 riel	riel	51	3	Riel
 rien	rien	51	0	nichts, nix
 rien a branler	rien à branler	51	3	
-rien a cirer	rien à cirer	51	3	Damit habe ich nichts am Hut
+rien a cirer	rien à cirer	51	3	
 rien a faire	rien à faire	51	3	
 rien a foutre	rien à foutre	51	3	
 rien a secouer	rien à secouer	51	3	
@@ -48795,7 +48795,7 @@ simon	Simon	54	2	Simon
 simone	Simone	54	3	Simone
 simonie	simonie	54	3	Simonie, Ämterkauf
 simple	simple	54	0	einfach, schlicht
-simple comme bonjour	simple comme bonjour	54	3	
+simple comme bonjour	simple comme bonjour	54	3	kinderleicht, ein Kinderspiel
 simple d'esprit	simple d’esprit	54	3	
 simplement	simplement	54	0	nur, einfach
 simples	simples	54	1	Heilkräuter
@@ -53620,7 +53620,7 @@ umm al-qaiwain	Umm al-Qaiwain	59	3	Umm al-Qaiwain
 umpolung	umpolung	59	3	Umpolung
 un	un	59	0	ein, eins, eine
 un a un	un à un	59	3	
-un ange passe	un ange passe	59	3	Ein Engel fliegt durch die Stube, Ein Engel geht durchs Zim…
+un ange passe	un ange passe	59	3	Ein Engel geht durchs Zimmer
 un argent fou	un argent fou	59	3	Heidengeld
 un beau jour	un beau jour	59	3	
 un bienfait n'est jamais perdu	un bienfait n’est jamais perdu	59	3	
@@ -55253,7 +55253,7 @@ voyelle	voyelle	61	2	Vokal, Selbstlaut
 voyelle anterieure	voyelle antérieure	61	3	Vorderzungenvokal
 voyelle posterieure	voyelle postérieure	61	3	Hinterzungenvokal
 voyeur	voyeur	61	3	Spanner, Voyeur
-voyons voir	voyons voir	61	3	Schauen wir mal, Mal sehen, Sehen wir uns das mal an
+voyons voir	voyons voir	61	3	Schauen wir mal, Mal sehen, Lass sehen
 voyou	voyou	61	1	Taugenichts
 vrai	vrai	61	0	echt, recht, wahr
 vraiment	vraiment	61	0	wirklich, ehrlich, tatsächlich

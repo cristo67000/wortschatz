@@ -372,10 +372,16 @@
    * encore passer par `vedette()` pour savoir dans quelle tranche elles vivent.
    * Un mot qui n'y est pas rend une liste vide, jamais une erreur.
    */
+  /* Les expressions rangées sous un mot — ou sous tous les mots qui commencent
+   * ainsi, pendant la frappe. L'index est complet : sous « de », le paquet
+   * complet en range près de deux mille, et on les lit toutes. C'est le seul
+   * moyen qu'une recherche à deux mots retrouve « de bonne heure » : chaque
+   * mot rend sa liste entière, et c'est leur intersection qui isole. Le
+   * plafond ne sert qu'aux appelants qui veulent s'arrêter tôt. */
   function expressionsPar(langue, k, plafond) {
     const index = etat.expressions[langue];
     if (!index || !k) return [];
-    const limite = plafond || 40;
+    const limite = plafond || Infinity;
     const sortie = [];
     const vues = new Set();
     let numero = premiereLigne(index, k);
@@ -406,16 +412,18 @@
    * trouve aussi par sa traduction française.
    *
    * Le classement : d'abord les expressions atteintes par un mot **entier**
-   * (« feu » plutôt que « feuille »), puis les plus courantes, puis les plus
-   * courtes. Ce qui est cherché n'est plus dans la liste s'il y est déjà
-   * comme vedette : l'appelant retire les doublons avec ses propres résultats.
+   * (« feu » plutôt que « feuille »), puis celles qui ont un équivalent —
+   * elles s'apprennent, les autres se lisent —, puis les plus courantes,
+   * puis les plus courtes. La liste est rendue entière ; c'est à l'affichage
+   * de n'en montrer que le début. L'appelant retire les doublons avec ses
+   * propres résultats de mots.
    */
   function chercherExpressions(saisie, plafond) {
     const k = cle(saisie);
     if (!k) return [];
     const mots = k.split(' ').filter((m) => m.length >= 2);
     if (!mots.length) return [];
-    const limite = plafond || 30;
+    const limite = plafond || Infinity;
 
     // Le mot le plus discriminant en premier : le plus long.
     const ordonnes = mots.slice().sort((a, b) => b.length - a.length);
@@ -423,7 +431,7 @@
     for (const mot of ordonnes) {
       const lot = new Map();
       for (const langue of ['de', 'fr']) {
-        for (const ref of expressionsPar(langue, mot, 120)) {
+        for (const ref of expressionsPar(langue, mot)) {
           const empreinte = ref.langue + ' ' + ref.mot;
           const deja = lot.get(empreinte);
           if (!deja || (ref.exact && !deja.exact)) lot.set(empreinte, ref);
@@ -445,15 +453,17 @@
       if (!v) continue;
       v.exact = ref.exact;
       v.expression = true;
+      v.sansEquivalent = !v.apercu;
       resultats.push(v);
     }
     resultats.sort((a, b) => {
       if (a.exact !== b.exact) return a.exact ? -1 : 1;
+      if (a.sansEquivalent !== b.sansEquivalent) return a.sansEquivalent ? 1 : -1;
       if (a.bande !== b.bande) return a.bande - b.bande;
       if (a.mot.length !== b.mot.length) return a.mot.length - b.mot.length;
       return a.mot < b.mot ? -1 : (a.mot > b.mot ? 1 : 0);
     });
-    return resultats.slice(0, limite);
+    return limite === Infinity ? resultats : resultats.slice(0, limite);
   }
 
   /* Les expressions qui contiennent une vedette donnée, pour le bas de sa
@@ -465,25 +475,38 @@
     const sortie = [];
     const vues = new Set();
     for (const langue of ['de', 'fr']) {
-      for (const ref of expressionsPar(langue, k, 200)) {
+      for (const ref of expressionsPar(langue, k)) {
         if (!ref.exact) continue;
         const empreinte = ref.langue + ' ' + ref.mot;
         if (vues.has(empreinte)) continue;
         if (ref.langue === entree.langue && ref.mot === entree.mot) continue;
         vues.add(empreinte);
         const v = vedette(ref.langue, ref.mot);
-        if (v) { v.expression = true; sortie.push(v); }
+        if (v) { v.expression = true; v.sansEquivalent = !v.apercu; sortie.push(v); }
       }
     }
     sortie.sort((a, b) => {
-      // La langue de la fiche d'abord, puis les plus courantes, puis les courtes.
+      // La langue de la fiche d'abord, puis les traduites, puis les plus
+      // courantes, puis les courtes.
       const memeLangueA = a.langue === entree.langue ? 0 : 1;
       const memeLangueB = b.langue === entree.langue ? 0 : 1;
       if (memeLangueA !== memeLangueB) return memeLangueA - memeLangueB;
+      if (a.sansEquivalent !== b.sansEquivalent) return a.sansEquivalent ? 1 : -1;
       if (a.bande !== b.bande) return a.bande - b.bande;
       return a.mot.length - b.mot.length;
     });
     return plafond ? sortie.slice(0, plafond) : sortie;
+  }
+
+  /* Une entrée est-elle une expression usuelle ?
+   *
+   * Pour le dictionnaire, c'est sa provenance qui le dit — « dico »,
+   * « tatoeba », « croisee », « attestee », « editorial » —, jamais le seul
+   * fait d'avoir plusieurs mots : « base de données » ou « Republik Kuba »
+   * sont des mots à plusieurs morceaux. Pour une entrée personnelle, c'est
+   * un choix explicite au formulaire, que `Perso` traduit en « perso ». */
+  function estExpression(entree) {
+    return !!(entree && entree.expression);
   }
 
   // ── Ouverture d'une entrée ────────────────────────────────────────────────
@@ -612,7 +635,7 @@
     entreesAuHasard,
     nombreDeTranches,
     lemmes,
-    expressionsPar, chercherExpressions, expressionsAvec,
+    expressionsPar, chercherExpressions, expressionsAvec, estExpression,
     etat,
     get paquet() { return etat.paquet; },
     get manifeste() { return etat.manifeste; },

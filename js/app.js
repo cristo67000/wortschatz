@@ -63,17 +63,48 @@
     if (resultat.perso) {
       bouton.appendChild(element('span', 'pastille perso', I18n.t('perso.marque')));
     }
-    bouton.appendChild(element('span', 'traduction', resultat.apercu));
+    /* Une expression sans équivalent se lit, mais ne s'apprend pas : elle le
+     * dit à la place de la traduction qu'elle n'a pas, et la ligne pâlit. */
+    if (resultat.expression && !resultat.apercu) {
+      bouton.classList.add('sans-equivalent');
+      bouton.appendChild(element('span', 'traduction discret',
+        I18n.t('expression.sans-equivalent')));
+    } else {
+      bouton.appendChild(element('span', 'traduction', resultat.apercu));
+    }
     bouton.addEventListener('click', () => ouvrirFiche(resultat));
     const ligne = element('li');
     ligne.appendChild(bouton);
     return ligne;
   }
 
-  /* Combien d'expressions on montre d'abord. Sur « de » ou « der », il y en
-   * aurait des dizaines ; six suffisent à voir si l'on est sur la bonne piste,
-   * et « Voir plus » déplie le reste. */
+  /* Combien d'expressions on montre d'abord, et combien chaque « Voir plus »
+   * en ajoute. Sur « de » ou « faire », le paquet complet en compte des
+   * centaines ; six suffisent à voir si l'on est sur la bonne piste, et
+   * chaque clic en déplie deux douzaines de plus — jusqu'à la dernière, car
+   * rien de ce que l'index sait n'est hors de portée. */
   const EXPRESSIONS_VISIBLES = 6;
+  const EXPRESSIONS_PAR_PAGE = 24;
+
+  /* Déplie une liste par pages : `ajouter(lot)` reçoit ce qu'il faut afficher,
+   * le bouton dit combien il reste et disparaît quand il n'y a plus rien. */
+  function boutonVoirPlus(reste, cleLibelle, ajouter) {
+    if (!reste.length) return null;
+    const plus = element('button', 'lien-discret');
+    plus.type = 'button';
+    let position = 0;
+    const libeller = () => {
+      plus.textContent = I18n.n(cleLibelle, reste.length - position);
+    };
+    libeller();
+    plus.addEventListener('click', () => {
+      ajouter(reste.slice(position, position + EXPRESSIONS_PAR_PAGE));
+      position += EXPRESSIONS_PAR_PAGE;
+      if (position >= reste.length) plus.remove();
+      else libeller();
+    });
+    return plus;
+  }
 
   /* Les expressions usuelles, en groupe à part sous les mots.
    *
@@ -97,17 +128,10 @@
     for (const resultat of visibles) liste.appendChild(ligneDeResultat(resultat));
     bloc.appendChild(liste);
 
-    const reste = retenues.slice(EXPRESSIONS_VISIBLES);
-    if (reste.length) {
-      const plus = element('button', 'lien-discret',
-        I18n.n('chercher.expressions.plus', reste.length));
-      plus.type = 'button';
-      plus.addEventListener('click', () => {
-        for (const resultat of reste) liste.appendChild(ligneDeResultat(resultat));
-        plus.remove();
-      });
-      bloc.appendChild(plus);
-    }
+    const plus = boutonVoirPlus(retenues.slice(EXPRESSIONS_VISIBLES),
+      'chercher.expressions.plus',
+      (lot) => { for (const resultat of lot) liste.appendChild(ligneDeResultat(resultat)); });
+    if (plus) bloc.appendChild(plus);
   }
 
   function dessinerResultats(resultats, saisie) {
@@ -117,15 +141,16 @@
     suite.textContent = '';
 
     /* Les expressions usuelles atteintes par un mot de la saisie — depuis
-     * l'index du dictionnaire, et depuis ses propres entrées à plusieurs
-     * mots. Un mot personnel d'un seul mot n'est pas une expression. */
+     * l'index du dictionnaire, et depuis ses propres entrées. Celles-ci
+     * arrivent dans la recherche des mots, où « Lust » atteint « Ich habe
+     * keine Lust » par un mot intérieur ; si on les a déclarées expressions,
+     * elles passent au groupe des expressions, en tête — on les a écrites
+     * soi-même. Tapée en entier, l'expression reste un résultat exact. */
+    const siennes = resultats.filter((r) => r.perso && r.expression && !r.exact);
+    resultats = resultats.filter((r) => siennes.indexOf(r) === -1);
     const vus = new Set(resultats.map((r) => r.langue + ' ' + r.mot + (r.perso || '')));
     const expressions = saisie ? Lexique.chercherExpressions(saisie) : [];
-    if (saisie && racine.Perso) {
-      for (const r of Perso.chercher(Lexique.cle(saisie), 12)) {
-        if (r.mot.indexOf(' ') !== -1) expressions.push(Object.assign({ expression: true }, r));
-      }
-    }
+    expressions.unshift(...siennes);
     dessinerExpressions(expressions, vus);
 
     /* Où placer le groupe des expressions.
@@ -306,6 +331,21 @@
     fiche.appendChild(document.createTextNode(' · ' + I18n.t(
       'reglages.dictionnaire.phrases',
       { n: actif.phrases.toLocaleString(I18n.langue) })));
+    /* Les expressions usuelles : celles qui ont un équivalent s'apprennent,
+     * les autres se consultent seulement — deux nombres, pas un. */
+    if (actif.expressions_traduites) {
+      const traduitesExpr = actif.expressions_traduites.de + actif.expressions_traduites.fr;
+      const lecture = actif.expressions_sans_equivalent
+        ? actif.expressions_sans_equivalent.de + actif.expressions_sans_equivalent.fr : 0;
+      fiche.appendChild(document.createTextNode(' · ' + I18n.t(
+        'reglages.dictionnaire.expressions',
+        { n: traduitesExpr.toLocaleString(I18n.langue) })));
+      if (lecture) {
+        fiche.appendChild(document.createTextNode(' · ' + I18n.t(
+          'reglages.dictionnaire.expressions.lecture',
+          { n: lecture.toLocaleString(I18n.langue) })));
+      }
+    }
     zone.appendChild(fiche);
 
     if (installeComplet) {

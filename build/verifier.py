@@ -279,7 +279,7 @@ def verifier_paquet(nom, manifeste):
 
 
 # Les provenances qu'une expression peut porter — voir build/expressions.py.
-PROVENANCES = {"dico", "tatoeba", "croisee", "attestee"}
+PROVENANCES = {"dico", "tatoeba", "croisee", "attestee", "editorial"}
 
 
 def verifier_expressions(dossier, langue, nom, manifeste, vedettes, vues):

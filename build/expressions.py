@@ -49,9 +49,11 @@ fréquents — « de », « à », « der » — auraient des listes démesurée
 plafonne, les expressions les plus courantes d'abord.
 """
 
+import io
 import json
 import re
 from collections import defaultdict
+from pathlib import Path
 
 import commun
 import corpus
@@ -94,6 +96,17 @@ SOURCE_DICTIONNAIRE = "dico"       # WikDict, ou une table de traduction du Wikt
 SOURCE_TATOEBA = "tatoeba"         # attestée par un Wiktionnaire, traduite par Tatoeba
 SOURCE_CROISEE = "croisee"         # glosée par l'édition d'en face
 SOURCE_ATTESTEE = "attestee"       # attestée, définie, mais sans équivalent connu
+SOURCE_EDITORIALE = "editorial"    # relue à la main : build/expressions_editoriales.json
+
+# Les provenances qui donnent un équivalent utilisable en révision. Une
+# expression « attestée » se lit, mais ne s'apprend pas.
+SOURCES_TRADUITES = {SOURCE_DICTIONNAIRE, SOURCE_TATOEBA, SOURCE_CROISEE, SOURCE_EDITORIALE}
+
+# Un équivalent de Tatoeba ne doit pas être beaucoup plus long que
+# l'expression : « Je te souhaite bonne chance » traduit la phrase « Viel
+# Glück ! », pas la formule. Deux mots de marge, et trois équivalents au plus.
+EQUIVALENT_MARGE = 2
+EQUIVALENTS_TATOEBA_MAX = 3
 
 
 def mots_de(texte):
@@ -282,6 +295,18 @@ def glose_en_equivalents(glose):
     return equivalents, explications
 
 
+def equivalent_plausible(equivalent, expression):
+    """Un équivalent relevé dans Tatoeba peut-il valoir pour la formule ?
+
+    Tatoeba traduit des phrases : une réplique évasive (« Alors là… »), ou une
+    phrase entière là où la formule tient en deux mots, en sortent aussi. On
+    écarte ce qui reste en suspens et ce qui déborde de plus de deux mots.
+    """
+    if "…" in equivalent or "..." in equivalent:
+        return False
+    return len(mots_de(equivalent)) <= len(mots_de(expression)) + EQUIVALENT_MARGE
+
+
 def enregistrement_en_entree(enregistrement, langue, tatoeba, croises, journal):
     """Une expression attestée par un Wiktionnaire → une entrée, si elle vaut.
 
@@ -310,11 +335,16 @@ def enregistrement_en_entree(enregistrement, langue, tatoeba, croises, journal):
     attestations = enregistrement.get("attestations", 1)
     if ligne and (len(ligne["equivalents"]) >= 2 or attestations >= 2):
         classes = sorted(ligne["equivalents"].items(), key=lambda x: -x[1])
-        for kg, _poids in classes[:EQUIVALENTS_MAX]:
+        retenus = 0
+        for kg, _poids in classes:
             g = ligne["graphies_eq"][kg]
-            if g not in traductions:
-                traductions.append(g)
-        if source is None and classes:
+            if not equivalent_plausible(g, mot) or g in traductions:
+                continue
+            traductions.append(g)
+            retenus += 1
+            if retenus >= EQUIVALENTS_TATOEBA_MAX:
+                break
+        if source is None and retenus:
             source = SOURCE_TATOEBA
 
     explications = []
@@ -493,7 +523,7 @@ def va_au_noyau(entree, cles_du_noyau):
     """
     if not entree.get("expression"):
         return False
-    if entree["expression"] in (SOURCE_TATOEBA, SOURCE_CROISEE):
+    if entree["expression"] in (SOURCE_TATOEBA, SOURCE_CROISEE, SOURCE_EDITORIALE):
         return True
     # Sans équivalent, une expression n'a rien à faire dans le paquet qu'on
     # installe d'office ; elle attend le paquet complet.
@@ -514,17 +544,25 @@ def va_au_noyau(entree, cles_du_noyau):
 # Les mots qu'on n'indexe pas : trop courts pour désigner quoi que ce soit.
 LONGUEUR_MIN = 2
 
-# Combien d'expressions au plus sous un même mot. « de » ou « der » en
-# contiendraient des centaines ; on garde les plus courantes.
-PAR_MOT_MAX = 40
+def est_traduite(entree):
+    """L'expression a-t-elle un équivalent — se révise-t-elle ?"""
+    return any(bloc[1] for lecture in entree["lectures"] for bloc in lecture[4])
 
 
 def index_des_mots(entrees_par_langue, positions):
-    """{langue du mot: {mot: [(rang, langue de l'expression, vedette)]}}.
+    """{langue du mot: {mot: [(priorité, rang, langue de l'expression, vedette)]}}.
 
     Chaque expression est rangée sous chacun des mots de sa vedette (dans sa
     langue) et de ses traductions (dans l'autre langue) : « à petit feu » se
     trouve par « feu » côté français et par « Flamme » côté allemand.
+
+    L'index est **complet** : aucun plafond par mot. « de » réunit près de
+    deux mille expressions dans le paquet complet, et une ligne de cinquante
+    kilooctets se lit en une dichotomie ; un plafond, lui, rendrait la
+    quarante-et-unième introuvable pour toujours, y compris quand on tape
+    « de » avec un second mot qui l'aurait isolée. C'est à l'affichage de
+    borner, pas à l'index. Sous chaque mot, les expressions traduites passent
+    devant celles qui n'ont pas d'équivalent, puis les plus courantes.
     """
     index = {"de": defaultdict(list), "fr": defaultdict(list)}
     for langue, entrees in entrees_par_langue.items():
@@ -534,12 +572,13 @@ def index_des_mots(entrees_par_langue, positions):
                 continue
             mot = entree["mot"]
             rang = positions[langue].get(mot, 10 ** 9)
+            priorite = 0 if est_traduite(entree) else 1
             vus = set()
             for morceau in mots_de(mot):
                 k = commun.cle(morceau)
                 if len(k) >= LONGUEUR_MIN and k not in vus:
                     vus.add(k)
-                    index[langue][k].append((rang, langue, mot))
+                    index[langue][k].append((priorite, rang, langue, mot))
             vus_autre = set()
             for lecture in entree["lectures"]:
                 for bloc in lecture[4]:
@@ -548,7 +587,7 @@ def index_des_mots(entrees_par_langue, positions):
                             k = commun.cle(morceau)
                             if len(k) >= LONGUEUR_MIN and k not in vus_autre:
                                 vus_autre.add(k)
-                                index[autre][k].append((rang, langue, mot))
+                                index[autre][k].append((priorite, rang, langue, mot))
     return index
 
 
@@ -556,11 +595,11 @@ def ecrire_index(chemin, index_langue, ecrire):
     """Une ligne par mot : `mot ⇥ langue:vedette|langue:vedette|…`, triée."""
     lignes = []
     for mot in sorted(index_langue):
-        liste = sorted(index_langue[mot])[:PAR_MOT_MAX]
+        liste = sorted(index_langue[mot])
         # Une même expression peut être atteinte par deux graphies d'un mot
         # (« Glück » et « Glücks ») ramenées à une seule clé : on dédoublonne.
         vues, morceaux = set(), []
-        for _rang, langue, vedette in liste:
+        for _priorite, _rang, langue, vedette in liste:
             marque = langue + ":" + vedette
             if marque not in vues:
                 vues.add(marque)
@@ -569,3 +608,100 @@ def ecrire_index(chemin, index_langue, ecrire):
     texte = "\n".join(lignes) + "\n"
     ecrire(chemin, texte)
     return len(lignes), len(texte.encode("utf-8"))
+
+
+# --- 4. Le supplément éditorial ----------------------------------------------
+
+# Ce que les sources n'ont pas, ou traduisent mal, relu à la main. Le fichier
+# dit lui-même ce qu'il est et ce qu'il écarte.
+SUPPLEMENT = Path(__file__).resolve().parent / "expressions_editoriales.json"
+
+
+def charger_supplement(chemin=SUPPLEMENT):
+    """Les entrées du supplément, telles qu'écrites — vérifiées au passage."""
+    if not Path(chemin).exists():
+        return []
+    with io.open(chemin, encoding="utf-8") as f:
+        contenu = json.load(f)
+    entrees = contenu.get("entrees", [])
+    for e in entrees:
+        assert e.get("langue") in ("de", "fr"), e
+        assert e.get("mot") and " " in e["mot"], e
+        assert e.get("sens"), e
+        for bloc in e["sens"]:
+            assert bloc.get("definition") and bloc.get("equivalents"), (e["mot"], bloc)
+            for exemple in bloc.get("exemples", ()):
+                assert len(exemple) == 2 and all(exemple), (e["mot"], exemple)
+    return entrees
+
+
+def appliquer_supplement(dictionnaires, supplement, journal):
+    """Verse le supplément au dictionnaire, par-dessus ce qui s'y trouve.
+
+    Une entrée qui existe garde sa vedette, sa prononciation, ses formes et
+    ses voisins ; ses sens et ses équivalents sont remplacés par ceux du
+    supplément. Les citations du Wiktionnaire suivent le sens que `reprend`
+    désigne — un mot de son ancienne définition, ou `*` pour toutes. Une
+    entrée qui n'existe pas est créée. Dans les deux cas la provenance devient
+    « editorial » : la fiche dira que des mains humaines sont passées.
+
+    Rend les exemples rédigés, `(langue, vedette, allemand, français)`, à
+    verser au corpus : ils deviennent les phrases de l'expression.
+    """
+    journal.setdefault("editoriales_creees", 0)
+    journal.setdefault("editoriales_corrigees", 0)
+    exemples = []
+    for record in supplement:
+        langue, mot = record["langue"], record["mot"]
+        entrees = dictionnaires[langue]
+        existante = entrees.get(mot)
+        if existante is None:
+            k = commun.cle(mot)
+            existante = next((e for m, e in entrees.items() if commun.cle(m) == k), None)
+        anciens_blocs = []
+        if existante is not None:
+            for lecture in existante["lectures"]:
+                anciens_blocs.extend(lecture[4])
+
+        sens = []
+        for bloc in record["sens"]:
+            citations = []
+            reprend = bloc.get("reprend")
+            if reprend:
+                for ancien in anciens_blocs:
+                    if reprend == "*" or reprend.lower() in (ancien[0] or "").lower():
+                        citations.extend(list(c) for c in ancien[2])
+            sens.append([bloc["definition"], list(bloc["equivalents"]), citations])
+            for texte, traduction in bloc.get("exemples", ()):
+                de, fr = (texte, traduction) if langue == "de" else (traduction, texte)
+                exemples.append((langue, mot, de, fr))
+
+        premiere = existante["lectures"][0] if existante else None
+        lecture = [
+            record.get("nature") or (premiere[0] if premiere else "locution"),
+            "",
+            premiere[2] if premiere else "",
+            list(premiere[3]) if premiere else [],
+            sens,
+            list(premiere[5]) if premiere and len(premiere) > 5 else [],
+            list(premiere[6]) if premiere and len(premiere) > 6 else [],
+        ]
+        if existante is not None:
+            entree = existante
+            if entree["mot"] != mot:
+                del entrees[entree["mot"]]
+                entree["mot"] = mot
+                entrees[mot] = entree
+            journal["editoriales_corrigees"] += 1
+        else:
+            entree = {"mot": mot, "neuve": True}
+            entrees[mot] = entree
+            journal["editoriales_creees"] += 1
+        entree["lectures"] = [lecture]
+        entree["expression"] = SOURCE_EDITORIALE
+        entree.pop("idiome", None)
+        if record.get("explication"):
+            entree["explication"] = record["explication"][:240]
+        else:
+            entree.pop("explication", None)
+    return exemples

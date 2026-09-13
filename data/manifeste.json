@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "construit": "2026-09-13",
   "moutures": {
     "de": "2025.11.21",
@@ -32,23 +32,27 @@
   "paquets": {
     "noyau": {
       "entrees": {
-        "de": 12502,
-        "fr": 13555
+        "de": 12505,
+        "fr": 13554
       },
       "traduites": {
-        "de": 12502,
-        "fr": 13555
+        "de": 12505,
+        "fr": 13554
       },
       "expressions": {
-        "de": 504,
-        "fr": 1582
+        "de": 507,
+        "fr": 1581
+      },
+      "expressions_traduites": {
+        "de": 507,
+        "fr": 1581
       },
       "expressions_sans_equivalent": {
         "de": 0,
         "fr": 0
       },
-      "phrases": 39698,
-      "octets": 23852648,
+      "phrases": 39714,
+      "octets": 23891255,
       "fichiers": [
         "noyau/de.idx",
         "noyau/de-000.json",
@@ -135,23 +139,27 @@
     },
     "complet": {
       "entrees": {
-        "de": 65238,
+        "de": 65240,
         "fr": 55957
       },
       "traduites": {
-        "de": 63207,
-        "fr": 49246
+        "de": 63210,
+        "fr": 49245
       },
       "expressions": {
-        "de": 3577,
+        "de": 3579,
         "fr": 9618
       },
-      "expressions_sans_equivalent": {
-        "de": 2031,
-        "fr": 6711
+      "expressions_traduites": {
+        "de": 1549,
+        "fr": 2906
       },
-      "phrases": 46026,
-      "octets": 84057347,
+      "expressions_sans_equivalent": {
+        "de": 2030,
+        "fr": 6712
+      },
+      "phrases": 46039,
+      "octets": 84669822,
       "fichiers": [
         "complet/de.idx",
         "complet/de-000.json",

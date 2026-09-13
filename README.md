@@ -70,7 +70,15 @@ chacun de ses mots et sous ceux de ses traductions, dans les deux langues. Les
 expressions forment un groupe à part sous les résultats, et chaque fiche de mot
 se termine par celles qui le contiennent. Une expression s'apprend comme un
 mot, dans les deux directions, sans carte de genre — on n'apprend pas « der »
-sur « kein Problem ».
+sur « kein Problem ». Ce qui fait l'expression, c'est sa provenance, pas ses
+espaces : « base de données » reste un nom. Pour un mot à soi de plusieurs
+mots, le formulaire pose la question — expression usuelle, oui ou non — et
+n'y répond pas à votre place.
+
+Ce que les sources n'ont pas ou traduisent mal, un petit supplément relu à la
+main le corrige — [build/expressions_editoriales.json](build/expressions_editoriales.json)
+dit ce qu'il ajoute, ce qu'il écarte, et pourquoi. Les expressions sans
+équivalent connu restent consultables, marquées telles, après les autres.
 
 Ce qui fait qu'une suite de mots est une expression et non un nom composé, et
 d'où viennent les équivalents des formules que les tables de traduction
@@ -157,16 +165,25 @@ Deux paquets sont produits :
 
 | | noyau | complet |
 |---|---|---|
-| expressions allemandes | 504 | 3 577 |
-| expressions françaises | 1 582 | 9 618 |
-| dont sans équivalent connu | 0 | 8 742 |
-| poids du paquet | 22.7 Mo | 80.2 Mo |
+| expressions allemandes traduites | 507 | 1 549 |
+| expressions françaises traduites | 1 581 | 2 906 |
+| expressions allemandes sans équivalent (consultation seule) | 0 | 2 030 |
+| expressions françaises sans équivalent (consultation seule) | 0 | 6 712 |
+| poids du paquet | 22.8 Mo | 80.7 Mo |
 
-Le noyau ne reçoit que des expressions traduites, faites de ses propres mots ;
-son budget est passé de 22 à 23 Mo pour les accueillir, et le dit dans
-`construire.py`. Le paquet complet porte en plus les expressions que le
-Wiktionnaire atteste sans leur connaître d'équivalent — elles se lisent, avec
-leur définition, mais ne se révisent pas, et leur fiche le dit.
+Le noyau ne reçoit que des expressions traduites, faites de ses propres mots,
+et tout le supplément éditorial ; son budget est passé de 22 à 23 Mo pour les
+accueillir, et le dit dans `construire.py`. Le paquet complet porte en plus les
+expressions que le Wiktionnaire atteste sans leur connaître d'équivalent —
+elles se lisent, avec leur définition, mais ne se révisent pas ; leur fiche le
+dit, les résultats les marquent et les placent après les autres, et les
+Réglages donnent les deux nombres.
+
+Le format des données passe en version 3 : les tranches gardent leur nom mais
+plus leur contenu, et un téléchargement ne redemande jamais ce qui est déjà
+là. Le paquet complet installé par la version 3.0 est donc oublié à
+l'ouverture, et se propose de nouveau au téléchargement ; le noyau, les mots
+personnels, les notes et les révisions ne bougent pas.
 
 ### Ce que la version 3 a ajouté au dictionnaire, mesuré
 

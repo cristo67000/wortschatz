@@ -164,6 +164,8 @@
     tatoeba: 'fiche.provenance.tatoeba',
     croisee: 'fiche.provenance.croisee',
     attestee: 'fiche.provenance.attestee',
+    editorial: 'fiche.provenance.editorial',
+    perso: 'fiche.provenance.perso',
   };
 
   function etiquettes(entree, lecture) {
@@ -527,6 +529,7 @@
   /* Combien d'expressions on montre d'abord sur une fiche. Un mot courant en
    * a des dizaines ; six en disent assez, « Voir plus » déplie le reste. */
   const EXPRESSIONS_VISIBLES = 6;
+  const EXPRESSIONS_PAR_PAGE = 24;
 
   /* « Expressions usuelles » — celles qui contiennent le mot de la fiche.
    *
@@ -536,15 +539,19 @@
    * une section vide promet quelque chose qu'elle ne tient pas. */
   function expressionsDe(entree) {
     const k = Lexique.cle(entree.mot);
-    const liste = Lexique.expressionsAvec(entree, 60);
+    const liste = Lexique.expressionsAvec(entree);
     if (racine.Perso) {
+      /* Ses propres expressions — celles qu'on a déclarées telles, pas tout ce
+       * qui a plusieurs mots — passent en tête : on les a écrites soi-même. */
+      const siennes = [];
       for (const enregistrement of Perso.liste()) {
         if (enregistrement.id === entree.perso) continue;
-        if (enregistrement.mot.indexOf(' ') === -1) continue;
+        if (!Perso.estExpression(enregistrement)) continue;
         const dedans = Perso.commenceParUnMot(enregistrement.cle, k)
           || enregistrement.traductions.some((t) => Perso.commenceParUnMot(Lexique.cle(t), k));
-        if (dedans) liste.push(Perso.resultat(enregistrement, true, null));
+        if (dedans) siennes.push(Perso.resultat(enregistrement, true, null));
       }
+      liste.unshift(...siennes);
     }
     if (!liste.length) return null;
 
@@ -562,7 +569,13 @@
       if (resultat.perso) {
         bouton.appendChild(element('span', 'pastille perso', I18n.t('perso.marque')));
       }
-      if (resultat.apercu) bouton.appendChild(element('span', 'traduction', resultat.apercu));
+      if (resultat.apercu) {
+        bouton.appendChild(element('span', 'traduction', resultat.apercu));
+      } else {
+        bouton.classList.add('sans-equivalent');
+        bouton.appendChild(element('span', 'traduction discret',
+          I18n.t('expression.sans-equivalent')));
+      }
       bouton.addEventListener('click', () => App.ouvrirFiche(resultat));
       li.appendChild(bouton);
       return li;
@@ -570,14 +583,24 @@
 
     for (const resultat of liste.slice(0, EXPRESSIONS_VISIBLES)) ul.appendChild(ligne(resultat));
     section.appendChild(ul);
+    /* Le reste se déplie par pages : « faire » a des centaines d'expressions
+     * dans le paquet complet, et toutes restent à portée de clic. */
     const reste = liste.slice(EXPRESSIONS_VISIBLES);
     if (reste.length) {
-      const plus = element('button', 'lien-discret',
-        I18n.n('fiche.expressions.plus', reste.length));
+      const plus = element('button', 'lien-discret');
       plus.type = 'button';
+      let position = 0;
+      const libeller = () => {
+        plus.textContent = I18n.n('fiche.expressions.plus', reste.length - position);
+      };
+      libeller();
       plus.addEventListener('click', () => {
-        for (const resultat of reste) ul.appendChild(ligne(resultat));
-        plus.remove();
+        for (const resultat of reste.slice(position, position + EXPRESSIONS_PAR_PAGE)) {
+          ul.appendChild(ligne(resultat));
+        }
+        position += EXPRESSIONS_PAR_PAGE;
+        if (position >= reste.length) plus.remove();
+        else libeller();
       });
       section.appendChild(plus);
     }

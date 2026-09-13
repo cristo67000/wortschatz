@@ -114,10 +114,13 @@
 
   /* Les données d'une version qui n'existe plus.
    *
-   * Le format des données a changé en version 2 : le cache s'appelle désormais
-   * `wortschatz-donnees-2`, et celui de la version 1 ne sera plus jamais lu —
-   * `complet()` ne regarde que la version du manifeste courant. Ce sont trente
-   * méga-octets morts sur l'appareil.
+   * Le format des données change de version quand des fichiers gardent leur
+   * nom mais plus leur contenu — version 2 avec les exemples par sens, version
+   * 3 avec les expressions usuelles. Le cache s'appelle `wortschatz-donnees-3`,
+   * et celui d'une version antérieure ne sera plus jamais lu — `complet()` ne
+   * regarde que la version du manifeste courant. Ce sont quatre-vingts
+   * méga-octets morts sur l'appareil, et le paquet complet se propose de
+   * nouveau au téléchargement.
    *
    * On les efface donc, et c'est la **seule** suppression automatique que
    * s'autorise l'application : ce qui est effacé ici est inutilisable par

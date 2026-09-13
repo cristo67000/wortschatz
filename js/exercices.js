@@ -157,7 +157,7 @@
    * n'y reproche pas la majuscule : « kein Problem » commence par une
    * minuscule en vedette, et par une majuscule quand on le dit. */
   function estExpression(entree) {
-    return !!entree && entree.mot.indexOf(' ') !== -1;
+    return Lexique.estExpression(entree);
   }
 
   /* Le mot précédé de son article, sous chacun de ses genres — ou null quand la

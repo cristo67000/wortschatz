@@ -70,6 +70,9 @@
       'fiche.provenance.tatoeba': 'Expression attestée par le Wiktionnaire ; équivalents relevés dans les phrases traduites de Tatoeba.',
       'fiche.provenance.croisee': 'Expression expliquée par l’édition du Wiktionnaire de l’autre langue.',
       'fiche.provenance.attestee': 'Expression attestée par le Wiktionnaire, sans équivalent connu dans l’autre langue.',
+      'fiche.provenance.editorial': 'Supplément éditorial de Wortschatz : sens, équivalents et exemples relus à la main.',
+      'expression.sans-equivalent': 'sans équivalent — à consulter',
+      'fiche.provenance.perso': 'Expression ajoutée par vous.',
 
       'langue.de': 'allemand',
       'langue.fr': 'français',
@@ -442,6 +445,10 @@
       'reglages.dictionnaire.poids': '{taille} sur l’appareil',
       'reglages.dictionnaire.traduites': '{n} entrées traduites',
       'reglages.dictionnaire.phrases': '{n} phrases d’exemple',
+      'reglages.dictionnaire.expressions': '{n} expressions usuelles traduites',
+      'reglages.dictionnaire.expressions.lecture': '{n} expressions sans équivalent, à consulter seulement',
+      'perso.champ.expression': 'Expression usuelle ?',
+      'perso.champ.expression.note': 'Oui : elle se cherche par chacun de ses mots et s’apprend sans carte de genre. Non pour un nom composé (« base de données »).',
 
       'nature.locution': 'locution',
       'nature.pronoun': 'pronom',
@@ -500,6 +507,9 @@
       'fiche.provenance.tatoeba': 'Vom Wiktionary belegte Wendung; Entsprechungen aus den übersetzten Sätzen von Tatoeba.',
       'fiche.provenance.croisee': 'Wendung, erklärt von der Wiktionary-Ausgabe der anderen Sprache.',
       'fiche.provenance.attestee': 'Vom Wiktionary belegte Wendung ohne bekannte Entsprechung in der anderen Sprache.',
+      'fiche.provenance.editorial': 'Redaktioneller Zusatz von Wortschatz: Bedeutungen, Entsprechungen und Beispiele von Hand geprüft.',
+      'expression.sans-equivalent': 'ohne Entsprechung — nur zum Nachschlagen',
+      'fiche.provenance.perso': 'Von Ihnen hinzugefügte Wendung.',
 
       'langue.de': 'Deutsch',
       'langue.fr': 'Französisch',
@@ -869,6 +879,10 @@
       'reglages.dictionnaire.poids': '{taille} auf dem Gerät',
       'reglages.dictionnaire.traduites': '{n} übersetzte Einträge',
       'reglages.dictionnaire.phrases': '{n} Beispielsätze',
+      'reglages.dictionnaire.expressions': '{n} übersetzte gängige Wendungen',
+      'reglages.dictionnaire.expressions.lecture': '{n} Wendungen ohne Entsprechung, nur zum Nachschlagen',
+      'perso.champ.expression': 'Gängige Wendung?',
+      'perso.champ.expression.note': 'Ja: sie wird über jedes ihrer Wörter gefunden und ohne Genuskarte gelernt. Nein für ein zusammengesetztes Nomen („base de données“).',
 
       'nature.locution': 'Redewendung',
       'nature.pronoun': 'Pronomen',
