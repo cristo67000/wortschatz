@@ -128,6 +128,37 @@
     return entree.lectures[0] || [];
   }
 
+  /* Les sens d'une entrée qui ont des équivalents, avec leur définition. */
+  function sensTraduits(entree) {
+    const sortie = [];
+    for (const lecture of entree.lectures) {
+      for (const bloc of lecture[4]) {
+        if (bloc[1] && bloc[1].length) {
+          sortie.push({ definition: bloc[0] || '', equivalents: bloc[1].slice() });
+        }
+      }
+    }
+    return sortie;
+  }
+
+  /* Le sens sur lequel porte la question.
+   *
+   * « À petit feu » veut dire « auf kleiner Flamme » pour une cuisson et
+   * « langsam » pour une agonie ; « feu » est Feuer, Ampel ou Feuerwaffe.
+   * Demander « que veut dire à petit feu ? » sans dire lequel, c'est poser une
+   * question à plusieurs bonnes réponses et n'en afficher qu'une. Quand les
+   * sens ont des équivalents distincts et une définition pour les
+   * distinguer, la question en vise un seul, tiré au sort, et le dit. Rend
+   * null quand il n'y a rien à distinguer — un seul sens, ou les mêmes
+   * équivalents partout, comme WikDict en répand souvent. */
+  function sensVise(entree) {
+    const sens = sensTraduits(entree).filter((s) => s.definition);
+    if (sens.length < 2) return null;
+    const distincts = new Set(sens.map((s) => s.equivalents.map(Lexique.cle).sort().join('|')));
+    if (distincts.size < 2) return null;
+    return auHasard(sens);
+  }
+
   function genreDe(entree) {
     for (const lecture of entree.lectures) {
       if (lecture[0] === 'n' && lecture[1]) return lecture[1];
@@ -334,9 +365,22 @@
     if (!brut || !candidats.length) {
       return { verdict: 'faux', attendu: candidats[0] || attendus[0], remarque: null };
     }
-    return reglages.articleExige
+    const verdict = reglages.articleExige
       ? corrigerAvecArticle(brut, candidats, reglages)
       : comparerMot(brut, candidats, reglages);
+    /* Une réponse juste pour un autre sens que celui demandé n'est pas fausse
+     * — on connaît l'expression —, mais ce n'est pas la réponse à la question
+     * posée : « presque », et la remarque dit lequel des sens on demandait. */
+    if (verdict.verdict === 'faux' && reglages.autresSens && reglages.autresSens.length) {
+      const autres = reglages.autresSens.map(nettoyer).filter(Boolean);
+      const ailleurs = autres.length ? comparerMot(brut, autres, reglages) : null;
+      if (ailleurs && ailleurs.verdict !== 'faux') {
+        return { verdict: 'presque', attendu: candidats[0],
+                 remarque: { cle: 'exercice.remarque.autre-sens',
+                             valeurs: { reponse: attendus[0], sens: reglages.contexte || '' } } };
+      }
+    }
+    return verdict;
   }
 
   // ── Fabrication des questions ─────────────────────────────────────────────
@@ -490,7 +534,17 @@
   async function preparer(carte, entree, options) {
     const phrases = await phrasesDe(entree);
     const type = typeDExercice(carte, entree, phrases, options);
-    const reponses = traductions(entree);
+    /* Les réponses : celles du sens visé quand il y en a un, sinon toutes. Les
+     * équivalents des autres sens restent connus de la correction, qui les
+     * comptera « presque ». Le contexte — la définition du sens — n'est
+     * montré que dans la direction « comprendre » : c'est là qu'il lève
+     * l'ambiguïté. Dans l'autre, la réponse est la vedette quel que soit le
+     * sens, et la définition pourrait la contenir. */
+    const vise = sensVise(entree);
+    const reponses = vise ? vise.equivalents : traductions(entree);
+    const autresSens = vise
+      ? traductions(entree).filter((t) => reponses.indexOf(t) === -1) : [];
+    const contexte = vise ? vise.definition : null;
     /* La langue dans laquelle on attend la réponse. Elle ne se déduit pas du
      * nom de l'exercice : « reconnaître le sens » d'une entrée française veut
      * dire répondre en allemand. C'est pourtant ce que la consigne doit
@@ -519,6 +573,7 @@
         { texte: reponses[0], juste: true },
       ].concat(leurres.map((a) => ({ texte: traductions(a)[0], juste: false }))));
       return { type, carte, entree, enonce: entree.mot, options,
+               indice: contexte || undefined,
                attendu: reponses[0], langueReponse: autreLangue };
     }
 
@@ -548,6 +603,8 @@
          * deux sont attestées. Rien d'autre ne l'est — une variante qui n'a
          * pas été enregistrée n'est pas devinée. */
         attendus: reponses,
+        autresSens,
+        indice: contexte || undefined,
         estNom: nom,
         langueReponse: autre,
       };

@@ -958,6 +958,64 @@ async function epreuveExpressions() {
     await Lexique.charger('noyau');
   }
 
+  titre('Une question sur une expression à plusieurs sens vise un sens, et le dit');
+  const cartePetitFeu = Revision.cartesPour(petitFeu).find((c) => c.type === 'vers-de');
+  const vus = new Set();
+  let coherentes = 0;
+  for (let i = 0; i < 24; i += 1) {
+    const q = await Exercices.preparer(cartePetitFeu, petitFeu, { type: 'saisie-traduction' });
+    const senss = petitFeu.lectures[0][4].find((b) => b[0] === q.indice);
+    if (senss && JSON.stringify(q.attendus) === JSON.stringify(senss[1])
+        && q.attendu === senss[1][0]) coherentes += 1;
+    if (q.indice) vus.add(q.indice);
+  }
+  verifier(coherentes === 24,
+    'chaque question « à petit feu » montre la définition d’un sens et attend ses équivalents');
+  verifier(vus.size === 2, 'les deux sens sont demandés tour à tour', Array.from(vus));
+  const qcm = await Exercices.preparer(cartePetitFeu, petitFeu, { type: 'qcm-comprendre' });
+  verifier(!!qcm.indice && qcm.options.some((o) => o.juste && o.texte === qcm.attendu),
+    'le choix multiple aussi montre le sens visé');
+  const qCuisson = { attendus: ['auf kleiner Flamme', 'bei schwacher Hitze'],
+                     autresSens: ['langsam', 'nach und nach'],
+                     indice: 'À feu doux et longuement, en parlant de cuisson.' };
+  const juste = Exercices.corriger('bei schwacher Hitze', qCuisson.attendus,
+    { langue: 'de', autresSens: qCuisson.autresSens, contexte: qCuisson.indice });
+  const autre = Exercices.corriger('langsam', qCuisson.attendus,
+    { langue: 'de', autresSens: qCuisson.autresSens, contexte: qCuisson.indice });
+  verifier(juste.verdict === 'juste', 'l’équivalent du sens demandé est juste');
+  verifier(autre.verdict === 'presque' && autre.remarque
+           && autre.remarque.cle === 'exercice.remarque.autre-sens'
+           && /cuisson/.test(autre.remarque.valeurs.sens),
+    'l’équivalent de l’autre sens vaut « presque », avec la remarque qui nomme le sens demandé',
+    autre);
+  // Dans l'autre direction, la réponse est la vedette : l'énoncé n'aligne
+  // que les équivalents d'un même sens, et ne montre pas de définition qui
+  // pourrait la contenir.
+  const carteVersFr = Revision.cartesPour(petitFeu).find((c) => c.type === 'vers-fr');
+  const produire = await Exercices.preparer(carteVersFr, petitFeu, { type: 'saisie' });
+  verifier(!produire.indice && produire.attendu === 'à petit feu'
+           && (produire.enonce === 'auf kleiner Flamme, bei schwacher Hitze'
+               || produire.enonce === 'langsam, nach und nach'),
+    'en direction « produire », l’énoncé tient à un seul sens', produire.enonce);
+  // Une expression à un seul sens ne change pas.
+  const problem = ouvertes['kein Problem'];
+  const carteProblem = Revision.cartesPour(problem).find((c) => c.type === 'vers-fr');
+  const simple = await Exercices.preparer(carteProblem, problem, { type: 'saisie-traduction' });
+  verifier(!simple.indice && simple.attendus.length === 3,
+    '« kein Problem », un seul sens : pas d’indice, tous les équivalents acceptés');
+
+  titre('Une carte survit à une mouture qui déplace son mot de tranche');
+  const feuAujourdhui = Lexique.vedette('fr', 'feu');
+  const decalee = await Lexique.ouvrir({ langue: 'fr', mot: 'feu', tranche: feuAujourdhui.tranche + 1 });
+  verifier(decalee && decalee.mot === 'feu' && decalee.tranche === feuAujourdhui.tranche,
+    'une carte qui pointe une tranche voisine retrouve « feu » par l’index',
+    decalee && decalee.tranche);
+  const horsChamp = await Lexique.ouvrir({ langue: 'fr', mot: 'feu', tranche: 9999 });
+  verifier(horsChamp && horsChamp.mot === 'feu',
+    'même une tranche qui n’existe plus ne perd pas la carte');
+  verifier((await Lexique.ouvrir({ langue: 'fr', mot: 'motquinexistepas', tranche: 0 })) === null,
+    'un mot disparu rend null, sans exception');
+
   titre('Expressions usuelles : ce qu’on déclare soi-même');
   await Perso.charger();
   // Un nom composé n'est pas une expression, même en plusieurs mots.

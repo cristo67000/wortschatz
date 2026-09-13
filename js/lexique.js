@@ -120,14 +120,51 @@
   };
 
   async function texteDe(chemin) {
+    /* Le paquet complet d'une mouture antérieure se lit directement dans son
+     * cache, par l'API Cache : ni réseau ni service worker entre les deux,
+     * donc rien qui puisse substituer un fichier d'une autre mouture. Ce qui
+     * n'y est pas n'y est pas — on ne va pas le chercher ailleurs. */
+    if (etat.ancien && chemin.indexOf('data/complet/') === 0) {
+      const cache = await caches.open(etat.ancien.nom);
+      const range = await cache.match(chemin);
+      if (!range) throw new Error(chemin + ' : absent de ' + etat.ancien.nom);
+      return range.text();
+    }
     const reponse = await fetch(chemin);
     if (!reponse.ok) throw new Error(chemin + ' : ' + reponse.status);
     return reponse.text();
   }
 
-  async function charger(paquet) {
+  /* Combien de tranches par langue porte le paquet complet d'une mouture
+   * antérieure : son manifeste le dit s'il a été rangé avec lui, sinon on
+   * compte ses fichiers. */
+  async function tranchesDeLAncien(ancien) {
+    const comptes = { de: 0, fr: 0 };
+    if (ancien.manifeste) {
+      for (const f of ancien.manifeste.paquets.complet.fichiers) {
+        if (/\/de-\d+\.json$/.test(f)) comptes.de += 1;
+        if (/\/fr-\d+\.json$/.test(f)) comptes.fr += 1;
+      }
+      return comptes;
+    }
+    const cache = await caches.open(ancien.nom);
+    for (const requete of await cache.keys()) {
+      if (/\/complet\/de-\d+\.json$/.test(requete.url)) comptes.de += 1;
+      if (/\/complet\/fr-\d+\.json$/.test(requete.url)) comptes.fr += 1;
+    }
+    return comptes;
+  }
+
+  /* Charge un paquet. `options.ancien` — `{nom, manifeste}`, tel que
+   * `Paquets.ancien()` le rend — fait lire le paquet complet d'une mouture
+   * antérieure, entier et cohérent, en attendant le téléchargement du
+   * nouveau. */
+  async function charger(paquet, options) {
     const manifeste = etat.manifeste
       || JSON.parse(await texteDe('data/manifeste.json'));
+    etat.ancien = (paquet === 'complet' && options && options.ancien) || null;
+    etat.tranches.clear();
+    etat.tranchesAnciennes = etat.ancien ? await tranchesDeLAncien(etat.ancien) : null;
     const index = {};
     const formes = {};
     const expressions = {};
@@ -555,8 +592,21 @@
     if (resultat.perso) {
       return (racine.Perso && Perso.entree(resultat.perso)) || null;
     }
-    const carte = await tranche(resultat.langue, resultat.tranche);
-    return carte.get(resultat.mot) || null;
+    /* Le numéro de tranche qu'une carte de révision garde date du jour où
+     * elle a été créée. Une mouture plus récente des données déplace les mots
+     * d'une tranche à l'autre — trois vedettes de plus au noyau suffisent —
+     * et la carte pointerait alors à côté. On essaie sa tranche, puis on
+     * redemande à l'index où le mot vit aujourd'hui : c'est ce qui fait
+     * qu'une révision survit à une mise à jour du dictionnaire. */
+    if (Number.isInteger(resultat.tranche) && resultat.tranche >= 0) {
+      const carte = await tranche(resultat.langue, resultat.tranche).catch(() => null);
+      const entree = carte && carte.get(resultat.mot);
+      if (entree) return entree;
+    }
+    const v = vedette(resultat.langue, resultat.mot);
+    if (!v || v.tranche === resultat.tranche) return null;
+    const carte = await tranche(v.langue, v.tranche).catch(() => null);
+    return (carte && carte.get(v.mot)) || null;
   }
 
   /* Un lot d'entrées prises au hasard, pour fabriquer les leurres des questions
@@ -566,6 +616,7 @@
    * nature et par bande. */
   function nombreDeTranches(langue) {
     if (!etat.manifeste || !etat.paquet) return 0;
+    if (etat.ancien && etat.tranchesAnciennes) return etat.tranchesAnciennes[langue] || 0;
     const fichiers = etat.manifeste.paquets[etat.paquet].fichiers;
     return fichiers.filter((f) => f.indexOf('/' + langue + '-') !== -1).length;
   }
@@ -638,6 +689,7 @@
     expressionsPar, chercherExpressions, expressionsAvec, estExpression,
     etat,
     get paquet() { return etat.paquet; },
+    get ancien() { return etat.ancien; },
     get manifeste() { return etat.manifeste; },
   };
 

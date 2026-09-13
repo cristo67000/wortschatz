@@ -774,7 +774,8 @@ button.suivi-mot:hover, button.suivi-mot:focus-visible { background: var(--accen
 /* Au-dessus de la barre d'onglets, jamais par-dessus : une version prête n'est
    pas une urgence, et masquer la navigation pour l'annoncer serait la traiter
    comme telle. */
-#mise-a-jour {
+#mise-a-jour,
+.bandeau-fixe {
   position: fixed;
   z-index: 25;
   left: .75rem;
@@ -797,9 +798,9 @@ button.suivi-mot:hover, button.suivi-mot:focus-visible { background: var(--accen
 }
 /* `display: flex` porté par un identifiant l'emporterait sur l'attribut
    `hidden` du navigateur : le bandeau resterait visible, vide. */
-#mise-a-jour[hidden] { display: none; }
-#mise-a-jour.visible { opacity: 1; transform: none; }
-#mise-a-jour p { margin: 0; flex: 1 1 11rem; }
+#mise-a-jour[hidden], .bandeau-fixe[hidden] { display: none; }
+#mise-a-jour.visible, .bandeau-fixe.visible { opacity: 1; transform: none; }
+#mise-a-jour p, .bandeau-fixe p { margin: 0; flex: 1 1 11rem; }
 
 .maj-boutons { display: flex; align-items: center; gap: .3rem; margin-left: auto; }
 .maj-boutons .bouton-principal { width: auto; padding: .55rem 1.1rem; }
@@ -1159,3 +1160,12 @@ textarea.saisie-perso { resize: vertical; line-height: 1.5; }
 .expression-ligne.sans-equivalent .mot { opacity: .7; font-weight: 500; }
 .resultat.sans-equivalent .traduction,
 .expression-ligne.sans-equivalent .traduction { font-style: italic; }
+
+/* Le dictionnaire complet d'une mouture antérieure : l'avis, dans les réglages. */
+.avis-donnees {
+  margin: .5rem 0 .75rem;
+  padding: .6rem .8rem;
+  border-left: 3px solid var(--accent, #1f3a5f);
+  background: var(--papier-releve);
+  border-radius: 0 var(--rayon) var(--rayon) 0;
+}

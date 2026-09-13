@@ -16,13 +16,25 @@
  */
 (function () {
 
+  /* Quel paquet ouvrir, et dans quel cache.
+   *
+   * Le réglage dit ce que l'utilisateur avait choisi ; le cache dit ce qui
+   * est vraiment là. Entre les deux, le cas qui compte : l'application vient
+   * d'être mise à jour, ses données ont changé de mouture, et le paquet
+   * complet téléchargé sous la mouture d'avant est toujours entier. On s'en
+   * sert — sans les nouveautés, mais sans rien perdre, ni mélanger — jusqu'à
+   * ce que le nouveau soit téléchargé. `ancien` est alors renseigné, et
+   * l'application le dit à l'écran. */
   async function quelPaquet(manifeste, reglages) {
-    if (reglages.paquet !== 'complet') return 'noyau';
+    if (reglages.paquet !== 'complet') return { paquet: 'noyau', ancien: null };
     try {
-      return (await Paquets.complet(manifeste)) ? 'complet' : 'noyau';
+      if (await Paquets.complet(manifeste)) return { paquet: 'complet', ancien: null };
+      const ancien = await Paquets.ancien(manifeste);
+      if (ancien) return { paquet: 'complet', ancien };
     } catch (erreur) {
-      return 'noyau';
+      /* Un cache inaccessible se traite comme absent. */
     }
+    return { paquet: 'noyau', ancien: null };
   }
 
   async function demarrer() {
@@ -44,16 +56,15 @@
       const reponse = await fetch('data/manifeste.json');
       if (!reponse.ok) throw new Error('manifeste : ' + reponse.status);
       const manifeste = await reponse.json();
-      const paquet = await quelPaquet(manifeste, reglages);
+      const { paquet, ancien } = await quelPaquet(manifeste, reglages);
 
-      /* Les données d'un format antérieur ne resserviront jamais : le cache
-       * porte le numéro de format, et rien ne va plus le chercher. Les laisser
-       * coûterait des dizaines de méga-octets sur l'appareil, sans contrepartie.
-       * On n'attend pas le résultat : c'est du ménage, pas une étape du
-       * démarrage. */
+      /* Le ménage des moutures qui ne resserviront plus — jamais celle qu'on
+       * s'apprête à lire : `oublierLesPerimes` garde un ancien paquet entier
+       * tant que le nouveau ne l'est pas. On n'attend pas le résultat : c'est
+       * du ménage, pas une étape du démarrage. */
       Paquets.oublierLesPerimes(manifeste).catch(() => {});
       Lexique.etat.manifeste = manifeste;
-      await Lexique.charger(paquet);
+      await Lexique.charger(paquet, { ancien });
 
       // Le réglage suit ce qui est vraiment là, pas l'inverse.
       if (reglages.paquet !== paquet) {

@@ -47,6 +47,8 @@ const DE_DEUX = { langue: 'de', estNom: true, articleExige: true,
                   genres: ['masc', 'fem'] };
 const FR_FEM = { langue: 'fr', estNom: true, articleExige: true, genres: ['fem'] };
 
+const AUTRE_SENS = { langue: 'de', estNom: false, autresSens: ['langsam', 'nach und nach'],
+                     contexte: 'À feu doux et longuement, en parlant de cuisson.' };
 const CAS = [
   // saisie,       attendus,             options,                        verdict,   remarque
   ['Haus',         ['Haus'],             { langue: 'de', estNom: true }, 'juste',   null],
@@ -87,6 +89,13 @@ const CAS = [
   ['abeille',      ['une abeille'],      FR_FEM,                         'presque', 'article-manque'],
   // L'article élidé est du bon français, mais il ne dit pas le genre.
   ['l’abeille',    ['une abeille'],      FR_FEM,                         'presque', 'article-forme'],
+  // Une question qui vise un sens : « à petit feu », cuisson. La réponse de
+  // l'autre sens n'est pas fausse — on connaît l'expression — mais ce n'est
+  // pas celle qu'on demandait ; une réponse étrangère aux deux reste fausse.
+  ['auf kleiner Flamme', ['auf kleiner Flamme', 'bei schwacher Hitze'], AUTRE_SENS, 'juste', null],
+  ['langsam',      ['auf kleiner Flamme', 'bei schwacher Hitze'], AUTRE_SENS, 'presque', 'autre-sens'],
+  ['nach und nach', ['auf kleiner Flamme', 'bei schwacher Hitze'], AUTRE_SENS, 'presque', 'autre-sens'],
+  ['schnell',      ['auf kleiner Flamme', 'bei schwacher Hitze'], AUTRE_SENS, 'faux',    null],
 ];
 
 titre('Correction des réponses (Exercices.corriger)');

@@ -165,6 +165,27 @@ self.addEventListener('activate', (e) => {
   })());
 });
 
+/* Le nom du cache des données de cette mouture — format et date de
+ * construction, comme `Paquets.nomDuCache` le forme —, lu dans le manifeste
+ * pré-caché avec la coquille. Une seule lecture par vie du service worker. */
+let promesseNomDesDonnees = null;
+function nomDesDonnees() {
+  if (!promesseNomDesDonnees) {
+    promesseNomDesDonnees = (async () => {
+      try {
+        const coquille = await caches.open(COQUILLE);
+        const reponse = await coquille.match('data/manifeste.json');
+        if (!reponse) return null;
+        const m = await reponse.json();
+        return 'wortschatz-donnees-' + m.version + (m.construit ? '-' + m.construit : '');
+      } catch (erreur) {
+        return null;
+      }
+    })();
+  }
+  return promesseNomDesDonnees;
+}
+
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
@@ -172,20 +193,32 @@ self.addEventListener('fetch', (e) => {
   const estDonnee = url.pathname.includes('/data/');
 
   if (estDonnee) {
-    /* Cache d'abord, tous caches confondus : le noyau est dans la coquille, le
-     * dictionnaire complet dans le cache des données.
+    /* Cache d'abord — mais pas n'importe lequel : la coquille, où vit le
+     * noyau, puis le cache des données de **cette** mouture. Jamais celui
+     * d'une mouture antérieure, qui peut coexister le temps d'un
+     * téléchargement : y puiser une tranche sous un index neuf donnerait un
+     * dictionnaire troué. L'ancien paquet, la page le lit elle-même, par
+     * l'API Cache, quand elle a décidé de s'en servir.
      *
-     * Ce qui n'y est pas est rangé au passage. C'est ce qui rattrape un
-     * pré-cache incomplet : un fichier manqué à l'installation entre dans le
-     * cache la première fois qu'on en a besoin, et l'application se répare
-     * d'elle-même au fil de l'usage. */
+     * Ce qui n'est nulle part est rangé au passage : un fichier du noyau
+     * manqué à l'installation entre dans la coquille la première fois qu'on
+     * en a besoin, un fichier du paquet complet dans le cache des données —
+     * et l'application se répare d'elle-même au fil de l'usage. */
     e.respondWith((async () => {
-      const trouve = await caches.match(e.request);
-      if (trouve) return trouve;
+      const coquille = await caches.open(COQUILLE);
+      const dansLaCoquille = await coquille.match(e.request);
+      if (dansLaCoquille) return dansLaCoquille;
+      const nomDonnees = await nomDesDonnees();
+      const donnees = nomDonnees ? await caches.open(nomDonnees) : null;
+      if (donnees) {
+        const trouve = await donnees.match(e.request);
+        if (trouve) return trouve;
+      }
       const reponse = await fetch(e.request);
-      if (reponse.ok) {
+      if (reponse.ok && !url.search) {
         const copie = reponse.clone();
-        caches.open(COQUILLE).then((c) => c.put(e.request, copie)).catch(() => {});
+        const cible = url.pathname.includes('/data/complet/') && donnees ? donnees : coquille;
+        cible.put(e.request, copie).catch(() => {});
       }
       return reponse;
     })());

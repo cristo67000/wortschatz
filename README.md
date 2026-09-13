@@ -75,6 +75,14 @@ espaces : « base de données » reste un nom. Pour un mot à soi de plusieurs
 mots, le formulaire pose la question — expression usuelle, oui ou non — et
 n'y répond pas à votre place.
 
+Quand une entrée a plusieurs sens aux équivalents distincts — « à petit feu »
+est *auf kleiner Flamme* pour une cuisson et *langsam* pour une agonie —, la
+question de révision en vise **un**, montre sa définition, et attend ses
+équivalents ; répondre par ceux d'un autre sens vaut « presque », et la
+remarque nomme le sens demandé. Dans la direction « produire », la réponse
+est la vedette quel que soit le sens : l'énoncé n'aligne alors que les
+équivalents d'un même sens.
+
 Ce que les sources n'ont pas ou traduisent mal, un petit supplément relu à la
 main le corrige — [build/expressions_editoriales.json](build/expressions_editoriales.json)
 dit ce qu'il ajoute, ce qu'il écarte, et pourquoi. Les expressions sans
@@ -179,11 +187,36 @@ elles se lisent, avec leur définition, mais ne se révisent pas ; leur fiche le
 dit, les résultats les marquent et les placent après les autres, et les
 Réglages donnent les deux nombres.
 
-Le format des données passe en version 3 : les tranches gardent leur nom mais
-plus leur contenu, et un téléchargement ne redemande jamais ce qui est déjà
-là. Le paquet complet installé par la version 3.0 est donc oublié à
-l'ouverture, et se propose de nouveau au téléchargement ; le noyau, les mots
-personnels, les notes et les révisions ne bougent pas.
+### Quand le dictionnaire complet change de mouture
+
+Le format des données passe en version 3, et chaque construction est une
+**mouture** : les tranches gardent leur nom mais plus leur contenu, et un
+téléchargement ne redemande jamais ce qui est déjà là. Mélanger l'index d'une
+mouture aux tranches d'une autre donnerait un dictionnaire troué. Le passage
+suit donc trois règles, que `js/paquets.js` tient et que
+`build/essais_mise_a_jour.mjs` éprouve :
+
+1. **Rien n'est perdu.** Le paquet complet téléchargé sous la mouture d'avant
+   reste **lisible** tant que le nouveau n'est pas entier : `Lexique` le lit
+   directement dans son cache, par l'API Cache — ni réseau ni service worker
+   entre les deux, donc rien qui puisse y substituer un fichier d'une autre
+   mouture. Une révision sur un mot absent du noyau s'ouvre comme avant.
+2. **Rien n'est mélangé.** Chaque mouture a son cache, nommé par le format et
+   la date de construction (`wortschatz-donnees-3-2026-09-13`). Le service
+   worker ne sert les données que depuis la coquille et le cache de *sa*
+   mouture ; le nouveau paquet se télécharge à côté, avec un paramètre
+   d'adresse qui déjoue même le service worker de la version d'avant.
+3. **On le dit.** Un bandeau et les Réglages annoncent qu'un nouveau
+   téléchargement est nécessaire, ce qu'il apporte, ce qu'il pèse, et que
+   l'ancien paquet sert jusqu'au bout. L'ancien n'est effacé qu'une fois le
+   nouveau complet ; interrompre le téléchargement ne détruit rien.
+
+Une carte de révision garde le numéro de tranche du jour où elle est née ;
+une mouture déplace les mots d'une tranche à l'autre. `Lexique.ouvrir`
+redemande donc à l'index où le mot vit aujourd'hui quand la tranche gardée ne
+le porte plus — sans quoi la révision sautait la carte en silence.
+
+Le noyau, les mots personnels, les notes et les révisions ne bougent pas.
 
 ### Ce que la version 3 a ajouté au dictionnaire, mesuré
 
@@ -382,6 +415,7 @@ Un service worker demande un vrai navigateur. Deux fichiers en lancent un :
 ```bash
 node build/essais_navigateur.mjs  # mode hors ligne, serveur arrêté pour de bon
 node build/essais_profils.mjs     # export d'un profil de navigateur à un autre
+node build/essais_mise_a_jour.mjs # la version de main, puis celle-ci, au même endroit
 ```
 
 Ils pilotent un Chrome par le protocole DevTools — Node porte un WebSocket
@@ -394,6 +428,16 @@ l'importe dans un second profil vierge.
 C'est la seule façon d'éprouver ce que l'application promet. La compilation de
 `sw.js` et le contrôle de sa liste de pré-cache disent que rien n'a été oublié ;
 ils ne disent pas que le mode hors ligne marche.
+
+Le troisième joue une mise à jour réelle : il sert la version de `main` (un
+`git worktree`, effacé à la fin), y installe le dictionnaire complet et
+apprend un mot absent du noyau ; puis il sert la version en cours **au même
+port** — l'origine ne change pas, les caches et le service worker sont ceux
+d'un vrai déploiement — et vérifie que la carte s'ouvre toujours, qu'aucune
+expression de la nouvelle mouture ne se glisse dans l'ancienne, que le bandeau
+et les Réglages le disent, qu'un téléchargement interrompu ne détruit rien,
+que le téléchargement complet remplace l'ancien d'un bloc, et que tout tient
+hors ligne.
 
 ### Et sur le site publié
 

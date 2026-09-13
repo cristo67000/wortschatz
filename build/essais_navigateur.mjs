@@ -353,34 +353,70 @@ async function principal() {
       'deux cartes, aucune de genre, bien que « Wurst » soit un nom', formulaire.cartes);
     verifier(formulaire.parWurst, '« Wurst » la retrouve, marquée expression');
 
-    titre('7 ter. Le paquet complet de la version 3.0 n’est plus lu tel quel');
+    titre('7 ter. Un ancien cache de données incomplet ne sert à rien : il part');
     const perimes = await onglet.evaluer(`
-      // Un cache de l'ancien format, comme en laisserait la version 3.0.
+      // Un cache de l'ancien format, tel qu'un téléchargement interrompu de la
+      // version 3.0 l'aurait laissé : une tranche, pas d'index.
       const ancien = await caches.open('wortschatz-donnees-2');
       await ancien.put('data/complet/de-000.json', new Response('{"e":[]}'));
+      const utilisable = await Paquets.ancien(Lexique.manifeste);
       const effaces = await Paquets.oublierLesPerimes(Lexique.manifeste);
-      return { version: Lexique.manifeste.version, effaces,
+      return { version: Lexique.manifeste.version, effaces, utilisable,
                resteAncien: await caches.has('wortschatz-donnees-2'),
-               nomCourant: Paquets.nomDuCache(Lexique.manifeste.version),
+               nomCourant: Paquets.nomDuCache(Lexique.manifeste),
                completInstalle: await Paquets.complet(Lexique.manifeste) };
     `);
     verifier(perimes.version === 3, 'le format des données est en version 3', perimes.version);
-    verifier(!perimes.resteAncien && perimes.effaces >= 1,
-      'le cache « wortschatz-donnees-2 » est effacé : ses tranches n’ont plus le bon contenu');
-    verifier(perimes.nomCourant === 'wortschatz-donnees-3' && !perimes.completInstalle,
-      'le paquet complet se propose de nouveau au téléchargement', perimes);
+    verifier(perimes.utilisable === null && !perimes.resteAncien && perimes.effaces >= 1,
+      'sans ses index, l’ancien cache n’est pas utilisable et il est effacé');
+    verifier(/^wortschatz-donnees-3-\d{4}-\d{2}-\d{2}$/.test(perimes.nomCourant) && !perimes.completInstalle,
+      'le cache courant porte format et date de construction ; le complet se propose au téléchargement',
+      perimes);
 
-    titre('8. Apprendre une expression, hors ligne');
+    titre('8. Apprendre une expression, hors ligne — et la réviser avec son sens');
     const apprise = await onglet.evaluer(`
       document.querySelector('.fiche-fermer').click();
       const v = Lexique.vedette('de', 'kein Problem');
       const e = await Lexique.ouvrir(v);
       const cartes = await Revision.apprendre(e);
-      return { types: cartes.map(c => c.type).sort(),
-               dansLesSuivis: (await Store.cartesDuMot('de', 'kein Problem')).length };
+      // « à petit feu », direction « comprendre », deuxième passage : la
+      // question écrite, sur un sens, avec sa définition.
+      const feu = await Lexique.ouvrir(Lexique.vedette('fr', 'à petit feu'));
+      const cartesFeu = await Revision.apprendre(feu);
+      for (const c of cartesFeu) {
+        if (c.type === 'vers-de') { c.reussites = 1; c.echeance = Date.now() - 1000; await Store.ecrireCarte(c); }
+        else await Store.supprimerCarte(c.id);
+      }
+      for (const c of cartes) await Store.supprimerCarte(c.id);
+      App.basculer('reviser');
+      await new Promise(x => setTimeout(x, 500));
+      [...document.querySelectorAll('#vue-reviser button')]
+        .find(b => /Commencer la séance|Sitzung beginnen/.test(b.textContent)).click();
+      await new Promise(x => setTimeout(x, 1500));
+      const consigne = document.querySelector('#seance-consigne').textContent;
+      const indice = (document.querySelector('#vue-reviser .enonce-indice') || {}).textContent || '';
+      const mot = (document.querySelector('#vue-reviser .enonce-mot') || {}).textContent || '';
+      const saisie = document.querySelector('#vue-reviser input[type="text"], #vue-reviser input:not([type])');
+      // On répond par l'équivalent de l'autre sens.
+      const autreSens = /cuisson/.test(indice) ? 'langsam' : 'auf kleiner Flamme';
+      saisie.value = autreSens;
+      [...document.querySelectorAll('#vue-reviser button')].find(b => /Valider|Prüfen/.test(b.textContent)).click();
+      await new Promise(x => setTimeout(x, 600));
+      const verdict = document.querySelector('#verdict-remarque').textContent;
+      const etatVerdict = document.querySelector('#vue-reviser .verdict, #seance-verdict');
+      for (const c of await Store.cartesDuMot('fr', 'à petit feu')) await Store.supprimerCarte(c.id);
+      return { types: cartes.map(c => c.type).sort(), consigne, indice, mot, autreSens, verdict,
+               texteVerdict: etatVerdict ? etatVerdict.textContent.replace(/\s+/g, ' ').slice(0, 200) : '' };
     `);
     verifier(JSON.stringify(apprise.types) === JSON.stringify(['vers-de', 'vers-fr']),
       '« kein Problem » : deux cartes, aucune de genre', apprise.types);
+    verifier(apprise.mot === 'à petit feu' && /cuisson|durer/.test(apprise.indice),
+      'la question « à petit feu » affiche la définition du sens visé', apprise.indice);
+    verifier(/en allemand|auf Deutsch/.test(apprise.consigne),
+      'la consigne nomme la langue de la réponse — l’allemand', apprise.consigne);
+    verifier(/autre sens|andere Bedeutung/.test(apprise.verdict),
+      'répondre par l’équivalent de l’autre sens (' + apprise.autreSens + ') vaut « presque », et la remarque le dit',
+      apprise);
 
     // Le serveur repart pour l'épreuve suivante.
     serveur = demarrerServeur();

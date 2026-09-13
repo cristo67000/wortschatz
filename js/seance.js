@@ -274,6 +274,7 @@
       verdict = Exercices.corriger(saisie, q.attendus || [q.attendu], {
         langue: q.langueReponse || q.carte.langue, estNom: q.estNom,
         articleExige: q.articleExige, genres: q.genres,
+        autresSens: q.autresSens, contexte: q.indice,
       });
     }
 

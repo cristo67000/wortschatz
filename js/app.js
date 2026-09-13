@@ -305,11 +305,35 @@
     if (!manifeste) return;
 
     const installeComplet = Lexique.paquet === 'complet';
-    const actif = manifeste.paquets[installeComplet ? 'complet' : 'noyau'];
-    const nombre = actif.entrees.de + actif.entrees.fr;
-    elements.etatDictionnaire.textContent = I18n.t(
-      installeComplet ? 'reglages.dictionnaire.complet' : 'reglages.dictionnaire.noyau',
-      { n: nombre.toLocaleString(I18n.langue) });
+    const ancien = Lexique.ancien;
+    /* Le paquet complet d'une mouture antérieure : on en lit les nombres
+     * dans son propre manifeste s'il l'a, et sinon on ne prétend rien. */
+    const actif = ancien
+      ? (ancien.manifeste ? ancien.manifeste.paquets.complet : null)
+      : manifeste.paquets[installeComplet ? 'complet' : 'noyau'];
+    const nombre = actif ? actif.entrees.de + actif.entrees.fr : 0;
+    elements.etatDictionnaire.textContent = ancien
+      ? I18n.t(actif ? 'reglages.dictionnaire.ancien' : 'reglages.dictionnaire.ancien.sans-nombre',
+               { n: nombre.toLocaleString(I18n.langue) })
+      : I18n.t(installeComplet ? 'reglages.dictionnaire.complet' : 'reglages.dictionnaire.noyau',
+               { n: nombre.toLocaleString(I18n.langue) });
+
+    if (ancien) {
+      /* Le message qui compte : ce qui marche encore, ce qui manque, ce que
+       * ça coûte, et que rien ne sera perdu en route. */
+      zone.appendChild(element('p', 'avis-donnees', I18n.t('donnees.anciennes.detail', {
+        taille: Paquets.humain(Paquets.poids(manifeste), I18n.langue),
+      })));
+      const bouton = element('button', 'bouton-principal', I18n.t('reglages.mettre-a-jour', {
+        taille: Paquets.humain(Paquets.poids(manifeste), I18n.langue),
+      }));
+      bouton.type = 'button';
+      bouton.addEventListener('click', () => lancerTelechargement(zone, bouton));
+      zone.appendChild(bouton);
+      zone.appendChild(element('p', 'discret', I18n.t('reglages.mettre-a-jour.detail')));
+      return;
+    }
+    if (!actif) return;
 
     /* Ce que le paquet actif pèse, ce qu'il sait faire, et d'où il vient.
      *
@@ -540,9 +564,12 @@
 
       if (!fini) { dessinerDictionnaire(); return; }
 
+      /* Le nouveau paquet est entier, l'ancien vient d'être effacé par
+       * `telecharger` : on bascule d'un bloc sur la mouture courante. */
       await Lexique.charger('complet');
       await Store.ecrireReglage('paquet', 'complet');
       reglages.paquet = 'complet';
+      cacherAvisDonnees();
       dessinerReglages();
       chercher();
     } catch (erreur) {
@@ -561,6 +588,29 @@
   }
 
   // ── Mise en place ─────────────────────────────────────────────────────────
+
+  // ── Un nouveau téléchargement est nécessaire ──────────────────────────────
+
+  /* Le bandeau qui le dit, au premier écran : le dictionnaire complet d'avant
+   * sert encore, mais les nouveautés attendent un téléchargement. « Mettre à
+   * jour » mène aux réglages, où le téléchargement se lance ; « Plus tard »
+   * replie le bandeau pour cette fois — les réglages le rediront. */
+  function montrerAvisDonnees() {
+    const bandeau = $('#donnees-anciennes');
+    if (!bandeau || !Lexique.ancien) return;
+    $('#donnees-anciennes-texte').textContent = I18n.t('donnees.anciennes', {
+      taille: Paquets.humain(Paquets.poids(manifeste), I18n.langue),
+    });
+    bandeau.hidden = false;
+    requestAnimationFrame(() => bandeau.classList.add('visible'));
+  }
+
+  function cacherAvisDonnees() {
+    const bandeau = $('#donnees-anciennes');
+    if (!bandeau) return;
+    bandeau.classList.remove('visible');
+    bandeau.hidden = true;
+  }
 
   function brancher(etatInitial) {
     reglages = etatInitial.reglages;
@@ -693,6 +743,12 @@
 
     Revision.sensDeTravail = reglages.sensDeTravail || 'les-deux';
     Voix.actif = !!reglages.voix;
+    $('#b-donnees-mettre-a-jour').addEventListener('click', () => {
+      cacherAvisDonnees();
+      basculer('reglages');
+    });
+    $('#b-donnees-plus-tard').addEventListener('click', cacherAvisDonnees);
+    if (Lexique.ancien) montrerAvisDonnees();
     dessinerSuggestions();
     dessinerRecents();
     basculer('chercher');
