@@ -25,7 +25,7 @@
  * efface, sur demande explicite ou en installant une version plus récente.
  */
 
-const VERSION = 'v3.1.0';
+const VERSION = 'v3.2.0';
 const COQUILLE = 'wortschatz-coquille-' + VERSION;
 
 const FICHIERS = [
@@ -43,6 +43,7 @@ const FICHIERS = [
   'js/exercices.js',
   'js/notes.js',
   'js/perso.js',
+  'js/conversation.js',
   'js/motsvifs.js',
   'js/fiche.js',
   'js/seance.js',
@@ -50,6 +51,7 @@ const FICHIERS = [
   'js/atelier.js',
   'js/suivis.js',
   'js/mesmots.js',
+  'js/situations.js',
   'js/sauvegarde.js',
   'js/paquets.js',
   'js/installer.js',
@@ -63,6 +65,10 @@ const FICHIERS = [
   'captures/capture-2-fiche.webp',
   'captures/capture-3-exercice.webp',
   'data/manifeste.json',
+  /* Les phrases et dialogues fournis : du contenu, mais livré et versionné
+   * avec la coquille — pas avec les paquets du dictionnaire. Présent dès la
+   * première installation, hors ligne compris. */
+  'data/conversation.json',
 ];
 
 /* Met en cache une liste de fichiers, un par un, en tolérant les échecs.

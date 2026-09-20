@@ -592,6 +592,12 @@
     if (resultat.perso) {
       return (racine.Perso && Perso.entree(resultat.perso)) || null;
     }
+    /* Une phrase ou une réplique de « Phrases et dialogues » : même forme
+     * d'entrée, servie par son propre module — elle ne vit dans aucune
+     * tranche. */
+    if (resultat.conversation) {
+      return (racine.Conversation && Conversation.entree(resultat.conversation)) || null;
+    }
     /* Le numéro de tranche qu'une carte de révision garde date du jour où
      * elle a été créée. Une mouture plus récente des données déplace les mots
      * d'une tranche à l'autre — trois vedettes de plus au noyau suffisent —

@@ -16,9 +16,15 @@
  * ── Ce que le fichier contient ─────────────────────────────────────────────
  *
  *   motsPersonnels  les entrées ajoutées à la main, avec leur identifiant
- *   notes           celles des mots personnels et celles du dictionnaire
+ *   notes           celles des mots personnels, du dictionnaire, des phrases
  *   cartes          les cartes de révision — échéance, intervalle, facilité
+ *   conversation    les phrases et dialogues écrits soi-même (format 2)
  *   reglages        langue, sens de travail, rythme
+ *
+ * Le format est passé de 1 à 2 avec les phrases et dialogues. Un fichier de
+ * format 1 se lit toujours : ce qui manque est simplement vide. Un fichier de
+ * format 2 devant une application d'avant est refusé avec la raison — elle
+ * ne saurait qu'en faire des cartes orphelines.
  *
  * Le journal des réponses n'y est pas. Il ne sert qu'aux graphiques de
  * l'onglet Progrès, il pèse plus que tout le reste réuni, et le perdre ne perd
@@ -41,7 +47,7 @@
 (function (racine) {
 
   const FORMAT = 'wortschatz-sauvegarde';
-  const VERSION = 1;
+  const VERSION = 2;
 
   /* Au-delà, ce n'est plus une sauvegarde de vocabulaire. Le plafond protège
    * surtout de l'erreur de fichier : on lit ce qu'on a choisi, pas un film. */
@@ -59,10 +65,11 @@
   // ── Export ────────────────────────────────────────────────────────────────
 
   async function rassembler() {
-    const [motsPersonnels, notes, cartes, reglages] = await Promise.all([
+    const [motsPersonnels, notes, cartes, conversation, reglages] = await Promise.all([
       Store.tousLesMotsPerso().catch(() => []),
       Store.toutesLesNotes().catch(() => []),
       Store.toutesLesCartes().catch(() => []),
+      Store.touteLaConversation().catch(() => []),
       Store.lireReglages().catch(() => ({})),
     ]);
     return {
@@ -74,6 +81,7 @@
       motsPersonnels,
       notes,
       cartes,
+      conversation,
       reglages,
     };
   }
@@ -146,15 +154,15 @@
   function notePropre(brut) {
     if (!brut || typeof brut !== 'object') return null;
     const id = typeof brut.id === 'string' ? brut.id : '';
-    if (!/^(dico:(de|fr) .+|perso:p-[\w-]{1,40})$/.test(id)) return null;
+    if (!/^(dico:(de|fr) .+|perso:p-[\w-]{1,40}|conv:[\w-]{1,60}(\/[\w-]{1,20})?)$/.test(id)) return null;
     const contenu = Notes.assainir(brut.texte);
     if (!contenu) return null;
     const cree = nombre(brut.cree, Date.now());
     return {
       id,
-      cible: id.startsWith('perso:') ? 'perso' : 'dico',
+      cible: id.startsWith('perso:') ? 'perso' : (id.startsWith('conv:') ? 'conv' : 'dico'),
       langue: (brut.langue === 'de' || brut.langue === 'fr') ? brut.langue : null,
-      mot: brut.mot ? texte(brut.mot, Perso.MOT_MAX) : null,
+      mot: brut.mot ? texte(brut.mot, 240) : null,
       texte: contenu,
       cree,
       modifie: nombre(brut.modifie, cree),
@@ -188,7 +196,28 @@
     if (typeof brut.perso === 'string' && /^p-[\w-]{1,40}$/.test(brut.perso)) {
       carte.perso = brut.perso;
     }
+    if (typeof brut.conversation === 'string'
+        && /^[\w-]{1,60}(\/[\w-]{1,20})?$/.test(brut.conversation)) {
+      carte.conversation = brut.conversation;
+    }
     return carte;
+  }
+
+  /* Une phrase ou un dialogue personnel importé repasse par la normalisation
+   * du formulaire ; l'identifiant est gardé s'il a la forme attendue — c'est
+   * lui que ses cartes et ses notes désignent. */
+  function conversationPropre(brut) {
+    if (!brut || typeof brut !== 'object' || !racine.Conversation) return null;
+    const sorte = brut.sorte === 'dialogue' ? 'dialogue' : 'phrase';
+    const controle = sorte === 'dialogue'
+      ? Conversation.normaliserDialogue(brut) : Conversation.normaliserPhrase(brut);
+    if (!controle.valide) return null;
+    const attendu = sorte === 'dialogue' ? /^pd-[\w-]{1,40}$/ : /^pp-[\w-]{1,40}$/;
+    const id = (typeof brut.id === 'string' && attendu.test(brut.id))
+      ? brut.id : (sorte === 'dialogue' ? 'pd-' : 'pp-') + Date.now().toString(36)
+        + '-' + Math.random().toString(36).slice(2, 8);
+    const cree = nombre(brut.cree, Date.now());
+    return Object.assign({ id, cree, modifie: nombre(brut.modifie, cree) }, controle.valeurs);
   }
 
   /* Lit un fichier et dit ce qu'il contient. N'écrit rien.
@@ -219,9 +248,14 @@
       .map(notePropre).filter(Boolean);
     const cartes = (Array.isArray(brut.cartes) ? brut.cartes : [])
       .map(cartePropre).filter(Boolean);
+    // Un fichier de format 1 n'a pas ce tableau : il est simplement vide.
+    const conversation = (Array.isArray(brut.conversation) ? brut.conversation : [])
+      .map(conversationPropre).filter(Boolean);
 
     const motsIci = new Map((await Store.tousLesMotsPerso().catch(() => []))
       .map((m) => [m.id, m]));
+    const conversationIci = new Map((await Store.touteLaConversation().catch(() => []))
+      .map((c) => [c.id, c]));
     const notesIci = new Map((await Store.toutesLesNotes().catch(() => []))
       .map((n) => [n.id, n]));
     const cartesIci = new Map((await Store.toutesLesCartes().catch(() => []))
@@ -232,18 +266,21 @@
       mots: trier(mots, motsIci, memeMot),
       notes: trier(notes, notesIci, (a, b) => a.texte === b.texte),
       cartes: trier(cartes, cartesIci, memeCarte),
-      lignes: { mots, notes, cartes },
+      conversation: trier(conversation, conversationIci, memeConversation),
+      lignes: { mots, notes, cartes, conversation },
       ignorees: {
         mots: (Array.isArray(brut.motsPersonnels) ? brut.motsPersonnels.length : 0)
           - mots.length,
         notes: (Array.isArray(brut.notes) ? brut.notes.length : 0) - notes.length,
         cartes: (Array.isArray(brut.cartes) ? brut.cartes.length : 0) - cartes.length,
+        conversation: (Array.isArray(brut.conversation) ? brut.conversation.length : 0)
+          - conversation.length,
       },
     };
     bilan.conflits = bilan.mots.conflits.length + bilan.notes.conflits.length
-      + bilan.cartes.conflits.length;
+      + bilan.cartes.conflits.length + bilan.conversation.conflits.length;
     bilan.neufs = bilan.mots.neufs.length + bilan.notes.neufs.length
-      + bilan.cartes.neufs.length;
+      + bilan.cartes.neufs.length + bilan.conversation.neufs.length;
     return bilan;
   }
 
@@ -273,6 +310,17 @@
       && a.etat === b.etat && a.reussites === b.reussites;
   }
 
+  /* Deux phrases ou dialogues personnels se valent quand leurs textes sont
+   * les mêmes ; le reste — thème, registre, situation — suit. */
+  function memeConversation(a, b) {
+    const texteDe = (c) => JSON.stringify(c.sorte === 'dialogue'
+      ? [c.titre, c.repliques.map((r) => [r.id, r.qui, r.fr, r.de])]
+      : [c.fr, c.de, c.variantes]);
+    return a.sorte === b.sorte && texteDe(a) === texteDe(b)
+      && a.theme === b.theme && a.registre === b.registre
+      && (a.situation || '') === (b.situation || '');
+  }
+
   /* Applique ce qui a été examiné.
    *
    * `politique` vaut 'garder' — ne rien écraser, le défaut — ou 'remplacer'.
@@ -283,7 +331,7 @@
    */
   async function appliquer(bilan, politique) {
     const remplacer = politique === 'remplacer';
-    const compte = { mots: 0, notes: 0, cartes: 0, gardes: 0 };
+    const compte = { mots: 0, notes: 0, cartes: 0, conversation: 0, gardes: 0 };
 
     async function verser(groupe, ecrire, nom) {
       for (const ligne of groupe.neufs) {
@@ -299,18 +347,25 @@
 
     await verser(bilan.mots, (m) => Store.ecrireMotPerso(m), 'mots');
     await verser(bilan.notes, (n) => Store.ecrireNote(n), 'notes');
+    if (bilan.conversation) {
+      await verser(bilan.conversation, (c) => Store.ecrireConversation(c), 'conversation');
+      // Les phrases importées doivent être connues avant qu'on ne juge leurs cartes.
+      if (racine.Conversation) await Conversation.charger();
+    }
 
     /* Les cartes en dernier, et seulement celles dont le mot existe.
      *
      * Une carte de mot personnel dont l'entrée n'a pas été reprise — parce
      * qu'elle était en conflit et qu'on a gardé la sienne — désignerait un mot
-     * absent, et la séance buterait dessus à chaque tour. */
+     * absent, et la séance buterait dessus à chaque tour. Même règle pour une
+     * carte de phrase : son contenu, fourni ou à soi, doit exister ici. */
     const connus = new Set((await Store.tousLesMotsPerso().catch(() => []))
       .map((m) => m.id));
+    const recevable = (c) => (!c.perso || connus.has(c.perso))
+      && (!c.conversation || (racine.Conversation && Conversation.existe(c.conversation)));
     const retenues = {
-      neufs: bilan.cartes.neufs.filter((c) => !c.perso || connus.has(c.perso)),
-      conflits: bilan.cartes.conflits.filter(
-        (c) => !c.venu.perso || connus.has(c.venu.perso)),
+      neufs: bilan.cartes.neufs.filter(recevable),
+      conflits: bilan.cartes.conflits.filter((c) => recevable(c.venu)),
       pareils: bilan.cartes.pareils,
     };
     compte.orphelines = (bilan.cartes.neufs.length - retenues.neufs.length)
@@ -324,7 +379,7 @@
   racine.Sauvegarde = {
     FORMAT, VERSION, TAILLE_MAX,
     rassembler, exporter, examiner, appliquer, nomDeFichier,
-    motPropre, notePropre, cartePropre,
+    motPropre, notePropre, cartePropre, conversationPropre,
   };
 
 })(window);

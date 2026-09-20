@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Wortschatz — français ⇄ allemand",
   "short_name": "Wortschatz",
-  "description": "Dictionnaire français ⇄ allemand hors ligne et exercices de mémorisation : cherchez un mot ou une expression dans les deux sens, écoutez-le, apprenez-le par répétition espacée. Tout reste sur l’appareil, sans compte ni réseau.",
+  "description": "Dictionnaire français ⇄ allemand hors ligne, phrases et dialogues pour les situations courantes, exercices de mémorisation : cherchez un mot ou une expression dans les deux sens, écoutez-le, apprenez-le par répétition espacée. Tout reste sur l’appareil, sans compte ni réseau.",
   "lang": "fr",
   "dir": "ltr",
   "start_url": "./",

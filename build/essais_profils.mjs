@@ -32,7 +32,7 @@ function titre(t) { console.log(''); console.log(t); }
 
 async function attendreServeur() {
   for (let essai = 0; essai < 40; essai += 1) {
-    try { await fetch(ORIGINE + 'index.html'); return true; }
+    try { await (await fetch(ORIGINE + 'index.html')).arrayBuffer(); return true; }
     catch (e) { await new Promise((r) => setTimeout(r, 250)); }
   }
   return false;

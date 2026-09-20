@@ -12,6 +12,8 @@
  *
  *   dico:de Haus    une entrée du dictionnaire
  *   perso:p-1a2b3c  un mot qu'on a ajouté soi-même
+ *   conv:ph-…       une phrase, une réplique ou un dialogue de « Phrases et
+ *                   dialogues », fourni ou à soi — par son identifiant
  *
  * La conséquence est celle qu'on cherche : télécharger le dictionnaire complet,
  * le supprimer, en installer une version plus récente ne touche à aucune note.
@@ -53,6 +55,7 @@
    * `{perso}` — la séance n'a pas toujours l'entrée sous la main. */
   function idPour(entree) {
     if (!entree) return null;
+    if (entree.conversation) return 'conv:' + entree.conversation;
     const uid = entree.perso || entree.uid || null;
     if (uid) return 'perso:' + uid;
     if (!entree.langue || !entree.mot) return null;
@@ -99,7 +102,7 @@
     const maintenant = Date.now();
     const note = {
       id,
-      cible: id.startsWith('perso:') ? 'perso' : 'dico',
+      cible: id.startsWith('perso:') ? 'perso' : (id.startsWith('conv:') ? 'conv' : 'dico'),
       langue: entree.langue || (ancienne && ancienne.langue) || null,
       mot: entree.mot || (ancienne && ancienne.mot) || null,
       texte: propre,
@@ -173,7 +176,8 @@
         ligne.appendChild(annuler);
         corps.appendChild(ligne);
       } else {
-        corps.appendChild(element('p', 'discret', I18n.t('notes.vide')));
+        corps.appendChild(element('p', 'discret',
+          I18n.t(entree.conversation ? 'notes.vide.conversation' : 'notes.vide')));
       }
       const ajouter = element('button', 'bouton-discret', I18n.t('notes.ajouter'));
       ajouter.type = 'button';

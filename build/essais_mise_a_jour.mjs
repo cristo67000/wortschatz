@@ -71,7 +71,9 @@ function servir(dossier) {
 async function attendreServeur(present) {
   for (let essai = 0; essai < 60; essai += 1) {
     try {
-      await fetch(ORIGINE + 'index.html', { cache: 'no-store' });
+      // Le corps est lu : une réponse laissée en suspens fait tomber Node 24
+      // (undici) quand le serveur referme la connexion.
+      await (await fetch(ORIGINE + 'index.html', { cache: 'no-store' })).arrayBuffer();
       if (present) return true;
     } catch (erreur) {
       if (!present) return true;

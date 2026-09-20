@@ -80,6 +80,11 @@
        * le seul moment où l'attente ne se voit pas. Un échec n'arrête rien :
        * on ouvre le dictionnaire sans eux plutôt que de ne rien ouvrir. */
       await Perso.charger().catch(() => {});
+      /* Les phrases et dialogues aussi : la recherche générale les montre
+       * pendant la frappe, ils doivent donc être en mémoire. Le fichier est
+       * pré-caché avec la coquille, et ce qu'on a écrit soi-même vient de la
+       * base — un échec de l'un ou l'autre n'arrête pas le démarrage. */
+      if (window.Conversation) await Conversation.charger().catch(() => {});
 
       App.brancher({ reglages, manifeste });
       ecran.classList.add('parti');

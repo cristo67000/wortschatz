@@ -7,7 +7,7 @@
        mesure d'audience. `connect-src 'self'` suffit, et le dit. -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
   <meta name="referrer" content="no-referrer">
-  <meta name="description" content="Dictionnaire français ⇄ allemand hors ligne et exercices de mémorisation : cherchez un mot ou une expression, écoutez-le, apprenez-le. Tout reste sur l’appareil.">
+  <meta name="description" content="Dictionnaire français ⇄ allemand hors ligne, phrases et dialogues pour les situations courantes, exercices de mémorisation : cherchez un mot ou une expression, écoutez-le, apprenez-le. Tout reste sur l’appareil.">
   <meta name="theme-color" content="#1d3557">
   <title>Wortschatz — français ⇄ allemand</title>
   <!-- Installation sur iOS : Safari ne lit pas le manifeste pour l'écran
@@ -66,12 +66,18 @@
         <h2 data-t="chercher.accueil.titre"></h2>
         <p data-t="chercher.accueil.texte"></p>
         <p class="essayez"><span data-t="chercher.essayez"></span> <span id="suggestions"></span></p>
+        <button id="b-vers-conversation" type="button" class="vers-conversation">
+          <span class="pictogramme" aria-hidden="true">💬</span>
+          <span data-t="chercher.accueil.conversation"></span>
+        </button>
         <div id="recents"></div>
       </div>
 
       <ul id="resultats" role="listbox" aria-label="Résultats" hidden></ul>
 
       <div id="resultats-expressions" hidden></div>
+
+      <div id="resultats-conversation" hidden></div>
 
       <ul id="resultats-suite" role="listbox" aria-label="Autres mots" hidden></ul>
 
@@ -99,6 +105,37 @@
         <ul id="perso-liste"></ul>
         <p id="perso-vide" class="discret" data-t="perso.vide" hidden></p>
         <p id="perso-rien" class="discret" data-t="perso.filtre-vide" hidden></p>
+      </section>
+    </section>
+
+    <!-- ————— Phrases et dialogues ————— -->
+    <section id="vue-conversation" class="vue" hidden>
+      <h2 data-t="conv.titre"></h2>
+      <p class="discret" data-t="conv.intro"></p>
+
+      <div class="conv-recherche">
+        <input id="conv-q" type="search" autocomplete="off" autocapitalize="off"
+               autocorrect="off" spellcheck="false"
+               data-t-ph="conv.chercher" data-t-aria="conv.chercher.aria">
+        <button id="conv-q-vider" type="button" data-t-aria="chercher.vider" hidden>✕</button>
+      </div>
+
+      <div id="conv-outils"></div>
+      <p id="conv-indisponible" class="discret" data-t="conv.indisponible" hidden></p>
+      <div id="conv-liste"></div>
+      <p id="conv-rien" class="discret" data-t="conv.rien" hidden></p>
+
+      <section class="bloc conv-perso">
+        <h3 data-t="conv.perso.titre"></h3>
+        <p class="discret" data-t="conv.perso.note"></p>
+        <div class="ligne-boutons conv-perso-boutons">
+          <button id="b-conv-ajouter-phrase" type="button" class="bouton-discret"
+                  data-t="conv.perso.ajouter-phrase"></button>
+          <button id="b-conv-ajouter-dialogue" type="button" class="bouton-discret"
+                  data-t="conv.perso.ajouter-dialogue"></button>
+        </div>
+        <ul id="conv-perso-liste"></ul>
+        <p id="conv-perso-vide" class="discret" data-t="conv.perso.vide" hidden></p>
       </section>
     </section>
 
@@ -288,6 +325,9 @@
     <button type="button" data-vue="reviser">
       <span class="pictogramme" aria-hidden="true">◳</span><span data-t="onglet.reviser"></span>
     </button>
+    <button type="button" data-vue="conversation">
+      <span class="pictogramme" aria-hidden="true">💬</span><span data-t="onglet.conversation"></span>
+    </button>
     <button type="button" data-vue="mesmots">
       <span class="pictogramme" aria-hidden="true">✎</span><span data-t="onglet.mesmots"></span>
     </button>
@@ -307,6 +347,10 @@
     <div id="formulaire-perso"></div>
   </aside>
 
+  <aside id="panneau-conversation" hidden aria-modal="true" role="dialog">
+    <div id="formulaire-conversation"></div>
+  </aside>
+
   <script src="js/i18n.js"></script>
   <script src="js/lexique.js"></script>
   <script src="js/store.js"></script>
@@ -315,6 +359,7 @@
   <script src="js/exercices.js"></script>
   <script src="js/notes.js"></script>
   <script src="js/perso.js"></script>
+  <script src="js/conversation.js"></script>
   <script src="js/motsvifs.js"></script>
   <script src="js/fiche.js"></script>
   <script src="js/seance.js"></script>
@@ -322,6 +367,7 @@
   <script src="js/atelier.js"></script>
   <script src="js/suivis.js"></script>
   <script src="js/mesmots.js"></script>
+  <script src="js/situations.js"></script>
   <script src="js/sauvegarde.js"></script>
   <script src="js/paquets.js"></script>
   <script src="js/installer.js"></script>

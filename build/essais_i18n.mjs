@@ -94,6 +94,16 @@ const FAMILLES = {
                          'synonyme'],
   'perso.manque.': ['mot', 'langue', 'traductions'],
   'sauvegarde.conflits.': ['garder', 'remplacer'],
+  // « Phrases et dialogues » : registres, types, marques, formulaires.
+  'conv.registre.': ['poli', 'familier'],
+  'conv.type.': ['tout', 'phrase', 'dialogue'],
+  'conv.marque.': ['phrase', 'dialogue', 'replique'],
+  'conv.ecouter.': ['fr', 'de'],
+  'conv.manque.': ['fr', 'de', 'titre', 'repliques', 'replique-incomplete'],
+  'conv.form.': ['fr', 'de', 'fr.aide', 'de.aide', 'variantes.fr', 'variantes.de',
+                 'role.A', 'role.B', 'phrase.ajouter', 'phrase.modifier',
+                 'dialogue.ajouter', 'dialogue.modifier'],
+  'exercice.consigne.ecoute.': ['phrase'],
 };
 for (const [prefixe, suites] of Object.entries(FAMILLES)) {
   for (const suite of suites) employees.add(prefixe + suite);

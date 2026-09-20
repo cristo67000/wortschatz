@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { lancerChrome, fermerChrome, ouvrirOnglet } from './pilote_chrome.mjs';
 
-const RACINE = 'C:\\wz\\wortschatz';
+const RACINE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT_WEB = 8143;
 const ORIGINE = 'http://localhost:' + PORT_WEB + '/';
 
@@ -34,7 +34,9 @@ function demarrerServeur() {
 async function attendreServeur(present) {
   for (let essai = 0; essai < 40; essai += 1) {
     try {
-      await fetch(ORIGINE + 'index.html', { cache: 'no-store' });
+      // Le corps est lu : une réponse laissée en suspens fait tomber Node 24
+      // (undici) quand le serveur referme la connexion.
+      await (await fetch(ORIGINE + 'index.html', { cache: 'no-store' })).arrayBuffer();
       if (present) return true;
     } catch (erreur) {
       if (!present) return true;
@@ -177,7 +179,7 @@ async function principal() {
     serveur.kill();
     await attendreServeur(false);
     let joignable = true;
-    try { await fetch(ORIGINE + 'index.html', { cache: 'no-store' }); }
+    try { await (await fetch(ORIGINE + 'index.html', { cache: 'no-store' })).arrayBuffer(); }
     catch (e) { joignable = false; }
     verifier(!joignable, 'le serveur ne répond plus — la coupure est réelle');
 
