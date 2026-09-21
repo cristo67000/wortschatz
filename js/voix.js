@@ -68,6 +68,12 @@
    * plus rien ne tient, et n'appelle alors jamais `end`. */
   let enCours = null;
 
+  /* Le dernier énoncé demandé au moteur — texte, voix, balise, langue voulue.
+   * C'est la pièce à conviction : si un « z » sonne faux, les Réglages disent
+   * à quelle voix la phrase a été confiée. Ce que le moteur en a fait ensuite,
+   * personne ici ne l'entend. */
+  let dernier = null;
+
   // ── Les voix ──────────────────────────────────────────────────────────────
 
   /* « de-DE », « de_DE », « DE » : la balise de langue varie d'un moteur à
@@ -269,20 +275,25 @@
     return p;
   }
 
-  function lancer(p) {
+  function lancer(p, langue) {
     enCours = p;
     const relacher = () => { if (enCours === p) enCours = null; };
     p.addEventListener('end', relacher);
     p.addEventListener('error', relacher);
+    dernier = { texte: p.text, voix: p.voice ? p.voice.name : '', lang: p.lang, langue, quand: Date.now() };
     speechSynthesis.speak(p);
+    if (typeof document !== 'undefined' && typeof CustomEvent !== 'undefined' && document.dispatchEvent) {
+      document.dispatchEvent(new CustomEvent('voix-parle'));
+    }
   }
 
   function dire(texte, langue) {
     if (!disponible || !actif || !texte) return false;
-    const choisie = voixPour(langue);
+    const cible = langue === 'de' ? 'de' : 'fr';
+    const choisie = voixPour(cible);
     if (!choisie) return false;
     taire();
-    lancer(parole(texte, choisie));
+    lancer(parole(texte, choisie), cible);
     return true;
   }
 
@@ -364,7 +375,7 @@
       // Le filet : 120 ms par signe, jamais moins de trois secondes — plus
       // que la voix la plus lente, pour ne pas lui couper la parole.
       suite.minuterie = setTimeout(apres, 3000 + item.texte.length * 120);
-      lancer(p);
+      lancer(p, item.langue === 'de' ? 'de' : 'fr');
     }
 
     suivant();
@@ -397,6 +408,7 @@
     lister,
     diagnostic,
     appareil,
+    dernier() { return dernier ? Object.assign({}, dernier) : null; },
     configurer,
     choisir,
     phraseDEssai,

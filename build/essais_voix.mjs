@@ -209,6 +209,21 @@ const enCours = derniere();
 verifier(typeof enCours.ecouteurs.end === 'function' && typeof enCours.ecouteurs.error === 'function',
   'l’énoncé en cours est tenu jusqu’à sa fin — Chrome ne le ramassera pas avant');
 
+titre('6. La pièce à conviction : le dernier énoncé demandé, et à quelle voix');
+evenements.length = 0;
+V.dire('Zwanzig Züge.', 'de');
+let d6 = V.dernier();
+verifier(d6 && d6.texte === 'Zwanzig Züge.' && d6.voix === 'Deutsch (lokal)' && d6.lang === 'de-DE' && d6.langue === 'de',
+  'après une lecture, `dernier()` dit le texte, la voix, sa balise et la langue voulue', d6);
+verifier(evenements.includes('voix-parle'), 'et le document reçoit « voix-parle », pour que les Réglages se mettent à jour');
+verifier(typeof d6.quand === 'number' && Date.now() - d6.quand < 5000, 'daté de l’instant');
+V.enchainer([{ texte: 'Bonjour.', langue: 'fr' }], { pause: 5 });
+d6 = V.dernier();
+verifier(d6.texte === 'Bonjour.' && d6.langue === 'fr' && d6.voix === 'Amélie', 'un dialogue le renseigne aussi, réplique par réplique', d6);
+V.taire();
+d6.texte = 'trafiqué';
+verifier(V.dernier().texte === 'Bonjour.', 'ce qui est rendu est une copie');
+
 console.log('');
 console.log(fautes ? `${passees} cas conformes, ${fautes} DÉFAUT(S).`
                    : `${passees} cas conformes. La logique de la voix tient — la prononciation, elle, se juge à l’oreille.`);

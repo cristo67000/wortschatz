@@ -35,7 +35,7 @@ Le *contexte* est la notice que l’application affiche sous la phrase (« Quand
 |---|---|---|---|
 | `ph-transports-billet-journee` | Lohnt es sich, ein Tagesticket zu kaufen? | Est-ce que ça vaut le coup de prendre un billet à la journée ?<br>*var. : Ça vaut le coup, un billet à la journée ?* | *—* · Au guichet ou à un passant, quand on compte prendre plusieurs fois le tram. |
 | `ph-transports-train-rate` | Ich habe meinen Zug verpasst.<br>*var. : Ich habe den Zug verpasst.* | J’ai raté mon train.<br>*var. : J’ai loupé mon train.* | *—* · Au guichet, pour savoir quoi faire. |
-| `ph-transports-prochain-dans-dix-minutes` | Der nächste fährt in zehn Minuten.<br>*var. : Der nächste kommt in zehn Minuten.* | Le prochain part dans dix minutes.<br>*var. : Le prochain est dans dix minutes.* | *—* · La réponse qu’on espère. |
+| `ph-transports-prochain-dans-dix-minutes` | Der nächste fährt in zehn Minuten. | Le prochain part dans dix minutes. | *—* · La réponse qu’on espère. |
 
 ### Restaurant et café — *Restaurant und Café* (`restaurant`, 2 phrases)
 
@@ -56,7 +56,7 @@ Le *contexte* est la notice que l’application affiche sous la phrase (« Quand
 
 | Identifiant | Allemand | Français | Registre · contexte |
 |---|---|---|---|
-| `ph-hotel-bon-restaurant` | Gibt es hier in der Nähe ein gutes Restaurant?<br>*var. : Können Sie mir ein Restaurant in der Nähe empfehlen?* | Y a-t-il un bon restaurant dans le coin ?<br>*var. : Il y a un bon restaurant près d’ici ?* | *—* · À la réception, le soir. |
+| `ph-hotel-bon-restaurant` | Gibt es hier in der Nähe ein gutes Restaurant? | Y a-t-il un bon restaurant dans le coin ?<br>*var. : Il y a un bon restaurant près d’ici ?* | *—* · À la réception, le soir. |
 | `ph-hotel-oreiller` | Könnten Sie mir bitte ein zusätzliches Kissen bringen?<br>*var. : Ich hätte gern noch ein Kissen.* | Pourriez-vous m’apporter un oreiller supplémentaire ? | *poli* · Par téléphone, depuis la chambre. |
 | `ph-hotel-chambre-bruyante` | Das Zimmer ist sehr laut.<br>*var. : Das Zimmer ist leider sehr laut.* | La chambre est très bruyante.<br>*var. : La chambre est vraiment bruyante.* | *—* · Pour demander à changer de chambre. |
 
@@ -68,7 +68,7 @@ Le *contexte* est la notice que l’application affiche sous la phrase (« Quand
 | `ph-rdv-presque-arrive` | Ich bin gleich da.<br>*var. : Ich bin fast da. · Bin gleich da.* | Je suis presque arrivé.<br>*var. : Je suis presque arrivée. · J’y suis presque.* | *—* · Par message, quand on arrive dans quelques minutes. |
 | `ph-rdv-dans-les-bouchons` | Ich stehe im Stau, es dauert noch ein bisschen.<br>*var. : Ich stecke im Stau, es dauert noch etwas.* | Je suis dans les bouchons, ça va prendre encore un peu de temps.<br>*var. : Je suis coincé dans les bouchons, j’en ai encore pour un moment.* | *—* · Pour prévenir d’un retard, avec la raison. |
 | `ph-rdv-commence-sans-moi` | Fang schon mal ohne mich an.<br>*var. : Fang ohne mich an.* | Commence sans moi.<br>*var. : Commence sans m’attendre.* | *familier* · À un ami, quand on arrive en retard. Tutoiement. |
-| `ph-rdv-ne-m-attendez-pas` | Bitte warten Sie nicht auf mich.<br>*var. : Fangen Sie bitte ohne mich an.* | Ne m’attendez pas, s’il vous plaît.<br>*var. : Commencez sans moi, s’il vous plaît.* | *poli* · La même chose, à des gens qu’on vouvoie. |
+| `ph-rdv-ne-m-attendez-pas` | Bitte warten Sie nicht auf mich. | Ne m’attendez pas, s’il vous plaît. | *poli* · La même chose, à des gens qu’on vouvoie. |
 | `ph-rdv-ca-te-dit` | Hast du Lust?<br>*var. : Hättest du Lust?* | Ça te dit ?<br>*var. : Ça te tente ? · Tu as envie ?* | *familier* · Pour proposer quelque chose à un ami. Tutoiement. |
 | `ph-rdv-randonner-samedi` | Hast du Lust, am Samstag wandern zu gehen? | Ça te dit d’aller randonner samedi ?<br>*var. : Ça te dirait d’aller randonner samedi ?* | *familier* · La proposition complète : « Lust haben » + « zu » + infinitif. Tutoiement. |
 | `ph-rdv-ca-vous-dirait` | Hätten Sie Lust, mit uns essen zu gehen?<br>*var. : Möchten Sie mit uns essen gehen?* | Ça vous dirait de venir manger avec nous ? | *poli* · Une invitation à quelqu’un qu’on vouvoie, au conditionnel. |
@@ -80,7 +80,7 @@ Le *contexte* est la notice que l’application affiche sous la phrase (« Quand
 | `ph-rdv-on-se-voit-quand` | Wann sehen wir uns? | On se voit quand ?<br>*var. : Quand est-ce qu’on se voit ?* | *—* · Pour fixer un moment, entre amis. |
 | `ph-rdv-je-te-rappelle` | Ich rufe dich zurück.<br>*var. : Ich rufe dich später zurück.* | Je te rappelle.<br>*var. : Je te rappelle tout à l’heure.* | *familier* · Au téléphone, quand on ne peut pas parler. Tutoiement. |
 | `ph-rdv-je-vous-rappelle` | Ich rufe Sie zurück.<br>*var. : Ich rufe Sie später zurück.* | Je vous rappelle.<br>*var. : Je vous rappelle tout à l’heure.* | *poli* · La même chose, à quelqu’un qu’on vouvoie. |
-| `ph-rdv-je-te-fais-signe` | Ich melde mich.<br>*var. : Ich melde mich bei dir.* | Je te fais signe.<br>*var. : Je te tiens au courant.* | *familier* · En se quittant : on donnera des nouvelles. Tutoiement. |
+| `ph-rdv-je-te-fais-signe` | Ich melde mich.<br>*var. : Ich melde mich bei dir.* | Je te fais signe.<br>*var. : Je te recontacte.* | *familier* · En se quittant : on donnera des nouvelles. Tutoiement. |
 
 ### Demander de l’aide — *Um Hilfe bitten* (`aide`, 8 phrases)
 
@@ -90,7 +90,7 @@ Le *contexte* est la notice que l’application affiche sous la phrase (« Quand
 | `ph-aide-service-vous` | Könnten Sie mir einen Gefallen tun? | Pourriez-vous me rendre un service ? | *poli* · La même chose, à quelqu’un qu’on vouvoie. |
 | `ph-aide-arroser-plantes` | Könntest du meine Pflanzen gießen, wenn ich weg bin? | Tu pourrais arroser mes plantes pendant mon absence ?<br>*var. : Tu pourrais arroser mes plantes quand je ne suis pas là ?* | *familier* · Une demande précise, au conditionnel. Tutoiement. |
 | `ph-aide-surveiller-sac` | Kannst du kurz auf meine Tasche aufpassen?<br>*var. : Passt du kurz auf meine Tasche auf?* | Tu peux surveiller mon sac deux minutes ?<br>*var. : Tu peux garder un œil sur mon sac ?* | *familier* · Au café, à la gare. « Aufpassen auf » : garder un œil sur. Tutoiement. |
-| `ph-aide-emprunter-chargeur` | Kann ich mir kurz dein Ladekabel ausleihen?<br>*var. : Leihst du mir kurz dein Ladekabel?* | Je peux t’emprunter ton chargeur ? | *familier* · « Sich etwas ausleihen » : emprunter. Tutoiement. |
+| `ph-aide-emprunter-chargeur` | Kann ich mir kurz dein Ladegerät ausleihen?<br>*var. : Leihst du mir kurz dein Ladegerät?* | Je peux t’emprunter ton chargeur ?<br>*var. : Tu peux me prêter ton chargeur ?* | *familier* · « Sich etwas ausleihen » : emprunter. Le câble seul se dit « Ladekabel ». Tutoiement. |
 | `ph-aide-avec-plaisir` | Klar, mache ich gern.<br>*var. : Klar, mach ich gern.* | Bien sûr, je fais ça volontiers.<br>*var. : Pas de souci, avec plaisir.* | *—* · Pour accepter de rendre un service. |
 | `ph-aide-je-te-revaudrai-ca` | Danke, ich revanchiere mich!<br>*var. : Danke, dafür revanchiere ich mich!* | Merci, je te revaudrai ça !<br>*var. : Merci, je te dois un service !* | *familier* · Après un service rendu, entre amis. Tutoiement. |
 | `ph-aide-ca-me-depanne` | Das hilft mir wirklich weiter.<br>*var. : Das hilft mir sehr.* | Ça me dépanne vraiment.<br>*var. : Ça m’aide beaucoup.* | *—* · Pour remercier d’un coup de main. |
@@ -125,7 +125,7 @@ Le *contexte* est la notice que l’application affiche sous la phrase (« Quand
 | `ph-quotidien-detour-vaut-le-coup` | Der Umweg lohnt sich, die Aussicht ist wunderschön. | Le détour vaut le coup, la vue est magnifique.<br>*var. : Le détour en vaut la peine, la vue est magnifique.* | *—* · Pour recommander quelque chose qui demande un effort. |
 | `ph-quotidien-j-ai-hate` | Ich freue mich darauf.<br>*var. : Ich freue mich schon darauf. · Ich kann es kaum erwarten.* | J’ai hâte.<br>*var. : Je m’en réjouis d’avance.* | *—* · Pour dire qu’on attend quelque chose avec plaisir. En allemand, on « se réjouit à l’avance » : sich freuen auf. |
 | `ph-quotidien-hate-week-end` | Ich freue mich schon auf das Wochenende.<br>*var. : Ich freue mich aufs Wochenende.* | J’ai hâte d’être au week-end.<br>*var. : Vivement le week-end !* | *—* · « Sich freuen auf » + accusatif : ce qu’on attend suit « auf ». |
-| `ph-quotidien-hate-de-te-voir` | Ich freue mich darauf, dich zu sehen.<br>*var. : Ich freue mich auf dich.* | J’ai hâte de te voir.<br>*var. : J’ai hâte de te revoir.* | *familier* · À un proche, avant de le retrouver. Tutoiement. |
+| `ph-quotidien-hate-de-te-voir` | Ich freue mich darauf, dich zu sehen.<br>*var. : Ich freue mich auf dich.* | J’ai hâte de te voir. | *familier* · À un proche, avant de le retrouver. Tutoiement. |
 | `ph-quotidien-n-en-peux-plus` | Ich kann nicht mehr.<br>*var. : Ich bin fix und fertig. · Ich bin völlig erledigt.* | Je n’en peux plus.<br>*var. : Je suis épuisé. · Je suis crevé.* | *—* · Fatigue ou ras-le-bol. « Fix und fertig » et « völlig erledigt » disent l’épuisement, familièrement. |
 | `ph-quotidien-tiens-moi-au-courant` | Halt mich auf dem Laufenden.<br>*var. : Sag mir Bescheid.* | Tiens-moi au courant.<br>*var. : Tu me tiens au courant ?* | *familier* · À un ami, pour qu’il donne des nouvelles d’une affaire en cours. « Sag mir Bescheid » : préviens-moi. |
 | `ph-quotidien-tenez-moi-au-courant` | Halten Sie mich auf dem Laufenden.<br>*var. : Sagen Sie mir Bescheid.* | Tenez-moi au courant. | *poli* · La même chose, à quelqu’un qu’on vouvoie — au travail, avec un artisan, un médecin. |
@@ -152,7 +152,7 @@ Le *contexte* est la notice que l’application affiche sous la phrase (« Quand
 | `ph-quotidien-tant-pis` | Dann eben nicht.<br>*var. : Dann halt nicht. · Na gut, dann nicht.* | Tant pis.<br>*var. : Tant pis, alors.* | *—* · Pour renoncer sans drame. |
 | `ph-quotidien-dommage` | Schade!<br>*var. : Wie schade!* | Dommage !<br>*var. : C’est dommage ! · Quel dommage !* | *—* · Un regret, léger ou sincère. |
 | `ph-quotidien-super` | Super!<br>*var. : Toll! · Klasse! · Prima!* | Super !<br>*var. : Génial ! · Chouette !* | *—* · Réaction enthousiaste. « Toll », « klasse », « prima » sont ses voisins. |
-| `ph-quotidien-tant-mieux` | Umso besser.<br>*var. : Gut so.* | Tant mieux.<br>*var. : C’est tant mieux.* | *—* · Quand une nouvelle arrange les choses. |
+| `ph-quotidien-tant-mieux` | Umso besser. | Tant mieux.<br>*var. : C’est tant mieux.* | *—* · Quand une nouvelle arrange les choses. |
 | `ph-quotidien-c-est-parti` | Los geht’s!<br>*var. : Auf geht’s!* | C’est parti !<br>*var. : Allez, c’est parti ! · On y va !* | *—* · Au moment de commencer, de partir. |
 | `ph-quotidien-attends` | Warte mal.<br>*var. : Moment mal. · Warte kurz.* | Attends.<br>*var. : Attends un peu. · Une seconde.* | *familier* · Pour retenir un ami une seconde. Tutoiement. |
 | `ph-quotidien-un-instant` | Einen Moment, bitte.<br>*var. : Einen Augenblick, bitte.* | Un instant, s’il vous plaît.<br>*var. : Un moment, s’il vous plaît.* | *poli* · Pour faire patienter quelqu’un qu’on vouvoie. |
@@ -180,8 +180,8 @@ Le *contexte* est la notice que l’application affiche sous la phrase (« Quand
 |---|---|---|---|
 | `ph-visite-entrez` | Kommen Sie rein!<br>*var. : Kommen Sie herein! · Treten Sie ein!* | Entrez !<br>*var. : Entrez, je vous en prie !* | *poli* · À la porte, à quelqu’un qu’on vouvoie. « Treten Sie ein » est plus cérémonieux. |
 | `ph-visite-entre` | Komm rein!<br>*var. : Komm herein!* | Entre !<br>*var. : Viens, entre !* | *familier* · À la porte, à un ami. Tutoiement. |
-| `ph-visite-fais-comme-chez-toi` | Fühl dich wie zu Hause.<br>*var. : Fühl dich wie zuhause. · Mach es dir bequem.* | Fais comme chez toi.<br>*var. : Mets-toi à l’aise.* | *familier* · Pour mettre un ami à l’aise. « Mach es dir bequem » : installe-toi confortablement. Tutoiement. |
-| `ph-visite-faites-comme-chez-vous` | Fühlen Sie sich wie zu Hause.<br>*var. : Machen Sie es sich bequem.* | Faites comme chez vous.<br>*var. : Mettez-vous à l’aise.* | *poli* · La même chose, à quelqu’un qu’on vouvoie. |
+| `ph-visite-fais-comme-chez-toi` | Fühl dich wie zu Hause.<br>*var. : Fühl dich wie zuhause.* | Fais comme chez toi. | *familier* · Pour mettre un ami à l’aise. « Mach es dir bequem » : installe-toi confortablement. Tutoiement. |
+| `ph-visite-faites-comme-chez-vous` | Fühlen Sie sich wie zu Hause. | Faites comme chez vous. | *poli* · La même chose, à quelqu’un qu’on vouvoie. |
 | `ph-visite-merci-invitation` | Danke für die Einladung!<br>*var. : Vielen Dank für die Einladung!* | Merci pour l’invitation !<br>*var. : Merci beaucoup pour l’invitation !* | *—* · En arrivant, ou en partant. |
 | `ph-visite-apporter-quelque-chose` | Soll ich etwas mitbringen?<br>*var. : Kann ich etwas mitbringen?* | Je peux apporter quelque chose ?<br>*var. : Tu veux que j’apporte quelque chose ?* | *familier* · Avant une invitation, à un ami. « Mitbringen » : apporter avec soi. |
 | `ph-visite-boire-quelque-chose` | Möchten Sie etwas trinken?<br>*var. : Darf ich Ihnen etwas zu trinken anbieten?* | Vous voulez boire quelque chose ?<br>*var. : Je peux vous offrir quelque chose à boire ?* | *poli* · Une fois l’invité assis. Vouvoiement. |

@@ -442,6 +442,12 @@
     liste.appendChild(element('li', null, de.total
       ? I18n.t('reglages.voix.details.nombre', { n: de.total, de: de.nombre, fr: fr.nombre })
       : I18n.t('reglages.voix.details.aucune-liste')));
+    /* La pièce à conviction : le dernier énoncé confié au moteur, et à quelle
+     * voix. Après « Essayer », ou après la phrase qui sonnait faux. */
+    const dernier = Voix.dernier();
+    liste.appendChild(element('li', 'reglage-voix-dernier', dernier
+      ? I18n.t('reglages.voix.details.dernier', { texte: dernier.texte, nom: dernier.voix || '?', lang: dernier.lang || '?' })
+      : I18n.t('reglages.voix.details.dernier.aucun')));
     for (const langue of Voix.LANGUES) {
       for (const v of Voix.lister(langue)) {
         liste.appendChild(element('li', 'reglage-voix-detail',
@@ -925,6 +931,16 @@
      * fiches, eux, se repeignent d'eux-mêmes (`Voix.brancherBouton`). */
     document.addEventListener('voix-changees', () => {
       if (!$('#vue-reglages').hidden) dessinerVoix();
+    });
+    /* Après « Essayer », les détails disent aussitôt à quelle voix la phrase
+     * est partie — les détails restent dépliés, seul leur texte change. */
+    document.addEventListener('voix-parle', () => {
+      const ligne = $('#zone-voix .reglage-voix-dernier');
+      const dernier = Voix.dernier();
+      if (ligne && dernier) {
+        ligne.textContent = I18n.t('reglages.voix.details.dernier',
+          { texte: dernier.texte, nom: dernier.voix || '?', lang: dernier.lang || '?' });
+      }
     });
 
     document.addEventListener('keydown', (e) => {

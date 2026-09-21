@@ -15,8 +15,12 @@
  *   2. **rien n'est mélangé ni coupé** — tant que le bandeau n'a pas été
  *      accepté, la page tourne avec le code neuf mais le contenu d'avant,
  *      entier (148 phrases, 9 situations), et aucune phrase de la 3.3 ne
- *      s'y glisse ; après le clic, le contenu neuf est là, entier, et les
- *      cartes d'avant s'ouvrent toujours ;
+ *      s'y glisse ; on le vérifie **fichier par fichier**, par empreinte :
+ *      chaque fichier de la coquille est celui de la version neuve, chaque
+ *      fichier sous `data/` celui de la version d'avant, et le cache de
+ *      l'ancien service worker a reçu les fichiers neufs au passage ; après
+ *      le clic, le contenu neuf est là, entier, et les cartes d'avant
+ *      s'ouvrent toujours ;
  *   3. la sauvegarde exportée par la 3.2 se relit sans rien proposer ;
  *   4. une phrase de la 3.3 s'apprend depuis un dialogue neuf, sans doublon ;
  *   5. tout tient hors ligne, contenu neuf compris.
@@ -27,6 +31,7 @@
  * fusionnée. Une fois qu'elle l'est, donner `0aa5707`.
  */
 import { execSync, spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, readdirSync, readFileSync, rmSync, statSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -121,6 +126,13 @@ async function principal() {
   execSync(`git worktree add --detach "${ANCIENNE}" ${REVISION}`, { cwd: RACINE, stdio: 'ignore' });
   vieillir(ANCIENNE, new Date('2020-01-01T00:00:00Z'));
   const versionAncienne = (readFileSync(path.join(ANCIENNE, 'sw.js'), 'utf8').match(/const VERSION = '([^']+)'/) || [])[1];
+  /* Les fichiers de la coquille neuve, et leur empreinte dans chaque version :
+   * c'est ce qui permet de dire, dans l'entre-deux, d'où vient chacun. */
+  const empreinteDe = (dossier, fichier) => (existsSync(path.join(dossier, fichier))
+    ? createHash('sha256').update(readFileSync(path.join(dossier, fichier))).digest('hex') : null);
+  const listeCoquille = readFileSync(path.join(RACINE, 'sw.js'), 'utf8').split('const FICHIERS = [')[1].split('];')[0];
+  const FICHIERS = [...listeCoquille.matchAll(/'([^']+)'/g)].map((m) => m[1]).filter((f) => f !== './');
+  const EMPREINTES = FICHIERS.map((f) => ({ fichier: f, neuve: empreinteDe(RACINE, f), ancienne: empreinteDe(ANCIENNE, f) }));
   const contenuAncien = JSON.parse(readFileSync(path.join(ANCIENNE, 'data', 'conversation.json'), 'utf8'));
   const contenuNeuf = JSON.parse(readFileSync(path.join(RACINE, 'data', 'conversation.json'), 'utf8'));
   console.log(`Version publiée : ${REVISION} (${versionAncienne}, ${contenuAncien.phrases.length} phrases) → ${VERSION_NEUVE} (${contenuNeuf.phrases.length} phrases)`);
@@ -206,6 +218,20 @@ async function principal() {
         await Store.ecrireReglage('voixFr', choix);
       }
       const empreinte = await (async () => { ${EMPREINTE} })();
+      /* Fichier par fichier : ce que la page reçoit du service worker en
+       * place, et ce que son cache contient maintenant. */
+      const sha = async (r) => {
+        if (!r) return null;
+        const h = await crypto.subtle.digest('SHA-256', await r.arrayBuffer());
+        return [...new Uint8Array(h)].map(b => b.toString(16).padStart(2, '0')).join('');
+      };
+      const servis = {};
+      for (const f of ${JSON.stringify(FICHIERS)}) servis[f] = await sha(await fetch(f));
+      const ancienCache = await caches.open('wortschatz-coquille-' + ${JSON.stringify(versionAncienne)});
+      const enCache = {};
+      for (const f of ['index.html', 'js/voix.js', 'js/app.js', 'js/conversation.js', 'css/app.css', 'data/conversation.json']) {
+        enCache[f] = await sha(await ancienCache.match(f));
+      }
       await MiseAJour.verifier(true);
       let reg = null;
       for (let i = 0; i < 400; i++) {
@@ -214,7 +240,7 @@ async function principal() {
         await new Promise(x => setTimeout(x, 250));
       }
       await new Promise(x => setTimeout(x, 500));
-      return { version, empreinte, attend: !!(reg && reg.waiting),
+      return { version, empreinte, servis, enCache, attend: !!(reg && reg.waiting),
                bandeau: !document.getElementById('mise-a-jour').hidden,
                codeNeuf: typeof Voix.choisir === 'function' && typeof Conversation.expressionsDans === 'function',
                compte: Conversation.compter(), themes: Conversation.themes().map(t => t.id),
@@ -237,6 +263,28 @@ async function principal() {
     verifier(pendant.attend && pendant.bandeau, 'le nouveau service worker est installé, attend, et le bandeau le dit');
     verifier(pendant.caches.includes('wortschatz-coquille-' + versionAncienne),
       'la coquille d’avant est toujours là — c’est elle qui sert', pendant.caches);
+
+    titre('2 bis. Fichier par fichier : la coquille en version neuve, les données en version d’avant');
+    const coquille = EMPREINTES.filter((e) => !e.fichier.startsWith('data/'));
+    const donnees = EMPREINTES.filter((e) => e.fichier.startsWith('data/'));
+    const changes = coquille.filter((e) => e.neuve !== e.ancienne).map((e) => e.fichier);
+    const mauvais = coquille.filter((e) => pendant.servis[e.fichier] !== e.neuve).map((e) => e.fichier);
+    verifier(mauvais.length === 0 && coquille.length >= 25,
+      `les ${coquille.length} fichiers de la coquille sont servis en version neuve — dont les ${changes.length} qui ont changé : ${changes.join(', ')}`, mauvais);
+    const dAvant = donnees.filter((e) => pendant.servis[e.fichier] !== e.ancienne).map((e) => e.fichier);
+    verifier(dAvant.length === 0 && donnees.some((e) => e.fichier === 'data/conversation.json'),
+      `les ${donnees.length} fichiers sous data/ sont servis en version d’avant : ${donnees.map((e) => e.fichier).join(', ')}`, dAvant);
+    const conv = donnees.find((e) => e.fichier === 'data/conversation.json');
+    verifier(conv.neuve !== conv.ancienne && pendant.servis['data/conversation.json'] === conv.ancienne,
+      'conversation.json a changé, et c’est bien l’ancien qui est servi — aucun fichier ne vient d’une version et demie');
+    const manifeste = donnees.find((e) => e.fichier === 'data/manifeste.json');
+    verifier(manifeste && manifeste.neuve === manifeste.ancienne,
+      'le manifeste des données est le même dans les deux versions : la mouture du dictionnaire n’a pas changé');
+    const neufsEnCache = ['index.html', 'js/voix.js', 'js/app.js', 'js/conversation.js', 'css/app.css']
+      .filter((f) => pendant.enCache[f] === EMPREINTES.find((e) => e.fichier === f).neuve);
+    verifier(neufsEnCache.length === 5 && pendant.enCache['data/conversation.json'] === conv.ancienne,
+      'le cache de l’ancien service worker a reçu les fichiers neufs au passage, et garde ses données : hors ligne avant le clic, même état',
+      pendant.enCache);
     console.log(`  (voix : liste ${pendant.voix.pret ? 'arrivée' : 'non arrivée'}, ${pendant.voix.total} voix ; choix français enregistré : ${pendant.voix.choix ? pendant.voix.choix.nom : 'aucune voix'})`);
 
     titre('3. Le feu vert : le contenu neuf, entier, et rien de perdu');

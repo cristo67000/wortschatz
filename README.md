@@ -32,10 +32,16 @@ français que par une voix française — s'il manque une voix, rien n'est lu,
 plutôt que mal, et l'écran le dit pour la langue qui manque. Les Réglages
 montrent la voix retenue pour chaque langue, permettent d'en préférer une
 autre parmi celles du système, et la font lire une phrase à sons pièges —
-« Zehn Züge fahren zum Zoo. » : ses quatre « z » doivent sonner « ts ». Ce
-qu'une voix fait de ce texte dépend d'elle seule ; l'application ne réécrit
-aucune lettre. Sous « Détails techniques », de quoi signaler un défaut :
-système, navigateur, nom de la voix.
+« Zehn Züge fahren zum Zoo. » : ses quatre « z » doivent sonner « ts ».
+L'application transmet le texte tel quel, sans réécrire une lettre, à la voix
+qu'elle nomme ; sous « Détails techniques », elle dit à quelle voix le
+**dernier énoncé** a été confié — la phrase d'essai, ou celle qui sonnait
+faux —, avec le système et le navigateur. C'est de quoi trancher, sur
+l'appareil, d'où vient un « z » prononcé comme un « s » : si la voix nommée
+est bien allemande, le défaut est le sien et une autre voix peut le corriger ;
+si ce n'en est pas une, ou si rien n'apparaît, c'est un défaut à signaler. Le
+code ne contient aucun repli sur une voix d'une autre langue ; cela ne prouve
+pas, à lui seul, que le défaut vient de l'appareil — seul l'essai le dit.
 
 Chaque **signification** porte ses propres exemples : une citation du
 Wiktionnaire dans la langue du mot, et les phrases traduites de Tatoeba qui
@@ -465,6 +471,29 @@ ne dépend ni du téléchargement du dictionnaire complet ni de la mouture des
 données. Ce qu'on écrit soi-même dans le module vit dans IndexedDB (magasin
 `conversation`, base en version 4), avec les mots personnels.
 
+**Ce qui sert entre le déploiement et le clic sur le bandeau.** Le service
+worker en place sert la coquille — `index.html`, les feuilles de style, les
+vingt-quatre scripts — **réseau d'abord** : dès qu'une version est publiée,
+une page ouverte en ligne reçoit son code. Tout ce qui est sous `data/` —
+manifeste, tranches du dictionnaire, `conversation.json` — est servi **cache
+d'abord**, depuis le cache de la coquille encore en place : c'est la version
+d'avant, entière. Dans cet entre-deux, le code neuf lit donc l'ancien
+`conversation.json`, ce qu'il sait faire — moins de phrases, aucune mention de
+relecture, jamais une phrase de la version neuve. Chaque fichier vient d'une
+seule version, et `essais_migration_contenu.mjs` le vérifie fichier par
+fichier : la coquille en version neuve, les données en version d'avant, et le
+cache de l'ancien service worker rempli au passage des fichiers neufs, si bien
+qu'un passage hors ligne avant le clic sert le même état. Le clic active le
+service worker installé avec `cache: 'reload'`, dont le cache est entier et
+d'une seule version, et efface l'ancien.
+
+Ce que cette stratégie ne garantit pas : une coupure du réseau **au milieu
+d'un chargement**, entre deux versions, peut faire tomber une partie des
+scripts sur le cache — donc sur la version d'avant — et l'autre sur le réseau.
+C'est le prix du « réseau d'abord » ; il n'a jamais été observé, un
+rechargement en ligne le répare, et le remède de fond serait de servir la
+coquille cache d'abord, la mise à jour ne passant plus que par le bandeau.
+
 **Les notes et les mots personnels ne sont pas dans le dictionnaire.** Ils
 vivent dans IndexedDB, à côté des cartes ; le dictionnaire vit dans le cache du
 service worker. C'est cette séparation qui fait qu'un changement de paquet, une
@@ -520,8 +549,9 @@ feu vert au service worker et coupe le réseau. Il prend en argument la
 révision qui joue « la version publiée » — `c99b13a`, la 3.1, puisque `main`
 a avancé depuis. `essais_migration_contenu.mjs` fait de même pour le passage
 de la 3.2 à la 3.3, où c'est le contenu qui change : phrases apprises, dialogue
-à soi, réglage de voix, tout doit rester ; l'ancien `conversation.json` sert
-tant que le bandeau n'a pas été accepté, le nouveau après, sans mélange.
+à soi, réglage de voix, tout doit rester — et il énumère, fichier par
+fichier, ce qui est réellement servi dans l'entre-deux (voir « Ce qui sert
+entre le déploiement et le clic », plus haut).
 
 Ils pilotent un Chrome par le protocole DevTools — Node porte un WebSocket
 natif, donc toujours aucune dépendance. Le premier installe l'application,
