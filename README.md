@@ -26,6 +26,17 @@ bleu, die rouge, das vert — le code des tableaux de classe), la prononciation
 avec un bouton pour l'écouter, les formes irrégulières, et les mots du même
 voisinage.
 
+**Écouter.** La lecture à voix haute passe par les voix de l'appareil, sans
+réseau. Un texte allemand n'est lu que par une voix allemande, un texte
+français que par une voix française — s'il manque une voix, rien n'est lu,
+plutôt que mal, et l'écran le dit pour la langue qui manque. Les Réglages
+montrent la voix retenue pour chaque langue, permettent d'en préférer une
+autre parmi celles du système, et la font lire une phrase à sons pièges —
+« Zehn Züge fahren zum Zoo. » : ses quatre « z » doivent sonner « ts ». Ce
+qu'une voix fait de ce texte dépend d'elle seule ; l'application ne réécrit
+aucune lettre. Sous « Détails techniques », de quoi signaler un défaut :
+système, navigateur, nom de la voix.
+
 Chaque **signification** porte ses propres exemples : une citation du
 Wiktionnaire dans la langue du mot, et les phrases traduites de Tatoeba qui
 l'illustrent vraiment. *See* est un lac au masculin et la mer au féminin, avec
@@ -96,11 +107,20 @@ ignorent, est dit dans [build/SOURCES.md](build/SOURCES.md).
 
 **Phrases et dialogues.** Un onglet à part, rangé par situation — saluer et se
 présenter, demander son chemin, transports, restaurant et café, achats et
-paiement, hôtel, rendez-vous, demander de l'aide, faire répéter. Cent
-quarante-huit phrases bilingues, chacune avec sa situation d'emploi, son
-registre quand elle s'adresse à quelqu'un (*poli · vouvoiement*, *familier ·
-tutoiement*), ses variantes acceptées et un bouton d'écoute par langue ; et
-vingt-six dialogues de quatre à huit répliques, à deux voix. Un dialogue
+paiement, hôtel, rendez-vous, demander de l'aide, faire répéter, et depuis la
+version 3.3 deux situations de plus : *au quotidien* (réagir, proposer,
+encourager — « ça marche », « pas de souci », « ça dépend », « ça vaut le
+coup », « tiens-moi au courant », « je croise les doigts pour toi ») et
+*recevoir et être invité*. Deux cent quatre-vingts phrases bilingues, chacune
+avec sa situation d'emploi, son registre quand elle s'adresse à quelqu'un
+(*poli · vouvoiement*, *familier · tutoiement*), ses variantes acceptées et un
+bouton d'écoute par langue ; et quarante dialogues de quatre à huit répliques,
+à deux voix. Les expressions courantes y sont données en situation — « Bon
+courage ! » n'a pas le même équivalent avant un examen (*Viel Erfolg!*) et
+devant une journée difficile (*Halt die Ohren steif!*), et la fiche le dit.
+Quand une phrase contient une expression usuelle du dictionnaire — « kein
+Problem », « alles klar », « bon courage » —, sa fiche y mène : c'est une
+passerelle, pas une fusion, chacune garde ses cartes. Un dialogue
 s'écoute d'une traite dans la langue choisie, avec une pause entre les
 répliques et un bouton Arrêter ; ses traductions se masquent ; et l'on peut
 **jouer un rôle** — A ou B — dont les répliques se cachent, à révéler une par
@@ -125,9 +145,14 @@ partent avec la sauvegarde (format 2 — un fichier de format 1 se relit tel
 quel).
 
 Le contenu fourni est **original, rédigé pour l'application par un assistant
-d'écriture, et non relu par un locuteur natif** : chaque fiche le dit, et
-[build/SOURCES.md](build/SOURCES.md) détaille ce qui a été contrôlé par
-programme — structure, tutoiement et vouvoiement, ponctuation, doublons.
+d'écriture**. Le texte allemand des vingt-six dialogues de la version 3.2 a
+été **validé par une locutrice native** ; les phrases isolées, les traductions
+françaises et tout ce que la version 3.3 ajoute ne l'ont pas encore été.
+Chaque fiche dit dans lequel des deux cas elle est — le fichier le porte
+dialogue par dialogue (`relu`) —, et [build/SOURCES.md](build/SOURCES.md)
+détaille ce qui a été contrôlé par programme : structure, tutoiement et
+vouvoiement, ponctuation, doublons. Ce qui attend relecture est rassemblé dans
+[build/RELECTURE-3.3.md](build/RELECTURE-3.3.md).
 
 **Mes notes.** Chaque fiche — d'un mot, d'une phrase, d'un dialogue — porte une
 section où l'on écrit ce qu'aucun dictionnaire ne sait : le moyen
@@ -186,7 +211,7 @@ les licences.
 | [Wiktionnaire](https://www.wiktionary.org/) intégral, via [wiktextract](https://kaikki.org/) | définitions, **exemples par sens**, synonymes, tableaux de formes, et **les tables de traduction** | CC BY-SA + GFDL |
 | [Tatoeba](https://tatoeba.org/) | phrases allemand/français alignées, et la mesure de fréquence d'usage | CC BY 2.0 FR |
 | `build/grammaire.py` | sept mots-outils français absents du dictionnaire source | écrits pour l'application |
-| `data/conversation.json` | 148 phrases et 26 dialogues par situation, rédigés par un assistant d'écriture et contrôlés par programme, non relus par un locuteur natif | CC BY-SA 4.0, original |
+| `data/conversation.json` | 280 phrases et 40 dialogues par situation, rédigés par un assistant d'écriture et contrôlés par programme ; l'allemand des 26 dialogues de la 3.2 validé par une locutrice native, le reste non relu | CC BY-SA 4.0, original |
 
 Origine commune du dictionnaire : le Wiktionnaire, via
 [DBnary](http://kaiko.getalp.org/about-dbnary/) pour WikDict et directement pour
@@ -356,7 +381,8 @@ js/store.js      IndexedDB : cartes, journal, réglages, historique
 js/paquets.js    téléchargement et installation du dictionnaire complet
 js/installer.js  installation sur l’appareil, et partage du lien
 js/miseajour.js  bandeau de mise à jour, et vérification à la demande
-js/voix.js       synthèse vocale du système, sans réseau
+js/voix.js       synthèse vocale du système, sans réseau : une voix par langue,
+                 jamais celle d'une autre langue, choix et diagnostic
 js/revision.js   planificateur SM-2, et les cartes par direction
 js/exercices.js  les douze exercices et la correction tolérante
 js/notes.js      « Mes notes » : ce qu'on écrit soi-même sur un mot
@@ -454,6 +480,9 @@ node build/essais_i18n.mjs        # aucun libellé absent, dans l'une ou l'autre
 node build/essais_donnees.mjs     # migration, notes, mots personnels, sauvegarde
 node build/essais_conversation.mjs # le contenu des phrases et dialogues, la recherche,
                                   # les cartes sans doublon, la correction, l'export
+node build/essais_voix.mjs        # la voix demandée au moteur : sa langue, son choix,
+                                  # jamais une voix d'une autre langue — la logique,
+                                  # pas la prononciation, qui se juge à l'oreille
 python build/essais_alignement.py # appariement des sens
 python build/commun.py            # normalisation des clés
 python build/verifier.py          # tout le reste, y compris les trois ci-dessus
@@ -474,8 +503,10 @@ Un service worker demande un vrai navigateur. Deux fichiers en lancent un :
 node build/essais_navigateur.mjs  # mode hors ligne, serveur arrêté pour de bon
 node build/essais_profils.mjs     # export d'un profil de navigateur à un autre
 node build/essais_mise_a_jour.mjs # la version de main, puis celle-ci, au même endroit
-node build/essais_migration_phrases.mjs # idem, pour l'arrivée des phrases : la base
-                                  # passe en version 4 sans qu'une carte ne bouge
+node build/essais_migration_phrases.mjs c99b13a # idem, pour l'arrivée des phrases (3.1 → 3.2) :
+                                  # la base passe en version 4 sans qu'une carte ne bouge
+node build/essais_migration_contenu.mjs # 3.2 → 3.3 : le contenu neuf arrive avec la
+                                  # coquille, l'ancien sert jusqu'au clic, rien ne bouge
 ```
 
 `essais_mise_a_jour.mjs` joue le passage d'une **mouture des données** à la
@@ -485,7 +516,12 @@ données. `essais_migration_phrases.mjs` éprouve l'autre passage, celui du code
 et de la base : il relève sur la version publiée l'empreinte de chaque carte,
 note, mot et réglage, sert la version en cours au même port, et compare champ
 par champ — puis apprend une phrase, relit une sauvegarde de format 1, donne le
-feu vert au service worker et coupe le réseau.
+feu vert au service worker et coupe le réseau. Il prend en argument la
+révision qui joue « la version publiée » — `c99b13a`, la 3.1, puisque `main`
+a avancé depuis. `essais_migration_contenu.mjs` fait de même pour le passage
+de la 3.2 à la 3.3, où c'est le contenu qui change : phrases apprises, dialogue
+à soi, réglage de voix, tout doit rester ; l'ancien `conversation.json` sert
+tant que le bandeau n'a pas été accepté, le nouveau après, sans mélange.
 
 Ils pilotent un Chrome par le protocole DevTools — Node porte un WebSocket
 natif, donc toujours aucune dépendance. Le premier installe l'application,

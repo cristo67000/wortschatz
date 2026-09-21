@@ -154,9 +154,45 @@
     return bouton;
   }
 
-  function ligneProvenance(origine) {
-    return element('p', 'discret conv-provenance',
-      I18n.t(origine === 'perso' ? 'conv.provenance.perso' : 'conv.provenance.fourni'));
+  /* D'où vient le texte, et qui l'a relu. Trois cas, jamais confondus : écrit
+   * par soi ; fourni et validé en allemand par une locutrice native (les
+   * dialogues de la version 3.2) ; fourni et non relu — le reste, phrases
+   * isolées comprises. */
+  function ligneProvenance(origine, relu) {
+    let cle = 'conv.provenance.fourni';
+    if (origine === 'perso') cle = 'conv.provenance.perso';
+    else if (relu && relu.de === 'natif') cle = 'conv.provenance.fourni.relu-de';
+    return element('p', 'discret conv-provenance', I18n.t(cle));
+  }
+
+  /* Les expressions usuelles du dictionnaire que la phrase contient : une
+   * passerelle vers leur fiche — sens, équivalents, cartes à part. Rien
+   * n'est affiché quand il n'y a rien. */
+  function sectionExpressions(entree, langue) {
+    const liste = Conversation.expressionsDans(entree.conversation, langue);
+    if (!liste.length) return null;
+    const section = element('section', 'conv-section expressions-usuelles');
+    section.appendChild(element('h3', null, I18n.t('fiche.expressions')));
+    const ul = element('ul');
+    for (const resultat of liste) {
+      const li = element('li');
+      const bouton = element('button', 'expression-ligne');
+      bouton.type = 'button';
+      bouton.appendChild(element('span', 'pastille', I18n.t('langue.' + resultat.langue + '.court')));
+      bouton.appendChild(element('span', 'mot', resultat.mot));
+      if (resultat.apercu) {
+        bouton.appendChild(element('span', 'traduction', resultat.apercu));
+      } else {
+        bouton.classList.add('sans-equivalent');
+        bouton.appendChild(element('span', 'traduction discret', I18n.t('expression.sans-equivalent')));
+      }
+      bouton.addEventListener('click', () => App.ouvrirFiche(resultat));
+      li.appendChild(bouton);
+      ul.appendChild(li);
+    }
+    section.appendChild(ul);
+    section.appendChild(element('p', 'discret', I18n.t('conv.expressions.note')));
+    return section;
   }
 
   // ── L'écran principal ─────────────────────────────────────────────────────
@@ -511,7 +547,10 @@
       bloc.appendChild(section);
     }
 
-    bloc.appendChild(ligneProvenance(entree.origine));
+    const expressions = sectionExpressions(entree, langue);
+    if (expressions) bloc.appendChild(expressions);
+
+    bloc.appendChild(ligneProvenance(entree.origine, entree.relu));
     if (racine.Notes) bloc.appendChild(Notes.construire(entree));
 
     if (entree.origine === 'perso' && Conversation.brut(entree.conversation)) {
@@ -623,7 +662,7 @@
     const corps = element('div', 'conv-repliques');
     bloc.appendChild(corps);
 
-    bloc.appendChild(ligneProvenance(d.origine));
+    bloc.appendChild(ligneProvenance(d.origine, Conversation.relectureDe(d)));
     if (racine.Notes) {
       bloc.appendChild(Notes.construire({ conversation: d.id, langue: 'de',
                                           mot: texteDe(d.titre, 'de') || texteDe(d.titre, 'fr') }));

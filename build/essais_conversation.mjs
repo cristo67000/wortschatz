@@ -3,9 +3,12 @@
  *
  * ── Le contenu d'abord ─────────────────────────────────────────────────────
  *
- * `data/conversation.json` a été rédigé par un assistant d'écriture et n'a pas
- * été relu par un locuteur natif. Ce qu'un programme sait vérifier, il le
- * vérifie donc ici, à chaque fois : la structure, les identifiants, le nombre
+ * `data/conversation.json` a été rédigé par un assistant d'écriture. Seul le
+ * texte allemand des dialogues de la version 3.2 a été validé par une
+ * locutrice native — le fichier le dit dialogue par dialogue (`relu`), et ce
+ * fichier vérifie que la mention n'est posée que là. Ce qu'un programme sait
+ * vérifier, il le vérifie donc ici, à chaque fois : la structure, les
+ * identifiants, le nombre
  * de répliques, la cohérence du tutoiement et du vouvoiement dans les deux
  * langues, la ponctuation française et allemande, et les doublons — deux
  * textes identiques qui n'auraient pas le même identifiant canonique
@@ -144,21 +147,25 @@ function epreuveContenu() {
   verifier(contenu.format === 'wortschatz-conversation', 'format annoncé');
   verifier(!!contenu.provenance && !!contenu.provenance.fr && !!contenu.provenance.de,
     'la provenance est dite, dans les deux langues');
-  verifier(/Claude/.test(contenu.provenance.fr) && /relu/.test(contenu.provenance.fr),
-    'la provenance nomme l’assistant et dit que rien n’a été relu par un humain');
+  verifier(/Claude/.test(contenu.provenance.fr) && /locutrice native/.test(contenu.provenance.fr)
+           && /n’ont pas été relus/.test(contenu.provenance.fr),
+    'la provenance nomme l’assistant, dit ce qu’une locutrice native a validé et ce qui ne l’a pas été');
+  verifier(!/\d{4}-\d{2}-\d{2}/.test(contenu.provenance.fr) && !/(Frau|Madame|Mme) /.test(contenu.provenance.fr),
+    'la provenance ne date pas la relecture et ne nomme personne');
 
   const themes = contenu.themes;
-  verifier(themes.length === 9, `neuf situations (${themes.length})`);
+  verifier(themes.length === 11, `onze situations (${themes.length})`);
   const idsThemes = new Set(themes.map((t) => t.id));
   for (const t of themes) verifier(!!t.fr && !!t.de, `situation « ${t.id} » nommée en fr et de`);
   const attendus = ['saluer', 'chemin', 'transports', 'restaurant', 'achats', 'hotel',
-                    'rendez-vous', 'aide', 'comprendre'];
-  egaux(themes.map((t) => t.id), attendus, 'les situations demandées, dans l’ordre');
+                    'rendez-vous', 'aide', 'comprendre', 'quotidien', 'visite'];
+  egaux(themes.map((t) => t.id), attendus,
+    'les neuf situations de la 3.2 dans leur ordre, puis les deux de la 3.3');
 
   const phrases = contenu.phrases;
   const dialogues = contenu.dialogues;
-  verifier(phrases.length >= 100, `au moins 100 phrases (${phrases.length})`);
-  verifier(dialogues.length >= 20, `au moins 20 dialogues (${dialogues.length})`);
+  verifier(phrases.length >= 228, `au moins 228 phrases — 148 de la 3.2 et 80 de plus (${phrases.length})`);
+  verifier(dialogues.length >= 38, `au moins 38 dialogues — 26 de la 3.2 et 12 de plus (${dialogues.length})`);
   const repliques = dialogues.reduce((n, d) => n + d.repliques.length, 0);
   console.log(`  ${phrases.length} phrases, ${dialogues.length} dialogues, ${repliques} répliques`);
 
@@ -267,7 +274,35 @@ function epreuveContenu() {
   }
   const designations = dialogues.reduce((n, d) => n + d.repliques.filter((r) => r.phrase).length, 0);
   verifier(designations >= 12, `au moins douze répliques reprennent une phrase listée (${designations})`);
+
+  titre('La relecture native : dite dialogue par dialogue, jamais au-delà');
+  const relus = dialogues.filter((d) => d.relu);
+  verifier(relus.length === DIALOGUES_3_2.length && relus.every((d) => DIALOGUES_3_2.indexOf(d.id) !== -1),
+    `les ${DIALOGUES_3_2.length} dialogues de la 3.2 portent la mention, et eux seuls (${relus.length})`,
+    relus.map((d) => d.id).filter((id) => DIALOGUES_3_2.indexOf(id) === -1));
+  verifier(relus.every((d) => JSON.stringify(d.relu) === JSON.stringify({ de: 'natif' })),
+    'la mention ne couvre que l’allemand : `{ de: "natif" }`, rien sur le français');
+  verifier(phrases.every((p) => p.relu === undefined),
+    'aucune phrase isolée ne porte la mention — même reprise par un dialogue validé');
+  const neufs = dialogues.filter((d) => DIALOGUES_3_2.indexOf(d.id) === -1);
+  verifier(neufs.length >= 12 && neufs.every((d) => d.relu === undefined),
+    `les ${neufs.length} dialogues ajoutés ne se disent pas relus`);
+  for (const id of DIALOGUES_3_2) verifier(dialogues.some((d) => d.id === id), `le dialogue ${id} de la 3.2 est toujours là`);
+  for (const id of PHRASES_3_2_ECHANTILLON) verifier(phrases.some((p) => p.id === id), `la phrase ${id} de la 3.2 est toujours là`);
 }
+
+/* Les identifiants de la version 3.2, tels que publiés : les cartes de qui
+ * les a apprises en dépendent. */
+const DIALOGUES_3_2 = ['dg-saluer-collegue', 'dg-saluer-amis', 'dg-saluer-conge', 'dg-chemin-poste',
+  'dg-chemin-gare', 'dg-chemin-perdu', 'dg-transports-guichet', 'dg-transports-train',
+  'dg-transports-taxi', 'dg-restaurant-commande', 'dg-restaurant-addition', 'dg-restaurant-cafe',
+  'dg-achats-vetement', 'dg-achats-caisse', 'dg-achats-boulangerie', 'dg-hotel-arrivee',
+  'dg-hotel-probleme', 'dg-hotel-depart', 'dg-rdv-medecin', 'dg-rdv-reporter', 'dg-rdv-amis',
+  'dg-aide-pharmacie', 'dg-aide-portefeuille', 'dg-aide-telephone', 'dg-comprendre-guichet',
+  'dg-comprendre-mot'];
+const PHRASES_3_2_ECHANTILLON = ['ph-saluer-bonjour', 'ph-chemin-poste', 'ph-chemin-loin',
+  'ph-transports-retard', 'ph-restaurant-payer-carte', 'ph-achats-ticket-caisse', 'ph-hotel-parking',
+  'ph-rdv-ca-me-convient', 'ph-aide-tres-gentil', 'ph-comprendre-c-est-clair', 'ph-comprendre-pas-entendu'];
 
 // ── 2. La migration 3 → 4 ───────────────────────────────────────────────────
 
@@ -379,6 +414,27 @@ function epreuveRecherche() {
     'un dialogue trouvé montre la réplique qui a répondu', dialogue && dialogue.replique);
   verifier(resultats.filter((r) => r.id === 'dg-chemin-poste').length === 1,
     'un dialogue ne revient qu’une fois');
+
+  titre('Recherche : les expressions courantes de la 3.3, dans les deux langues');
+  verifier(trouve('souci', 'ph-quotidien-pas-de-souci') && trouve('Problem', 'ph-quotidien-pas-de-souci'),
+    '« souci » et « Problem » → « Pas de souci. / Kein Problem. »');
+  verifier(trouve('Laufenden', 'ph-quotidien-tiens-moi-au-courant') && trouve('courant', 'ph-quotidien-tenez-moi-au-courant'),
+    '« Laufenden » et « courant » → tiens-moi / tenez-moi au courant');
+  verifier(trouve('Daumen', 'ph-quotidien-je-croise-les-doigts') && trouve('doigts', 'ph-quotidien-je-croise-les-doigts-vous'),
+    '« Daumen » et « doigts » → je croise les doigts, tu et vous');
+  verifier(trouve('lohnt', 'ph-quotidien-ca-vaut-le-coup') && trouve('coup', 'ph-quotidien-ca-ne-vaut-pas-le-coup'),
+    '« lohnt » et « coup » → ça vaut / ne vaut pas le coup');
+  verifier(trouve('courage', 'ph-quotidien-bon-courage-examen') && trouve('courage', 'ph-quotidien-bon-courage-journee'),
+    '« courage » → les deux « bon courage », qui ne se traduisent pas pareil');
+  verifier(trouve('chez toi', 'ph-visite-fais-comme-chez-toi') && trouve('Hause', 'ph-visite-faites-comme-chez-vous'),
+    '« chez toi » et « Hause » → fais / faites comme chez vous');
+  verifier(trouve('gleich', 'ph-saluer-a-tout-a-l-heure') && trouve('unterwegs', 'ph-rdv-je-suis-en-route'),
+    '« gleich » → « Bis gleich! », « unterwegs » → « Ich bin unterwegs. »');
+  verifier(trouve('Gefallen', 'dg-aide-service') && trouve('malentendu', 'dg-comprendre-malentendu'),
+    'les dialogues neufs se trouvent par leurs répliques');
+  verifier(Conversation.chercher('Kino', { theme: 'quotidien' }).every((r) =>
+    (Conversation.phrase(r.id) || Conversation.dialogue(r.id)).theme === 'quotidien'),
+    'le filtre par situation vaut pour une situation neuve');
 }
 
 // ── 4. Entrées, cartes, apprentissage sans doublon ─────────────────────────
@@ -422,6 +478,40 @@ async function epreuveApprentissage() {
     '« Alles klar, danke! » désigne « Alles klar, danke. » — la ponctuation ne compte pas');
   verifier(Conversation.canonique('dg-chemin-poste/r1') === 'dg-chemin-poste/r1',
     'une réplique qui ne reprend rien est sa propre référence');
+  verifier(Conversation.canonique('dg-aide-service/r1') === 'ph-aide-petit-service'
+           && Conversation.canonique('dg-rdv-retard/r6') === 'ph-saluer-a-tout-a-l-heure',
+    'un dialogue neuf désigne les phrases neuves qu’il reprend');
+  verifier(Conversation.canonique('dg-hotel-conseil-restaurant/r5') === 'ph-chemin-loin'
+           && Conversation.canonique('dg-transports-train-rate/r7') === 'ph-aide-tres-gentil',
+    'et les phrases de la 3.2 : « Ist es weit? » et « das ist sehr nett von Ihnen » gardent leurs cartes');
+  verifier(Conversation.canonique('dg-comprendre-malentendu/r5') === 'ph-quotidien-pas-grave',
+    '« Macht nichts. » dans le malentendu est la phrase « Ce n’est pas grave. »');
+
+  titre('La mention de relecture suit chaque entrée');
+  egaux(Conversation.entree('dg-chemin-poste/r1').relu, { de: 'natif' },
+    'une réplique d’un dialogue de la 3.2 : validée en allemand');
+  verifier(Conversation.entree('ph-chemin-loin').relu === null,
+    'la phrase « Ist es weit? » — reprise par ce dialogue — reste non relue : la validation ne s’étend pas');
+  verifier(Conversation.entree('dg-aide-service/r2').relu === null && Conversation.entree('ph-quotidien-pas-de-souci').relu === null,
+    'les contenus de la 3.3 ne se disent pas relus');
+  verifier(Conversation.relectureDe({ relu: { de: 'natif', fr: 'natif' } }) !== null
+           && Conversation.relectureDe({ relu: { de: 'natif', fr: 'natif' } }).fr === undefined,
+    'une mention sur le français serait ignorée : seul l’allemand peut être dit validé');
+  verifier(Conversation.relectureDe({ relu: 'oui' }) === null && Conversation.relectureDe({ origine: 'perso', relu: { de: 'natif' } }) === null,
+    'une mention mal formée, ou sur un contenu à soi, ne vaut rien');
+
+  titre('La passerelle vers les expressions usuelles du dictionnaire');
+  const dansSouci = Conversation.expressionsDans('ph-quotidien-pas-de-souci', 'de');
+  verifier(dansSouci.some((v) => v.langue === 'de' && v.mot === 'kein Problem'),
+    '« Kein Problem. » mène à l’expression « kein Problem » du dictionnaire', dansSouci.map((v) => v.mot));
+  verifier(dansSouci.every((v) => v.expression === true && v.mot.indexOf(' ') !== -1),
+    'seules des expressions à plusieurs mots sont proposées — un mot seul est déjà cliquable');
+  const dansMarche = Conversation.expressionsDans('ph-quotidien-ca-marche', 'fr');
+  verifier(dansMarche.length >= 2 && dansMarche[0].langue === 'fr' && dansMarche.some((v) => v.mot === 'alles klar'),
+    '« Ça marche. / Alles klar. » mène aux deux, la langue demandée d’abord', dansMarche.map((v) => v.langue + ':' + v.mot));
+  verifier(Conversation.expressionsDans('ph-chemin-bout-rue-droite', 'fr').every((v) => v.mot !== 'de là'),
+    '« au bout de la rue » ne mène pas à « de là » : la comparaison garde les accents');
+  verifier(Conversation.expressionsDans('inconnu', 'de').length === 0, 'un identifiant inconnu ne mène nulle part');
   const avant = (await Store.toutesLesCartes()).length;
   const depuisDialogue = await Revision.apprendre(Conversation.entree('dg-chemin-poste/r3'));
   verifier(depuisDialogue.length === 2, 'depuis le dialogue : deux cartes créées');
@@ -836,7 +926,7 @@ function epreuveCoquille() {
   }
   verifier(caches.has('data/conversation.json'), 'le contenu fourni est pré-caché avec la coquille');
   verifier(/data-vue="conversation"/.test(html), 'l’onglet existe');
-  verifier(/v3\.2\.0/.test(sw), 'la version de la coquille a changé');
+  verifier(/v3\.3\.0/.test(sw), 'la version de la coquille a changé : le contenu neuf voyage avec elle');
   verifier(html.indexOf('js/conversation.js') < html.indexOf('js/motsvifs.js')
            && html.indexOf('js/situations.js') > html.indexOf('js/mesmots.js')
            && html.indexOf('js/situations.js') < html.indexOf('js/app.js'),

@@ -414,8 +414,10 @@
    * complet en range près de deux mille, et on les lit toutes. C'est le seul
    * moyen qu'une recherche à deux mots retrouve « de bonne heure » : chaque
    * mot rend sa liste entière, et c'est leur intersection qui isole. Le
-   * plafond ne sert qu'aux appelants qui veulent s'arrêter tôt. */
-  function expressionsPar(langue, k, plafond) {
+   * plafond ne sert qu'aux appelants qui veulent s'arrêter tôt ;
+   * `exactSeulement` à ceux qui ne veulent que le mot lui-même — le mot
+   * exact est rangé en tête, la lecture s'arrête juste après. */
+  function expressionsPar(langue, k, plafond, exactSeulement) {
     const index = etat.expressions[langue];
     if (!index || !k) return [];
     const limite = plafond || Infinity;
@@ -425,6 +427,7 @@
     while (numero < index.debuts.length && sortie.length < limite) {
       const [motLu, liste] = champs(index, numero);
       if (!motLu.startsWith(k)) break;
+      if (exactSeulement && motLu !== k) break;
       const exact = motLu === k;
       for (const marque of liste.split('|')) {
         const deuxPoints = marque.indexOf(':');
