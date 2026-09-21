@@ -927,6 +927,12 @@ function epreuveCoquille() {
   verifier(caches.has('data/conversation.json'), 'le contenu fourni est pré-caché avec la coquille');
   verifier(/data-vue="conversation"/.test(html), 'l’onglet existe');
   verifier(/v3\.3\.0/.test(sw), 'la version de la coquille a changé : le contenu neuf voyage avec elle');
+  const versionSw = (sw.match(/const VERSION = '([^']+)'/) || [])[1];
+  const versionPage = (html.match(/name="application-version" content="([^"]+)"/) || [])[1];
+  verifier(!!versionSw && versionSw === versionPage,
+    `la page porte la version du service worker (${versionSw}) — l’installation la compare`, { versionSw, versionPage });
+  verifier(/caches\.delete\(COQUILLE\)/.test(sw) && !/addAll/.test(sw) && /MARQUE/.test(sw),
+    'l’installation est tout ou rien, dans un cache à elle, effacé si elle échoue');
   verifier(html.indexOf('js/conversation.js') < html.indexOf('js/motsvifs.js')
            && html.indexOf('js/situations.js') > html.indexOf('js/mesmots.js')
            && html.indexOf('js/situations.js') < html.indexOf('js/app.js'),

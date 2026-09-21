@@ -4,19 +4,27 @@
  *
  * Deux sortes de fichiers, deux traitements :
  *
- *   la coquille (HTML, CSS, JavaScript) — **réseau d'abord**. Une correction
- *   arrive dès qu'elle existe, et l'application reste ouvrable sans réseau.
+ *   la coquille (HTML, CSS, JavaScript, manifeste de l'application, contenu
+ *   fourni) — **cache d'abord, depuis le cache de cette version et de lui
+ *   seul**. Une page ne reçoit jamais qu'un jeu complet d'une seule version :
+ *   celui que ce service worker a installé, tout ou rien, dans un cache qui
+ *   porte son numéro. Une version suivante se prépare dans un autre cache, et
+ *   ne prend la main qu'au feu vert de `js/miseajour.js` — quand la personne a
+ *   accepté le bandeau. Tant qu'elle attend, l'ancienne sert, entière.
  *
  *   les données (data/…) — **cache d'abord**. Un fichier de dictionnaire ne
- *   change jamais à l'intérieur d'une version : le redemander au réseau serait
- *   du temps et des octets perdus. Une nouvelle version des données porte de
- *   nouveaux noms de cache, et c'est l'application qui la télécharge.
+ *   change jamais à l'intérieur d'une mouture : le redemander au réseau serait
+ *   du temps et des octets perdus. Une nouvelle mouture porte de nouveaux noms
+ *   de cache, et c'est l'application qui la télécharge.
  *
- * Une nouvelle version s'installe en silence, puis **attend** : elle ne prend
- * la main qu'au feu vert de `js/miseajour.js`, c'est-à-dire quand la personne a
- * accepté le bandeau. Tant qu'elle attend, l'ancienne sert et son cache reste
- * entier — s'activer d'office effacerait sous la page ouverte les fichiers dont
- * elle se sert encore.
+ * Pourquoi la coquille n'est plus servie « réseau d'abord » (jusqu'en 3.2) :
+ * une page ouverte recevait le code neuf dès sa publication, sous l'ancien
+ * service worker, avec les données d'avant — et une coupure au milieu d'un
+ * chargement pouvait lui donner la moitié des scripts d'une version et
+ * l'autre moitié de l'autre. Le bandeau de mise à jour rend ce raccourci
+ * inutile : la version suivante s'installe en arrière-plan, complète, puis
+ * attend. Le passage depuis la 3.2 se fait encore une fois à l'ancienne — c'est
+ * son service worker qui sert alors —, et c'est la dernière.
  *
  * ⚠ Ce service worker ne supprime **que** les caches de coquille périmés. Le
  * cache des données (`wortschatz-donnees-…`) ne lui appartient pas : il
@@ -28,6 +36,8 @@
 const VERSION = 'v3.3.0';
 const COQUILLE = 'wortschatz-coquille-' + VERSION;
 
+/* Les ressources obligatoires : sans l'une d'elles, il n'y a pas
+ * d'application, et rien n'est proposé. */
 const FICHIERS = [
   './',
   'index.html',
@@ -71,18 +81,46 @@ const FICHIERS = [
   'data/conversation.json',
 ];
 
+/* La marque que portent les requêtes d'installation. Elle sert deux fois :
+ * `cache: 'reload'` court-circuite le cache du navigateur, mais pas celui d'un
+ * relais — GitHub Pages sert derrière un CDN qui garde un fichier dix minutes,
+ * et juste après une publication il peut encore tenir l'ancien. Une adresse
+ * que personne n'a demandée avant est forcément fraîche. Et une épreuve qui
+ * veut couper le réseau *pendant* une installation reconnaît ces requêtes. */
+const MARQUE = '?coquille=' + encodeURIComponent(VERSION);
+
+/* Installe la coquille : chaque fichier obligatoire, tout ou rien, rangé sous
+ * son adresse nue. Le jeu doit être d'une seule version : la page porte la
+ * sienne dans une balise, et un `index.html` d'une autre version — relais en
+ * retard, publication en cours — fait échouer l'installation, qui sera
+ * retentée plus tard, depuis rien. */
+async function installerLaCoquille(cache) {
+  const manques = [];
+  await Promise.all(FICHIERS.map(async (url) => {
+    try {
+      const reponse = await fetch(new Request(url + MARQUE, { cache: 'reload' }));
+      if (!reponse.ok) { manques.push(url + ' : ' + reponse.status); return; }
+      await cache.put(url, reponse);
+    } catch (erreur) {
+      manques.push(url + ' : ' + (erreur && erreur.message ? erreur.message : erreur));
+    }
+  }));
+  if (manques.length) throw new Error('coquille incomplète — ' + manques.join(', '));
+  const page = await cache.match('index.html');
+  const html = page ? await page.text() : '';
+  if (html.indexOf('name="application-version" content="' + VERSION + '"') === -1) {
+    throw new Error('index.html n’est pas de la version ' + VERSION);
+  }
+}
+
 /* Met en cache une liste de fichiers, un par un, en tolérant les échecs.
  *
- * `addAll()` est tout-ou-rien : un seul fichier manqué et rien n'est gardé.
- * Sur les vingt-sept fichiers de la coquille c'est ce qu'on veut — une
- * application à qui il manque un script ne vaut pas mieux que pas
- * d'application. Sur les cinquante-huit du dictionnaire, non : un hoquet de
- * réseau mobile, un proxy, une limitation de débit, et l'installation entière
- * échouait — donc plus aucun mode hors ligne, en silence, alors que
- * cinquante-sept fichiers étaient arrivés.
- *
- * Ce qui manque ici sera rattrapé à l'usage : le gestionnaire `fetch` range
- * dans le cache tout fichier de données qu'il doit aller chercher.
+ * Sur les fichiers du dictionnaire, un hoquet de réseau mobile, un proxy, une
+ * limitation de débit, et l'installation entière échouait — donc plus aucun
+ * mode hors ligne, en silence, alors que cinquante-sept fichiers étaient
+ * arrivés. Ce qui manque ici sera rattrapé à l'usage : le gestionnaire
+ * `fetch` range dans le cache tout fichier de données qu'il doit aller
+ * chercher.
  */
 async function cacherTolerant(cache, urls) {
   let manques = 0;
@@ -112,23 +150,27 @@ async function cacherTolerant(cache, urls) {
 self.addEventListener('install', (e) => {
   e.waitUntil((async () => {
     const cache = await caches.open(COQUILLE);
-
-    /* `cache: 'reload'` court-circuite le cache HTTP du navigateur. Sans lui,
-     * addAll() remplirait le cache neuf avec les réponses périmées que le
-     * navigateur détient encore — GitHub Pages sert avec max-age=600 — et le
-     * nouveau service worker figerait la version précédente. */
-    await cache.addAll(FICHIERS.map((u) => new Request(u, { cache: 'reload' })));
+    try {
+      await installerLaCoquille(cache);
+    } catch (erreur) {
+      /* Rien n'est proposé, et rien ne reste : une coquille à moitié remplie
+       * ne doit pas traîner sous le nom de cette version. La prochaine
+       * tentative — au retour du réseau, à la prochaine vérification —
+       * repartira de zéro. */
+      await caches.delete(COQUILLE);
+      throw erreur;
+    }
 
     /* Le noyau du dictionnaire fait partie de l'installation : sans lui,
      * l'application s'ouvrirait hors ligne sur un dictionnaire vide. La liste
      * vient du manifeste plutôt que d'être recopiée ici, pour qu'une
      * reconstruction des données n'oblige pas à retoucher ce fichier.
      *
-     * Le manifeste vient d'être mis en cache par l'addAll ci-dessus ; on le
-     * relit depuis le cache, sans nouvelle requête. Attention : lire le corps
-     * d'une réponse la consomme, et la cloner *après* lève une exception qui
-     * ferait échouer toute l'installation — donc, silencieusement, plus aucun
-     * mode hors ligne. C'est exactement ce qui s'est produit ici une fois. */
+     * Le manifeste vient d'être mis en cache ; on le relit depuis le cache,
+     * sans nouvelle requête. Attention : lire le corps d'une réponse la
+     * consomme, et la cloner *après* lève une exception qui ferait échouer
+     * toute l'installation — donc, silencieusement, plus aucun mode hors
+     * ligne. C'est exactement ce qui s'est produit ici une fois. */
     const enCache = await cache.match('data/manifeste.json');
     const manifeste = await enCache.json();
     const manques = await cacherTolerant(
@@ -152,8 +194,9 @@ self.addEventListener('message', (e) => {
   // Le feu vert du bandeau de mise à jour.
   if (message.type === 'passer-devant') self.skipWaiting();
 
-  /* La version de la coquille n'est écrite qu'ici. La page la demande plutôt
-   * que d'en tenir une copie, qui finirait par mentir. */
+  /* La version de la coquille n'est écrite qu'ici — et dans la balise de la
+   * page, que l'installation compare à celle-ci. La page la demande plutôt
+   * que d'en tenir une copie en JavaScript, qui finirait par mentir. */
   if (message.type === 'version' && e.ports && e.ports[0]) {
     e.ports[0].postMessage({ version: VERSION });
   }
@@ -231,31 +274,16 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  /* Réseau d'abord, cache en secours — et « secours » veut dire les deux
-   * façons dont le réseau manque :
-   *
-   *   il ne répond pas      → fetch() rejette
-   *   il répond mal         → fetch() résout, avec un statut d'erreur
-   *
-   * Ne rattraper que le premier cas laissait passer le second : une réponse en
-   * erreur était renvoyée telle quelle à la page, qui se retrouvait sans son
-   * JavaScript. Cela arrive derrière un portail captif d'hôtel, un proxy
-   * d'entreprise, un réseau qui filtre — c'est-à-dire précisément là où une
-   * application hors ligne doit tenir.
-   */
+  /* La coquille : le cache de cette version, et lui seul. Ce qui n'y est pas
+   * n'est pas de la version — une image d'aperçu, une adresse inconnue — et
+   * va au réseau sans rien laisser dans le cache : y ranger un fichier venu
+   * d'une autre publication, c'est exactement le mélange qu'on refuse.
+   * `ignoreSearch` : « index.html?x » est la page ; `ignoreVary` : un relais
+   * qui varie sur l'encodage ne doit pas rendre la page introuvable. */
   e.respondWith((async () => {
-    try {
-      const reponse = await fetch(e.request.url, { cache: 'no-cache' });
-      if (reponse.ok) {
-        const copie = reponse.clone();
-        caches.open(COQUILLE).then((c) => c.put(e.request, copie));
-        return reponse;
-      }
-      return (await caches.match(e.request, { ignoreSearch: true })) || reponse;
-    } catch (erreur) {
-      const enCache = await caches.match(e.request, { ignoreSearch: true });
-      if (enCache) return enCache;
-      throw erreur;
-    }
+    const coquille = await caches.open(COQUILLE);
+    const enCache = await coquille.match(e.request, { ignoreSearch: true, ignoreVary: true });
+    if (enCache) return enCache;
+    return fetch(e.request);
   })());
 });

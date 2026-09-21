@@ -34,14 +34,16 @@ montrent la voix retenue pour chaque langue, permettent d'en préférer une
 autre parmi celles du système, et la font lire une phrase à sons pièges —
 « Zehn Züge fahren zum Zoo. » : ses quatre « z » doivent sonner « ts ».
 L'application transmet le texte tel quel, sans réécrire une lettre, à la voix
-qu'elle nomme ; sous « Détails techniques », elle dit à quelle voix le
-**dernier énoncé** a été confié — la phrase d'essai, ou celle qui sonnait
-faux —, avec le système et le navigateur. C'est de quoi trancher, sur
-l'appareil, d'où vient un « z » prononcé comme un « s » : si la voix nommée
-est bien allemande, le défaut est le sien et une autre voix peut le corriger ;
-si ce n'en est pas une, ou si rien n'apparaît, c'est un défaut à signaler. Le
-code ne contient aucun repli sur une voix d'une autre langue ; cela ne prouve
-pas, à lui seul, que le défaut vient de l'appareil — seul l'essai le dit.
+qu'elle nomme ; sous « Détails techniques », elle dit à quelle voix elle a
+**demandé** le dernier énoncé — la phrase d'essai, ou celle qui sonnait
+faux —, avec le système et le navigateur. C'est un indice, pas une preuve :
+le moteur du système ne dit pas quelle voix il a réellement employée, et un
+nom allemand affiché n'attribue pas encore le défaut à cette voix. Ce qui
+départage, sur l'appareil, c'est l'essai de chaque voix allemande sur la
+phrase d'essai ; si toutes prononcent mal, ou si aucune n'apparaît, c'est un
+défaut à signaler avec ces lignes. Le code ne contient aucun repli sur une
+voix d'une autre langue ; cela ne prouve pas, à lui seul, que le défaut vient
+de l'appareil — seul l'essai le dit.
 
 Chaque **signification** porte ses propres exemples : une citation du
 Wiktionnaire dans la langue du mot, et les phrases traduites de Tatoeba qui
@@ -365,6 +367,11 @@ des semaines. Elle s'installe désormais en silence puis attend, un bandeau
 annonce qu'elle est prête, et rien ne bascule avant un clic — recharger sous les
 doigts de quelqu'un ferait perdre la séance en cours. Les Réglages permettent
 aussi de chercher une mise à jour à la main, et affichent la version installée.
+Et une version est **entière ou rien** : la page, les styles, les scripts et
+le contenu fourni sont servis depuis le cache de la version en place, la
+suivante se prépare dans un cache à elle et n'est proposée qu'une fois tous
+ses fichiers arrivés — le réseau peut tomber au milieu, il ne reste ni
+bandeau ni cache à moitié plein, et l'application en place continue.
 
 ## Essayer en local
 
@@ -471,28 +478,30 @@ ne dépend ni du téléchargement du dictionnaire complet ni de la mouture des
 données. Ce qu'on écrit soi-même dans le module vit dans IndexedDB (magasin
 `conversation`, base en version 4), avec les mots personnels.
 
-**Ce qui sert entre le déploiement et le clic sur le bandeau.** Le service
-worker en place sert la coquille — `index.html`, les feuilles de style, les
-vingt-quatre scripts — **réseau d'abord** : dès qu'une version est publiée,
-une page ouverte en ligne reçoit son code. Tout ce qui est sous `data/` —
-manifeste, tranches du dictionnaire, `conversation.json` — est servi **cache
-d'abord**, depuis le cache de la coquille encore en place : c'est la version
-d'avant, entière. Dans cet entre-deux, le code neuf lit donc l'ancien
-`conversation.json`, ce qu'il sait faire — moins de phrases, aucune mention de
-relecture, jamais une phrase de la version neuve. Chaque fichier vient d'une
-seule version, et `essais_migration_contenu.mjs` le vérifie fichier par
-fichier : la coquille en version neuve, les données en version d'avant, et le
-cache de l'ancien service worker rempli au passage des fichiers neufs, si bien
-qu'un passage hors ligne avant le clic sert le même état. Le clic active le
-service worker installé avec `cache: 'reload'`, dont le cache est entier et
-d'une seule version, et efface l'ancien.
+**Une version est entière ou rien.** Depuis la 3.3, le service worker sert
+la coquille — `index.html`, les feuilles de style, les scripts, le manifeste
+et `conversation.json` — **depuis le cache de sa version, et de lui seul**.
+Ce qui n'y est pas va au réseau sans rien laisser dans le cache. La version
+suivante se prépare dans un cache qui porte son numéro : chaque fichier
+obligatoire est téléchargé avec une marque d'adresse qui déjoue les relais
+(`?coquille=v…`), tout ou rien ; la page doit porter la version du service
+worker (`<meta name="application-version">`), sans quoi l'installation est
+refusée — un relais en retard, une publication en cours ; et une installation
+qui échoue efface son cache avant de s'arrêter. Le bandeau n'apparaît qu'à
+l'état `installed`, donc une fois la coquille entière ; le clic active la
+nouvelle version et efface l'ancienne coquille — jamais les caches de
+données, qui ne changent pas de règle : cache d'abord, dans la coquille pour
+le noyau, dans le cache de la mouture pour le paquet complet.
 
-Ce que cette stratégie ne garantit pas : une coupure du réseau **au milieu
-d'un chargement**, entre deux versions, peut faire tomber une partie des
-scripts sur le cache — donc sur la version d'avant — et l'autre sur le réseau.
-C'est le prix du « réseau d'abord » ; il n'a jamais été observé, un
-rechargement en ligne le répare, et le remède de fond serait de servir la
-coquille cache d'abord, la mise à jour ne passant plus que par le bandeau.
+Jusqu'en 3.2, la coquille était servie **réseau d'abord** : une page ouverte
+recevait le code neuf dès sa publication, sous l'ancien service worker, avec
+les données d'avant — et une coupure au milieu d'un chargement pouvait lui
+donner des scripts de deux versions. Le passage de la 3.2 à la 3.3 se fait
+donc encore une fois à l'ancienne, c'est le service worker de la 3.2 qui sert
+alors ; `essais_coquille.mjs` le joue tel quel, réseau coupé pendant
+l'installation, puis joue la règle nouvelle vers une version suivante
+fabriquée pour l'occasion, et une publication incohérente. Empreinte par
+empreinte : jamais deux versions dans une même page.
 
 **Les notes et les mots personnels ne sont pas dans le dictionnaire.** Ils
 vivent dans IndexedDB, à côté des cartes ; le dictionnaire vit dans le cache du
@@ -536,6 +545,9 @@ node build/essais_migration_phrases.mjs c99b13a # idem, pour l'arrivée des phra
                                   # la base passe en version 4 sans qu'une carte ne bouge
 node build/essais_migration_contenu.mjs # 3.2 → 3.3 : le contenu neuf arrive avec la
                                   # coquille, l'ancien sert jusqu'au clic, rien ne bouge
+node build/essais_coquille.mjs    # la coquille d'une seule version : réseau coupé pendant
+                                  # l'installation, ancienne version utilisable, suivante
+                                  # entière ou rien — depuis la 3.2 publiée, puis au-delà
 ```
 
 `essais_mise_a_jour.mjs` joue le passage d'une **mouture des données** à la

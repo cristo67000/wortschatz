@@ -36,7 +36,8 @@
   const ENTRE_DEUX_VERIFICATIONS = 15 * 60 * 1000;
 
   /* Si le service worker ne répond pas au feu vert, on recharge quand même :
-   * la coquille est servie réseau d'abord, la page reviendra à jour. */
+   * au pire la page revient telle qu'elle était, servie par la version en
+   * place, et le bandeau se représentera. */
   const PATIENCE = 3000;
 
   let enregistrement = null;

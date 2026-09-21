@@ -448,6 +448,9 @@
     liste.appendChild(element('li', 'reglage-voix-dernier', dernier
       ? I18n.t('reglages.voix.details.dernier', { texte: dernier.texte, nom: dernier.voix || '?', lang: dernier.lang || '?' })
       : I18n.t('reglages.voix.details.dernier.aucun')));
+    /* Ce que cette ligne prouve, et ce qu'elle ne prouve pas : la voix
+     * demandée, pas la voix employée — le moteur ne le dit pas. */
+    liste.appendChild(element('li', 'reglage-voix-detail', I18n.t('reglages.voix.details.dernier.note')));
     for (const langue of Voix.LANGUES) {
       for (const v of Voix.lister(langue)) {
         liste.appendChild(element('li', 'reglage-voix-detail',
