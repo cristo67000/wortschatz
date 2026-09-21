@@ -420,6 +420,100 @@ async function principal() {
       'répondre par l’équivalent de l’autre sens (' + apprise.autreSens + ') vaut « presque », et la remarque le dit',
       apprise);
 
+    titre('9. La voix, sur ce Chrome : quelle voix est demandée, et pour quelle langue');
+    const voix = await onglet.evaluer(`
+      // Le moteur est réel ; on note seulement ce qui lui est demandé.
+      const notees = [];
+      const vrai = speechSynthesis.speak.bind(speechSynthesis);
+      speechSynthesis.speak = (p) => { notees.push({ texte: p.text, voix: p.voice && p.voice.name, lang: p.lang }); vrai(p); };
+      for (let i = 0; i < 40 && !Voix.pret; i++) await new Promise(x => setTimeout(x, 100));
+      const de = Voix.diagnostic('de');
+      const fr = Voix.diagnostic('fr');
+      App.basculer('reglages');
+      await new Promise(x => setTimeout(x, 300));
+      const blocs = [...document.querySelectorAll('#zone-voix .reglage-voix-langue')];
+      const etats = blocs.map(b => b.querySelector('.discret').textContent);
+      const menus = blocs.map(b => [...b.querySelector('select').options].map(o => o.value));
+      const details = document.querySelector('#zone-voix .reglage-voix-details').textContent;
+      // « Essayer » l'allemand : soit une voix allemande parle, soit rien ne part.
+      blocs[0].querySelector('button').click();
+      await new Promise(x => setTimeout(x, 300));
+      const essaiDe = notees.slice();
+      // Une phrase allemande depuis sa fiche : même règle.
+      await App.ouvrirFiche({ conversation: 'ph-quotidien-pas-de-souci' });
+      await new Promise(x => setTimeout(x, 500));
+      const boutons = [...document.querySelectorAll('#fiche-contenu .conv-fiche-texte .ecouter')];
+      boutons[0].click();
+      await new Promise(x => setTimeout(x, 300));
+      const parlees = notees.slice(essaiDe.length);
+      document.querySelector('.fiche-fermer').click();
+      speechSynthesis.cancel();
+      return { pret: Voix.pret, de: { nombre: de.nombre, voix: de.voix }, fr: { nombre: fr.nombre, voix: fr.voix },
+               etats, menus, details: details.slice(0, 300), essaiDe, parlees,
+               boutonGrise: boutons[0].disabled, titreBouton: boutons[0].title };
+    `);
+    console.log(`  (${voix.de.nombre} voix allemandes, ${voix.fr.nombre} françaises ; allemand : ${voix.de.voix ? voix.de.voix.nom : 'aucune'})`);
+    verifier(voix.pret, 'la liste des voix est arrivée');
+    verifier(voix.etats.length === 2 && voix.menus[0][0] === '' && voix.menus[0].length === voix.de.nombre + 1,
+      'les Réglages montrent un bloc par langue, avec « Automatique » et une entrée par voix', voix.menus);
+    verifier(/Système|System/.test(voix.details) && /Navigateur|Browser/.test(voix.details),
+      'les détails techniques nomment le système et le navigateur');
+    if (voix.de.voix) {
+      verifier(/Voix retenue|Verwendete Stimme/.test(voix.etats[0]) && voix.etats[0].includes(voix.de.voix.nom),
+        'l’état dit la voix allemande retenue : ' + voix.de.voix.nom, voix.etats[0]);
+      verifier(voix.essaiDe.length === 1 && voix.essaiDe[0].texte === 'Zehn Züge fahren zum Zoo.'
+               && /^de/i.test(voix.essaiDe[0].lang) && voix.essaiDe[0].voix === voix.de.voix.nom,
+        '« Essayer » demande « Zehn Züge fahren zum Zoo. » à cette voix, en allemand', voix.essaiDe);
+      verifier(voix.parlees.length === 1 && voix.parlees[0].texte === 'Kein Problem.' && /^de/i.test(voix.parlees[0].lang),
+        'le ▸ de la phrase demande « Kein Problem. » à une voix allemande', voix.parlees);
+    } else {
+      verifier(/Aucune voix allemande|keine deutsche Stimme/.test(voix.etats[0]),
+        'sans voix allemande, l’état le dit pour cette langue', voix.etats[0]);
+      verifier(voix.essaiDe.length === 0 && voix.parlees.length === 0 && voix.boutonGrise,
+        'rien n’est demandé au moteur — jamais une voix française pour de l’allemand — et le ▸ est grisé');
+    }
+    verifier(voix.parlees.every((p) => !/^fr/i.test(p.lang)) && voix.essaiDe.every((p) => !/^fr/i.test(p.lang)),
+      'aucun texte allemand n’est parti avec une balise française');
+
+    titre('10. Les phrases de la 3.3, par l’interface : recherche, fiche, passerelle, provenance');
+    const contenu = await onglet.evaluer(`
+      App.basculer('conversation');
+      await new Promise(x => setTimeout(x, 300));
+      const q = document.querySelector('#conv-q');
+      q.value = 'Daumen'; q.dispatchEvent(new Event('input', { bubbles: true }));
+      await new Promise(x => setTimeout(x, 300));
+      const lignes = [...document.querySelectorAll('#conv-liste .conv-ligne .conv-principal')].map(e => e.textContent);
+      const situations = [...document.querySelectorAll('#conv-outils .conv-theme')].map(b => b.textContent);
+      document.querySelector('#conv-liste .conv-ligne').click();
+      await new Promise(x => setTimeout(x, 500));
+      const fiche = document.querySelector('#fiche-contenu');
+      const provenancePhrase = fiche.querySelector('.conv-provenance').textContent;
+      const registre = (fiche.querySelector('.conv-registre') || {}).textContent || '';
+      document.querySelector('.fiche-fermer').click();
+      await App.ouvrirFiche({ conversation: 'ph-quotidien-pas-de-souci' });
+      await new Promise(x => setTimeout(x, 500));
+      const passerelle = [...document.querySelectorAll('#fiche-contenu .expressions-usuelles .expression-ligne .mot')].map(e => e.textContent);
+      document.querySelector('#fiche-contenu .expressions-usuelles .expression-ligne').click();
+      await new Promise(x => setTimeout(x, 900));
+      const vedette = (document.querySelector('#fiche-contenu .vedette .mot') || {}).textContent;
+      document.querySelector('.fiche-fermer').click();
+      Situations.ouvrirDialogue('dg-chemin-poste');
+      await new Promise(x => setTimeout(x, 300));
+      const provenanceValide = document.querySelector('#fiche-contenu .conv-provenance').textContent;
+      document.querySelector('.fiche-fermer').click();
+      return { lignes, situations: situations.length, provenancePhrase, registre, passerelle, vedette, provenanceValide };
+    `);
+    verifier(contenu.lignes.some((l) => /Daumen|doigts/.test(l)) && contenu.lignes.length >= 2,
+      '« Daumen » dans l’onglet trouve les phrases « je croise les doigts »', contenu.lignes);
+    verifier(contenu.situations === 12, 'onze situations, plus « toutes »', contenu.situations);
+    verifier(/relus|durchgesehen/.test(contenu.provenancePhrase) && !/locutrice|Muttersprachlerin/.test(contenu.provenancePhrase),
+      'la fiche d’une phrase neuve se dit non relue', contenu.provenancePhrase);
+    verifier(/tutoiement|vouvoiement|Duzen|Siezen/.test(contenu.registre), 'et porte son registre', contenu.registre);
+    verifier(contenu.passerelle.includes('kein Problem') && contenu.vedette === 'kein Problem',
+      '« Kein Problem. » mène à la fiche de l’expression « kein Problem »', contenu);
+    verifier(/locutrice native|Muttersprachlerin/.test(contenu.provenanceValide),
+      'le dialogue de la poste se dit validé en allemand', contenu.provenanceValide);
+
     // Le serveur repart pour l'épreuve suivante.
     serveur = demarrerServeur();
     await attendreServeur(true);
