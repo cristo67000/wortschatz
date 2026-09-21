@@ -7,13 +7,14 @@
  * service worker, en fichiers ; ici ne vit que ce qui appartient à la personne
  * qui apprend.
  *
- * Six magasins :
- *   reglages    langue de l'interface, voix, quotas — une ligne par réglage
- *   cartes      une carte de révision : quel mot, dans quel sens, quand revoir
- *   journal     une ligne par réponse donnée, pour les statistiques
- *   historique  les mots récemment consultés
- *   notes       une note personnelle attachée à un mot — du dictionnaire ou à soi
- *   perso       les mots et expressions qu'on a ajoutés soi-même
+ * Sept magasins :
+ *   reglages      langue de l'interface, voix, quotas — une ligne par réglage
+ *   cartes        une carte de révision : quel mot, dans quel sens, quand revoir
+ *   journal       une ligne par réponse donnée, pour les statistiques
+ *   historique    les mots récemment consultés
+ *   notes         une note personnelle attachée à un mot — du dictionnaire ou à soi
+ *   perso         les mots et expressions qu'on a ajoutés soi-même
+ *   conversation  les phrases et les dialogues qu'on a écrits soi-même
  *
  * Le journal est volontairement séparé des cartes : une carte dit l'état
  * présent, le journal dit ce qui s'est passé. Sans lui, impossible de montrer
@@ -29,6 +30,7 @@
  *
  *   dico:de Haus    une entrée du dictionnaire, par sa langue et sa vedette
  *   perso:p-1a2b3c  un mot à soi, par son identifiant stable
+ *   conv:ph-…       une phrase ou une réplique de « Phrases et dialogues »
  *
  * L'identifiant d'un mot personnel ne dépend pas de son orthographe : corriger
  * « Baguet » en « Baguette » ne perd ni sa note ni ses révisions.
@@ -36,7 +38,7 @@
 (function (racine) {
 
   const NOM = 'wortschatz';
-  const VERSION = 3;
+  const VERSION = 4;
   let bd = null;
 
   /* Version 1 → 2 : la carte « sens » devient une carte de direction.
@@ -113,6 +115,28 @@
     }
   }
 
+  /* Version 3 → 4 : les phrases et dialogues.
+   *
+   * Même règle qu'au passage à la version 3 : on ne fait qu'ajouter. Un index
+   * `conversation` sur les cartes — vide pour toutes les cartes existantes,
+   * qui n'ont pas ce champ — et un magasin pour ce qu'on écrit soi-même dans
+   * « Phrases et dialogues ». Aucune carte, aucune note, aucun réglage n'est
+   * lu ni réécrit.
+   */
+  function migrerVers4(base, transaction) {
+    if (base.objectStoreNames.contains('cartes')) {
+      const cartes = transaction.objectStore('cartes');
+      if (!cartes.indexNames.contains('conversation')) {
+        cartes.createIndex('conversation', 'conversation', { unique: false });
+      }
+    }
+    if (!base.objectStoreNames.contains('conversation')) {
+      const magasin = base.createObjectStore('conversation', { keyPath: 'id' });
+      magasin.createIndex('sorte', 'sorte', { unique: false });
+      magasin.createIndex('modifie', 'modifie', { unique: false });
+    }
+  }
+
   function ouvrir() {
     if (bd) return Promise.resolve(bd);
     return new Promise((resoudre, rejeter) => {
@@ -142,6 +166,7 @@
           magasin.createIndex('quand', 'quand', { unique: false });
         }
         migrerVers3(base, transaction);
+        migrerVers4(base, transaction);
       };
       demande.onsuccess = () => {
         bd = demande.result;
@@ -214,6 +239,14 @@
     return 'perso:' + uid + ' ' + type;
   }
 
+  /* L'identifiant d'une carte de phrase ou de réplique — même règle : pas la
+   * graphie, l'identifiant stable du contenu. Le séparateur est le même NUL,
+   * écrit ici par son code : un NUL littéral se perd au premier outil qui
+   * nettoie les signes de commande, et c'est déjà arrivé à ce fichier. */
+  function identifiantConversation(id, type) {
+    return 'conv:' + id + String.fromCharCode(0) + type;
+  }
+
   async function lireCarte(id) {
     const t = await transaction(['cartes'], 'readonly');
     return promesse(t.objectStore('cartes').get(id));
@@ -227,7 +260,15 @@
     const magasin = t.objectStore('cartes');
     if (perso) return promesse(magasin.index('perso').getAll(perso));
     const toutes = await promesse(magasin.index('mot').getAll(mot));
-    return toutes.filter((c) => c.langue === langue && !c.perso);
+    return toutes.filter((c) => c.langue === langue && !c.perso && !c.conversation);
+  }
+
+  /* Les cartes d'une phrase ou d'une réplique, par son identifiant canonique.
+   * L'index ne range que les cartes qui portent le champ : celles du
+   * dictionnaire et des mots personnels n'y répondent jamais. */
+  async function cartesDeConversation(id) {
+    const t = await transaction(['cartes'], 'readonly');
+    return promesse(t.objectStore('cartes').index('conversation').getAll(id));
   }
 
   async function ecrireCarte(carte) {
@@ -332,17 +373,41 @@
     return promesse(t.objectStore('perso').getAll());
   }
 
+  // ── Phrases et dialogues personnels ───────────────────────────────────────
+
+  async function lireConversation(id) {
+    const t = await transaction(['conversation'], 'readonly');
+    return promesse(t.objectStore('conversation').get(id));
+  }
+
+  async function ecrireConversation(enregistrement) {
+    const t = await transaction(['conversation'], 'readwrite');
+    await promesse(t.objectStore('conversation').put(enregistrement));
+    return enregistrement;
+  }
+
+  async function supprimerConversation(id) {
+    const t = await transaction(['conversation'], 'readwrite');
+    return promesse(t.objectStore('conversation').delete(id));
+  }
+
+  async function touteLaConversation() {
+    const t = await transaction(['conversation'], 'readonly');
+    return promesse(t.objectStore('conversation').getAll());
+  }
+
   racine.Store = {
     ouvrir,
     DEFAUTS,
     lireReglages, ecrireReglage,
-    identifiant, identifiantPerso,
-    lireCarte, cartesDuMot, ecrireCarte, supprimerCarte,
+    identifiant, identifiantPerso, identifiantConversation,
+    lireCarte, cartesDuMot, cartesDeConversation, ecrireCarte, supprimerCarte,
     toutesLesCartes, cartesDues,
     noter, journalDepuis,
     consulter, historique,
     lireNote, ecrireNote, supprimerNote, toutesLesNotes,
     lireMotPerso, ecrireMotPerso, supprimerMotPerso, tousLesMotsPerso,
+    lireConversation, ecrireConversation, supprimerConversation, touteLaConversation,
   };
 
 })(window);

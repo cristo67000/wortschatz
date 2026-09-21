@@ -77,7 +77,8 @@
       /* Un mot personnel se groupe sous son identifiant, jamais sous sa
        * graphie : deux entrées peuvent s'écrire pareil — celle du dictionnaire
        * et la sienne — et les confondre mêlerait leurs échéances. */
-      const id = carte.perso ? 'perso ' + carte.perso : carte.langue + ' ' + carte.mot;
+      const id = carte.conversation ? 'conv ' + carte.conversation
+        : (carte.perso ? 'perso ' + carte.perso : carte.langue + ' ' + carte.mot);
       const groupe = groupes.get(id);
       if (groupe) {
         groupe.cartes.push(carte);
@@ -85,6 +86,7 @@
       } else {
         groupes.set(id, { id, langue: carte.langue, mot: carte.mot,
                           perso: carte.perso || null,
+                          conversation: carte.conversation || null,
                           cree: carte.cree, cartes: [carte] });
       }
     }
@@ -114,7 +116,7 @@
 
   async function retirer(groupe) {
     retires.set(groupe.id, { groupe, cartes: groupe.cartes });
-    await Revision.oublier(groupe.langue, groupe.mot, groupe.perso);
+    await Revision.oublier(groupe.langue, groupe.mot, groupe.perso, groupe.conversation);
     await Seance.rafraichir();
     /* La main passe au bouton qui annule : c'est le seul geste qui ait un sens
      * juste après, et il doit être atteignable sans souris. */
@@ -162,21 +164,29 @@
      * cliquable — il reste retirable, ce pour quoi on est venu. */
     /* Un mot personnel s'ouvre par son identifiant, et il est toujours là :
      * il ne dépend d'aucun paquet téléchargé. */
+    /* Une phrase de « Phrases et dialogues » s'ouvre par son identifiant ;
+     * elle porte une pastille à elle, et sa traduction vient du module. */
     const perso = groupe.perso && racine.Perso ? Perso.brut(groupe.perso) : null;
-    const vedette = perso ? Perso.resultat(perso, true, null)
-                          : Lexique.vedette(groupe.langue, groupe.mot);
+    const phrase = groupe.conversation && racine.Conversation
+      ? Conversation.apercu(groupe.conversation) : null;
+    const vedette = phrase ? { conversation: groupe.conversation }
+      : (perso ? Perso.resultat(perso, true, null)
+               : (groupe.conversation ? null : Lexique.vedette(groupe.langue, groupe.mot)));
     const corps = element(vedette ? 'button' : 'div', 'suivi-mot');
     if (vedette) {
       corps.type = 'button';
       corps.addEventListener('click', () => App.ouvrirFiche(vedette));
     }
     corps.appendChild(element('span', 'pastille',
-      I18n.t('langue.' + groupe.langue + '.court')));
+      I18n.t(groupe.conversation ? 'conv.marque.phrase' : 'langue.' + groupe.langue + '.court')));
     corps.appendChild(element('span', 'mot', groupe.mot));
-    if (groupe.perso) {
+    if (groupe.perso || (groupe.conversation && racine.Conversation
+                         && Conversation.estPersonnel(groupe.conversation))) {
       corps.appendChild(element('span', 'pastille perso', I18n.t('perso.marque')));
     }
-    if (vedette && vedette.apercu) {
+    if (phrase && phrase.fr) {
+      corps.appendChild(element('span', 'traduction', phrase.fr));
+    } else if (vedette && vedette.apercu) {
       corps.appendChild(element('span', 'traduction', vedette.apercu));
     }
     li.appendChild(corps);

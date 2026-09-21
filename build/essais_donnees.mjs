@@ -612,8 +612,9 @@ async function epreuvePaquets(depot, mots) {
 async function epreuveSauvegarde(depot) {
   titre('Export et import');
   const paquet = await Sauvegarde.rassembler();
-  verifier(paquet.format === 'wortschatz-sauvegarde' && paquet.version === 1,
-    'le fichier est versionné');
+  verifier(paquet.format === 'wortschatz-sauvegarde' && paquet.version === Sauvegarde.VERSION
+           && paquet.version >= 2,
+    'le fichier est versionné (format 2 depuis les phrases et dialogues)');
   verifier(paquet.motsPersonnels.length > 0 && paquet.cartes.length > 0,
     'le fichier porte les mots personnels et les cartes');
 

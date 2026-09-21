@@ -46,6 +46,7 @@
    * dictionnaire le connaît déjà, et les deux s'apprennent séparément. Les
    * confondre ferait passer pour su un mot qu'on n'a jamais révisé. */
   function cleDuMot(ligne) {
+    if (ligne.conversation) return 'conv ' + ligne.conversation;
     return ligne.perso ? 'perso ' + ligne.perso : ligne.langue + ' ' + ligne.mot;
   }
 
@@ -186,9 +187,17 @@
         const langue = identifiant.slice(0, espace);
         const mot = identifiant.slice(espace + 1);
         const ligne = element('li');
-        const bouton = element('button', 'lien-discret', mot);
+        /* Une phrase se nomme par son identifiant : on affiche son texte,
+         * et on ouvre sa fiche par le module. */
+        const phrase = langue === 'conv' && racine.Conversation
+          ? Conversation.apercu(mot) : null;
+        const bouton = element('button', 'lien-discret', phrase ? phrase.de : mot);
         bouton.type = 'button';
         bouton.addEventListener('click', () => {
+          if (langue === 'conv') {
+            if (phrase) App.ouvrirFiche({ conversation: mot });
+            return;
+          }
           const trouves = Lexique.chercher(mot, 8)
             .filter((r) => r.langue === langue && r.mot === mot);
           if (trouves.length) App.ouvrirFiche(trouves[0]);

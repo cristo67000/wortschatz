@@ -72,10 +72,11 @@
    * corriger l'orthographe du mot ne doit pas fabriquer une carte neuve et
    * abandonner l'ancienne avec ses trois mois d'intervalle. Le champ `mot`
    * reste, pour l'affichage des listes, et suit les corrections. */
-  function neuve(langue, mot, tranche, type, perso) {
+  function neuve(langue, mot, tranche, type, perso, conversation) {
     const carte = {
-      id: perso ? Store.identifiantPerso(perso, type)
-                : Store.identifiant(langue, mot, type),
+      id: conversation ? Store.identifiantConversation(conversation, type)
+        : (perso ? Store.identifiantPerso(perso, type)
+                 : Store.identifiant(langue, mot, type)),
       langue, mot, tranche, type,
       etat: 'nouveau',
       palier: 0,
@@ -88,6 +89,9 @@
       vu: 0,
     };
     if (perso) carte.perso = perso;
+    /* Une phrase ou une réplique de « Phrases et dialogues » : l'identifiant
+     * canonique du contenu, jamais son texte — voir js/conversation.js. */
+    if (conversation) carte.conversation = conversation;
     return carte;
   }
 
@@ -118,12 +122,22 @@
      * Ce qui fait l'expression, c'est sa provenance ou le choix de qui l'a
      * saisie — pas ses espaces : « Republik Kuba » garde sa carte de genre. */
     const estExpression = Lexique.estExpression(entree);
-    if (entree.langue === 'de' && !estExpression) {
+    // Une phrase n'a pas de genre non plus : on n'apprend pas « der » sur
+    // « Wo ist die Post? ».
+    if (entree.langue === 'de' && !estExpression && !entree.conversation) {
       const aUnGenre = entree.lectures.some((l) => l[0] === 'n' && l[1]);
       if (aUnGenre) types.push('genre');
     }
     return types.map((type) => neuve(entree.langue, entree.mot, entree.tranche,
-                                     type, entree.perso || null));
+                                     type, entree.perso || null,
+                                     entree.conversation || null));
+  }
+
+  /* Les cartes qu'une entrée possède déjà, quelle que soit sa famille : mot
+   * du dictionnaire, mot à soi, phrase ou réplique. */
+  function cartesDe(langue, mot, perso, conversation) {
+    if (conversation) return Store.cartesDeConversation(conversation);
+    return Store.cartesDuMot(langue, mot, perso || null);
   }
 
   /* La carte demande-t-elle de produire la vedette elle-même, ou sa traduction ?
@@ -136,8 +150,8 @@
   }
 
   async function apprendre(entree) {
-    const existantes = await Store.cartesDuMot(entree.langue, entree.mot,
-                                               entree.perso || null);
+    const existantes = await cartesDe(entree.langue, entree.mot,
+                                      entree.perso || null, entree.conversation || null);
     const deja = new Set(existantes.map((c) => c.type));
     const creees = [];
     for (const carte of cartesPour(entree)) {
@@ -148,14 +162,14 @@
     return creees;
   }
 
-  async function oublier(langue, mot, perso) {
-    for (const carte of await Store.cartesDuMot(langue, mot, perso || null)) {
+  async function oublier(langue, mot, perso, conversation) {
+    for (const carte of await cartesDe(langue, mot, perso, conversation)) {
       await Store.supprimerCarte(carte.id);
     }
   }
 
-  async function estAppris(langue, mot, perso) {
-    return (await Store.cartesDuMot(langue, mot, perso || null)).length > 0;
+  async function estAppris(langue, mot, perso, conversation) {
+    return (await cartesDe(langue, mot, perso, conversation)).length > 0;
   }
 
   // ── Le calcul de la prochaine échéance ────────────────────────────────────
@@ -227,6 +241,7 @@
        * lui, l'onglet Progrès confondrait un « Zug » à soi avec celui du
        * dictionnaire, et compterait pour un ce qui fait deux. */
       perso: carte.perso || null,
+      conversation: carte.conversation || null,
       type: carte.type,
       exercice: exercice || null,
       qualite,
@@ -323,7 +338,7 @@
   racine.Revision = {
     RATE, DIFFICILE, CORRECT, FACILE,
     JOUR, PALIERS, FACILITE_INITIALE,
-    neuve, cartesPour, apprendre, oublier, estAppris, produitLaVedette,
+    neuve, cartesPour, cartesDe, apprendre, oublier, estAppris, produitLaVedette,
     juger, noter, file, compter, nouveautesDuJour, memeJour,
     get sensDeTravail() { return sensDeTravail; },
     set sensDeTravail(v) { sensDeTravail = v; },

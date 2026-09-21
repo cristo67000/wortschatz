@@ -133,6 +133,7 @@
     const entree = await Lexique.ouvrir({
       langue: carte.langue, mot: carte.mot, tranche: carte.tranche,
       perso: carte.perso || null,
+      conversation: carte.conversation || null,
     });
     if (!entree) {
       /* Le mot a disparu du dictionnaire — une version des données plus
@@ -156,7 +157,12 @@
   function consignePour(q) {
     const reponse = q.langueReponse || q.carte.langue;
     const autre = reponse === 'de' ? 'fr' : 'de';
-    return I18n.t('exercice.consigne.' + q.type, {
+    /* Une phrase a ses consignes là où « le mot » sonnerait faux : on
+     * n'écrit pas « le mot » après avoir écouté « Wo ist die Post? ». */
+    const cle = q.phrase && I18n.existe('exercice.consigne.' + q.type + '.phrase')
+      ? 'exercice.consigne.' + q.type + '.phrase'
+      : 'exercice.consigne.' + q.type;
+    return I18n.t(cle, {
       langue: I18n.t('langue.' + reponse),
       autre: I18n.t('langue.' + autre),
     });
@@ -275,6 +281,7 @@
         langue: q.langueReponse || q.carte.langue, estNom: q.estNom,
         articleExige: q.articleExige, genres: q.genres,
         autresSens: q.autresSens, contexte: q.indice,
+        phrase: !!q.phrase,
       });
     }
 
@@ -298,6 +305,7 @@
       await Store.noter({
         quand: Date.now(), carte: q.carte.id || null,
         langue: q.carte.langue, mot: q.carte.mot, perso: q.carte.perso || null,
+        conversation: q.carte.conversation || null,
         type: q.carte.type,
         exercice: q.type, qualite, etatAvant: q.carte.etat || null, libre: true,
       }).catch(() => {});
@@ -348,6 +356,7 @@
   function remplirRappel(q) {
     const bloc = vider(elements.verdictFiche);
     const entree = q.entree;
+    if (entree.conversation) { remplirRappelPhrase(q, bloc); return; }
     const lecture = entree.lectures[0] || [];
 
     const ligne = element('p', 'rappel-mot');
@@ -382,6 +391,38 @@
     if (racine.Notes) {
       // La question courante fait garde-fou : si l'on a déjà cliqué
       // « Suivant », la note qui arrive n'a plus rien à faire à l'écran.
+      const pourQui = question;
+      Notes.rappel(entree).then((rappel) => {
+        if (rappel && question === pourQui) bloc.appendChild(rappel);
+      }).catch(() => {});
+    }
+  }
+
+  /* Le rappel d'une phrase : les deux textes, puis les variantes que la
+   * correction accepte — toutes, et seulement celles-là. On ne prétend pas
+   * reconnaître toute traduction possible ; on montre ce qu'on reconnaît. */
+  function remplirRappelPhrase(q, bloc) {
+    const entree = q.entree;
+    const ligne = element('p', 'rappel-mot');
+    ligne.appendChild(element('b', null, entree.mot));
+    bloc.appendChild(ligne);
+    bloc.appendChild(element('p', 'rappel-sens', Exercices.traductions(entree)[0] || ''));
+
+    const langueReponse = q.langueReponse || q.carte.langue;
+    const variantes = (entree.variantes && entree.variantes[langueReponse]) || [];
+    if (variantes.length) {
+      const detail = element('p', 'rappel-variantes discret');
+      detail.appendChild(element('span', null, I18n.t('conv.variantes.acceptees') + ' '));
+      detail.appendChild(document.createTextNode(variantes.join(' · ')));
+      bloc.appendChild(detail);
+    }
+
+    const ouvrir = element('button', 'lien-discret', I18n.t('conv.voir-phrase'));
+    ouvrir.type = 'button';
+    ouvrir.addEventListener('click', () => App.ouvrirFiche({ conversation: entree.conversation }));
+    bloc.appendChild(ouvrir);
+
+    if (racine.Notes) {
       const pourQui = question;
       Notes.rappel(entree).then((rappel) => {
         if (rappel && question === pourQui) bloc.appendChild(rappel);

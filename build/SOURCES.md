@@ -258,7 +258,32 @@ pas question de le retoucher mot à mot — on ne saurait plus ce qui vient d'o�
 
 Le côté allemand est complet ; *mein*, *dieser*, *nicht*, *kein* y sont tous.
 
-## 6. Ce que nous ajoutons
+## 6. Les phrases et dialogues — un contenu rédigé pour l'application
+
+`data/conversation.json` : 148 phrases et 26 dialogues (167 répliques), rangés
+en neuf situations — saluer et se présenter, demander son chemin, transports,
+restaurant, achats, hôtel, rendez-vous, demander de l'aide, faire répéter.
+
+- **Provenance** : contenu original, écrit pour Wortschatz par un assistant
+  d'écriture (Claude, Anthropic) lors de l'ajout du module, le 2026-09-20.
+  Aucune source externe n'a été copiée ; aucun manuel, aucun guide de
+  conversation n'a été reproduit.
+- **Contrôles** : `build/essais_conversation.mjs` vérifie à chaque exécution la
+  structure, l'unicité des identifiants, le nombre de répliques (4 à 8), la
+  cohérence du tutoiement et du vouvoiement — dans une phrase, entre ses deux
+  langues, et dans tout un dialogue —, la ponctuation française et allemande,
+  et l'absence de doublons non déclarés.
+- **Ce qui n'a pas été fait** : aucune relecture par un locuteur natif. Le
+  fichier le dit dans son champ `provenance`, l'application le dit sur chaque
+  fiche, et `confidentialite.html` le redit. C'est écrit pour être contredit :
+  une formulation jugée peu naturelle se corrige dans le fichier, sans toucher
+  aux identifiants — les cartes de révision ne portent jamais le texte.
+- **Licence** : CC BY-SA 4.0, comme le reste des données.
+
+Ce qu'on écrit soi-même dans le module vit dans IndexedDB (magasin
+`conversation`), jamais dans ce fichier.
+
+## 7. Ce que nous ajoutons
 
 Le code de l'application, les regroupements par famille de mots, les listes
 thématiques et les bandes de fréquence sont notre travail. Les familles de mots

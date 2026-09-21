@@ -49,22 +49,123 @@
     return !!voixPour(langue);
   }
 
+  /* Une parole, prête à partir. Un peu en dessous de la vitesse normale : on
+   * écoute pour apprendre à prononcer, pas pour aller vite. */
+  function parole(texte, choisie) {
+    const p = new SpeechSynthesisUtterance(texte);
+    p.voice = choisie;
+    p.lang = choisie.lang;
+    p.rate = 0.9;
+    return p;
+  }
+
   function dire(texte, langue) {
     if (!disponible || !actif || !texte) return false;
     const choisie = voixPour(langue);
     if (!choisie) return false;
-    speechSynthesis.cancel();
-    const parole = new SpeechSynthesisUtterance(texte);
-    parole.voice = choisie;
-    parole.lang = choisie.lang;
-    // Un peu en dessous de la vitesse normale : on écoute pour apprendre à
-    // prononcer, pas pour aller vite.
-    parole.rate = 0.9;
-    speechSynthesis.speak(parole);
+    taire();
+    speechSynthesis.speak(parole(texte, choisie));
     return true;
   }
 
+  /* Une suite de répliques, avec un silence entre chacune.
+   *
+   * C'est ce qu'il faut pour écouter un dialogue : chaque réplique part quand
+   * la précédente est finie, après une pause — le temps de suivre des yeux,
+   * ou de répéter. `items` est une liste de `{texte, langue, silence}` ; un
+   * item sans texte ne fait qu'attendre `silence` millisecondes, ce qui
+   * laisse un tour de parole vide à qui joue un rôle.
+   *
+   * `surItem(i)` est appelé quand l'item i commence, `surFin(interrompu)`
+   * quand tout est fini ou arrêté. Rend `{arreter}`. Une seule suite à la
+   * fois : en lancer une autre, ou `dire()`, ou `taire()`, arrête celle-ci —
+   * la synthèse n'a qu'une voix, et un dialogue par-dessus un autre ne serait
+   * qu'un brouhaha.
+   *
+   * Les navigateurs ne signalent pas tous la fin d'une parole annulée ; le
+   * numéro de suite fait garde-fou, et une parole qui n'appelle jamais `end`
+   * est rattrapée par un délai proportionné à sa longueur. */
+  let suiteCourante = null;
+
+  function enchainer(items, options) {
+    const reglages = options || {};
+    const pause = reglages.pause === undefined ? 900 : reglages.pause;
+    taire();
+    if (!disponible || !actif) {
+      if (reglages.surFin) reglages.surFin(true);
+      return { arreter() {} };
+    }
+
+    const suite = { active: true, minuterie: null, finir: null };
+    suiteCourante = suite;
+    let position = 0;
+
+    function finir(interrompu) {
+      if (!suite.active) return;
+      suite.active = false;
+      if (suite.minuterie) clearTimeout(suite.minuterie);
+      if (suiteCourante === suite) suiteCourante = null;
+      if (reglages.surFin) reglages.surFin(interrompu);
+    }
+    suite.finir = finir;
+
+    function suivant() {
+      if (!suite.active) return;
+      if (position >= items.length) { finir(false); return; }
+      const item = items[position];
+      const rang = position;
+      position += 1;
+      if (reglages.surItem) reglages.surItem(rang);
+      const silence = item.silence === undefined ? pause : item.silence;
+
+      if (!item.texte) {
+        suite.minuterie = setTimeout(suivant, silence);
+        return;
+      }
+      const choisie = voixPour(item.langue);
+      if (!choisie) {
+        // Pas de voix pour cette langue : on passe, la suite continue.
+        suite.minuterie = setTimeout(suivant, silence);
+        return;
+      }
+      const p = parole(item.texte, choisie);
+      let fini = false;
+      const apres = () => {
+        if (fini || !suite.active) return;
+        fini = true;
+        if (suite.minuterie) clearTimeout(suite.minuterie);
+        suite.minuterie = setTimeout(suivant, silence);
+      };
+      p.onend = apres;
+      p.onerror = (e) => {
+        // Une parole interrompue par `cancel()` signale une erreur : ce n'est
+        // pas la nôtre à traiter, `arreter` a déjà tout fermé.
+        if (e && (e.error === 'interrupted' || e.error === 'canceled')) return;
+        apres();
+      };
+      // Le filet : 120 ms par signe, jamais moins de trois secondes — plus
+      // que la voix la plus lente, pour ne pas lui couper la parole.
+      suite.minuterie = setTimeout(apres, 3000 + item.texte.length * 120);
+      speechSynthesis.speak(p);
+    }
+
+    suivant();
+    return {
+      arreter() {
+        if (!suite.active) return;
+        finir(true);
+        speechSynthesis.cancel();
+      },
+    };
+  }
+
   function taire() {
+    if (suiteCourante) {
+      // Le module qui écoutait doit savoir que c'est fini.
+      const suite = suiteCourante;
+      suiteCourante = null;
+      suite.finir(true);
+    }
     if (disponible) speechSynthesis.cancel();
   }
 
@@ -74,6 +175,7 @@
     set actif(valeur) { actif = !!valeur; if (!actif) taire(); },
     possible,
     dire,
+    enchainer,
     taire,
   };
 

@@ -301,6 +301,45 @@
     return { verdict: 'faux', attendu: candidats[0], remarque: null };
   }
 
+  /* Une phrase entière se compare autrement qu'un mot.
+   *
+   * La ponctuation est déjà partie (`nettoyer`). Restent l'apostrophe et le
+   * trait d'union, que les claviers de téléphone écrivent de dix façons
+   * — « n'ai », « n’ai », « allez-vous », « allez vous » — et qui ne sont pas
+   * ce qu'on apprend : ils comptent pour une espace. Puis les accents et
+   * tréma : « Konnen Sie » vaut « Können Sie », avec la remarque. Enfin une
+   * étourderie : une lettre de travers sur une phrase courte, deux sur une
+   * phrase longue. On ne va pas plus loin — au-delà, on ne sait plus si la
+   * phrase est sue ou devinée.
+   *
+   * Jamais de remarque de majuscule : une phrase commence par une majuscule
+   * dans les deux langues, et « wo ist die post » a les mots justes. */
+  function clePhrase(texte) {
+    return Lexique.cle(String(texte || '').replace(/[’'‘-]/g, ' '));
+  }
+
+  function comparerPhrase(brut, candidats) {
+    for (const attendu of candidats) {
+      if (brut === attendu) return { verdict: 'juste', attendu, remarque: null };
+    }
+    const saisie = clePhrase(brut);
+    for (const attendu of candidats) {
+      if (clePhrase(attendu) !== saisie) continue;
+      const lettres = (t) => t.replace(/[’'‘-]/g, ' ').replace(/\s+/g, ' ').toLowerCase();
+      const remarque = lettres(brut) === lettres(attendu)
+        ? null : { cle: 'exercice.remarque.accents', valeurs: { mot: attendu } };
+      return { verdict: 'juste', attendu, remarque };
+    }
+    for (const attendu of candidats) {
+      const cible = clePhrase(attendu);
+      const tolerance = cible.length >= 20 ? 2 : (cible.length >= 5 ? 1 : 0);
+      if (tolerance && distance(saisie, cible) <= tolerance) {
+        return { verdict: 'presque', attendu, remarque: null };
+      }
+    }
+    return { verdict: 'faux', attendu: candidats[0], remarque: null };
+  }
+
   /* Le palier exigeant : le mot **et** son article.
    *
    * Le mot d'abord — sans lui il n'y a rien à discuter. Puis l'article, dont
@@ -365,9 +404,11 @@
     if (!brut || !candidats.length) {
       return { verdict: 'faux', attendu: candidats[0] || attendus[0], remarque: null };
     }
-    const verdict = reglages.articleExige
-      ? corrigerAvecArticle(brut, candidats, reglages)
-      : comparerMot(brut, candidats, reglages);
+    const verdict = reglages.phrase
+      ? comparerPhrase(brut, candidats)
+      : (reglages.articleExige
+        ? corrigerAvecArticle(brut, candidats, reglages)
+        : comparerMot(brut, candidats, reglages));
     /* Une réponse juste pour un autre sens que celui demandé n'est pas fausse
      * — on connaît l'expression —, mais ce n'est pas la réponse à la question
      * posée : « presque », et la remarque dit lequel des sens on demandait. */
@@ -393,6 +434,12 @@
    * recoupe celle de la cible serait au contraire injuste : on l'écarte.
    */
   async function distracteurs(entree, combien) {
+    /* Une phrase de « Phrases et dialogues » ne se distingue pas d'un mot
+     * du dictionnaire : la réponse se devinerait à sa longueur. Ses leurres
+     * sont d'autres phrases, de la même situation d'abord. */
+    if (entree.conversation && racine.Conversation) {
+      return Conversation.leurres(entree, combien);
+    }
     const nature = premiereLecture(entree)[0];
     const interdites = traductions(entree).map((t) => Lexique.cle(t));
     const candidats = [];
@@ -530,8 +577,26 @@
   }
 
   /* Construit la question. Renvoie un objet décrivant ce qu'il faut afficher ;
-   * c'est seance.js qui le met en page. */
+   * c'est seance.js qui le met en page.
+   *
+   * Une phrase de « Phrases et dialogues » passe par les mêmes exercices —
+   * reconnaître, retrouver, écrire, traduire, écouter — et la question porte
+   * `phrase: true` : la séance corrige alors avec la tolérance d'une phrase,
+   * et nomme la phrase plutôt que le mot dans ses consignes. */
   async function preparer(carte, entree, options) {
+    const question = await composer(carte, entree, options);
+    if (entree.conversation) question.phrase = true;
+    return question;
+  }
+
+  /* Les graphies acceptées pour la vedette : elle-même, et pour une phrase
+   * ses variantes enregistrées — rien d'autre n'est deviné. */
+  function graphiesDeLaVedette(entree) {
+    const variantes = entree.variantes && entree.variantes[entree.langue];
+    return [entree.mot].concat(variantes || []);
+  }
+
+  async function composer(carte, entree, options) {
     const phrases = await phrasesDe(entree);
     const type = typeDExercice(carte, entree, phrases, options);
     /* Les réponses : celles du sens visé quand il y en a un, sinon toutes. Les
@@ -577,12 +642,17 @@
                attendu: reponses[0], langueReponse: autreLangue };
     }
 
+    /* L'énoncé de la direction « produire » : un mot montre jusqu'à deux de
+     * ses traductions ; une phrase n'en montre qu'une — ses variantes sont
+     * des reformulations, pas des sens à aligner. */
+    const enonceProduire = entree.conversation ? reponses[0] : reponses.slice(0, 2).join(', ');
+
     if (type === 'qcm-produire') {
       const leurres = await distracteurs(entree, 3);
       const options = melanger([
         { texte: entree.mot, juste: true },
       ].concat(leurres.map((a) => ({ texte: a.mot, juste: false }))));
-      return { type, carte, entree, enonce: reponses.slice(0, 2).join(', '), options,
+      return { type, carte, entree, enonce: enonceProduire, options,
                attendu: entree.mot, langueReponse: carte.langue };
     }
 
@@ -593,7 +663,7 @@
      * avec les règles de l'allemand reprocherait une majuscule absente. */
     if (type === 'saisie-traduction') {
       const autre = carte.langue === 'de' ? 'fr' : 'de';
-      const forme = avecArticle(entree);
+      const forme = entree.conversation ? null : avecArticle(entree);
       return {
         type, carte, entree,
         enonce: forme && carte.langue === 'de' ? forme.formes[0] : entree.mot,
@@ -723,8 +793,10 @@
     }
 
     if (type === 'ecoute') {
-      return { type, carte, entree, enonce: null, aEcouter: entree.mot,
-               attendu: entree.mot, attendus: [entree.mot],
+      return { type, carte, entree, enonce: null,
+               aEcouter: entree.conversation && racine.Conversation
+                 ? Conversation.texteParle(entree.mot) : entree.mot,
+               attendu: entree.mot, attendus: graphiesDeLaVedette(entree),
                estNom: nom, langueReponse: carte.langue };
     }
 
@@ -742,9 +814,9 @@
     return {
       type: 'saisie',
       carte, entree,
-      enonce: reponses.slice(0, 2).join(', '),
+      enonce: entree.conversation ? reponses[0] : reponses.slice(0, 2).join(', '),
       attendu: entree.mot,
-      attendus: [entree.mot],
+      attendus: graphiesDeLaVedette(entree),
       estNom: estNom(entree) && !estExpression(entree),
       langueReponse: carte.langue,
     };
@@ -770,7 +842,7 @@
 
   racine.Exercices = {
     ARTICLES,
-    corriger, distancePour: distance, nettoyer, decouper,
+    corriger, comparerPhrase, clePhrase, distancePour: distance, nettoyer, decouper,
     traductions, genreDe, genresDe, estNom, estExpression, avecArticle,
     formeFlechie, synonymesDe,
     preparer, typeDExercice, trouer, melanger, phrasesDe,

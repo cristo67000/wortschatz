@@ -1,8 +1,10 @@
 # Wortschatz — dictionnaire et mémorisation français ⇄ allemand
 
-Une application de téléphone qui fait deux choses que les autres séparent :
-**chercher** instantanément un mot ou une expression dans les deux sens, et
-**retenir** durablement ce qu'on vient de chercher.
+Une application de téléphone qui fait trois choses que les autres séparent :
+**chercher** instantanément un mot ou une expression dans les deux sens,
+**retenir** durablement ce qu'on vient de chercher, et **parler** — des phrases
+toutes faites et de courts dialogues pour les situations courantes, à écouter,
+à apprendre, à jouer.
 
 Tout fonctionne **hors ligne**. Pas de compte, pas de serveur, pas de mesure
 d'audience, pas de publicité. La politique de sécurité de la page
@@ -92,9 +94,45 @@ Ce qui fait qu'une suite de mots est une expression et non un nom composé, et
 d'où viennent les équivalents des formules que les tables de traduction
 ignorent, est dit dans [build/SOURCES.md](build/SOURCES.md).
 
-**Mes notes.** Chaque fiche porte une section où l'on écrit ce qu'aucun
-dictionnaire ne sait : le moyen mnémotechnique qu'on s'est trouvé, le piège où
-l'on retombe, la phrase où l'on a rencontré le mot. Les notes sont à part du
+**Phrases et dialogues.** Un onglet à part, rangé par situation — saluer et se
+présenter, demander son chemin, transports, restaurant et café, achats et
+paiement, hôtel, rendez-vous, demander de l'aide, faire répéter. Cent
+quarante-huit phrases bilingues, chacune avec sa situation d'emploi, son
+registre quand elle s'adresse à quelqu'un (*poli · vouvoiement*, *familier ·
+tutoiement*), ses variantes acceptées et un bouton d'écoute par langue ; et
+vingt-six dialogues de quatre à huit répliques, à deux voix. Un dialogue
+s'écoute d'une traite dans la langue choisie, avec une pause entre les
+répliques et un bouton Arrêter ; ses traductions se masquent ; et l'on peut
+**jouer un rôle** — A ou B — dont les répliques se cachent, à révéler une par
+une, sans que rien ne soit noté.
+
+Une phrase s'apprend comme un mot, dans les deux directions selon le sens de
+travail, jamais avec une carte de genre. La correction tolère la ponctuation,
+la casse, l'apostrophe et le trait d'union, et une étourderie ; elle n'accepte
+que les formulations enregistrées, et le dit après la réponse en les
+montrant toutes. Apprendre « Ist es weit? » depuis le dialogue de la poste ou
+depuis sa fiche donne les **mêmes cartes** : chaque réplique a un identifiant
+canonique, celui de la phrase qu'elle reprend. La recherche générale ajoute
+un groupe « Phrases et dialogues » sous les mots et les expressions, atteint
+par n'importe quel mot des deux langues — « poste », « Post », « rechts »,
+« Bahnhof » —, pendant la frappe.
+
+On écrit aussi les siens : une phrase bilingue avec ses variantes, ou un
+dialogue composé réplique par réplique. Ils se cherchent, s'écoutent et
+s'apprennent comme les autres ; corriger leur texte ne perd ni les notes ni la
+progression, parce que les cartes ne portent que des identifiants ; et ils
+partent avec la sauvegarde (format 2 — un fichier de format 1 se relit tel
+quel).
+
+Le contenu fourni est **original, rédigé pour l'application par un assistant
+d'écriture, et non relu par un locuteur natif** : chaque fiche le dit, et
+[build/SOURCES.md](build/SOURCES.md) détaille ce qui a été contrôlé par
+programme — structure, tutoiement et vouvoiement, ponctuation, doublons.
+
+**Mes notes.** Chaque fiche — d'un mot, d'une phrase, d'un dialogue — porte une
+section où l'on écrit ce qu'aucun dictionnaire ne sait : le moyen
+mnémotechnique qu'on s'est trouvé, le piège où l'on retombe, la phrase où l'on
+a rencontré le mot. Les notes sont à part du
 dictionnaire — elles survivent au téléchargement du paquet complet, à sa
 suppression, à une version plus récente des données. Pendant une révision,
 elles n'apparaissent **qu'après la réponse** : une note contient souvent le
@@ -148,6 +186,7 @@ les licences.
 | [Wiktionnaire](https://www.wiktionary.org/) intégral, via [wiktextract](https://kaikki.org/) | définitions, **exemples par sens**, synonymes, tableaux de formes, et **les tables de traduction** | CC BY-SA + GFDL |
 | [Tatoeba](https://tatoeba.org/) | phrases allemand/français alignées, et la mesure de fréquence d'usage | CC BY 2.0 FR |
 | `build/grammaire.py` | sept mots-outils français absents du dictionnaire source | écrits pour l'application |
+| `data/conversation.json` | 148 phrases et 26 dialogues par situation, rédigés par un assistant d'écriture et contrôlés par programme, non relus par un locuteur natif | CC BY-SA 4.0, original |
 
 Origine commune du dictionnaire : le Wiktionnaire, via
 [DBnary](http://kaiko.getalp.org/about-dbnary/) pour WikDict et directement pour
@@ -323,6 +362,10 @@ js/exercices.js  les douze exercices et la correction tolérante
 js/notes.js      « Mes notes » : ce qu'on écrit soi-même sur un mot
 js/perso.js      « Mes mots » : les entrées qu'on ajoute soi-même
 js/mesmots.js    le formulaire d'ajout, et la liste de ses entrées
+js/conversation.js  « Phrases et dialogues » : le contenu, la recherche, les
+                 identifiants canoniques, les phrases et dialogues à soi
+js/situations.js l'écran du module, les fiches, la lecture enchaînée, le jeu
+                 de rôle, les formulaires
 js/sauvegarde.js export et import JSON, avec bilan et conflits
 js/motsvifs.js   le mot cliquable, et son cartouche
 js/fiche.js      affichage d'une entrée, sens par sens
@@ -383,6 +426,19 @@ l'identifiant portait le mot, corriger une faute de frappe fabriquerait une
 carte neuve et abandonnerait l'ancienne avec ses trois mois d'intervalle, sans
 que rien ne le signale. La même règle vaut pour les notes.
 
+**Une réplique et une phrase peuvent être la même carte.** « Ist es weit? »
+est dans la liste des phrases et dans le dialogue de la poste. Chaque réplique
+a un identifiant canonique — celui de la phrase qu'elle désigne (`phrase` dans
+`data/conversation.json`), ou le sien — et tout ce qui apprend passe par
+`Conversation.canonique()`. Écrire des cartes sous l'identifiant de la réplique
+fabriquerait un doublon silencieux : deux échéances pour une phrase.
+
+**Le contenu fourni est dans la coquille, pas dans les paquets.**
+`data/conversation.json` est pré-caché avec le code et versionné avec lui : il
+ne dépend ni du téléchargement du dictionnaire complet ni de la mouture des
+données. Ce qu'on écrit soi-même dans le module vit dans IndexedDB (magasin
+`conversation`, base en version 4), avec les mots personnels.
+
 **Les notes et les mots personnels ne sont pas dans le dictionnaire.** Ils
 vivent dans IndexedDB, à côté des cartes ; le dictionnaire vit dans le cache du
 service worker. C'est cette séparation qui fait qu'un changement de paquet, une
@@ -396,6 +452,8 @@ téléchargement.
 node build/essais.mjs             # correction, choix de l'exercice, planification
 node build/essais_i18n.mjs        # aucun libellé absent, dans l'une ou l'autre langue
 node build/essais_donnees.mjs     # migration, notes, mots personnels, sauvegarde
+node build/essais_conversation.mjs # le contenu des phrases et dialogues, la recherche,
+                                  # les cartes sans doublon, la correction, l'export
 python build/essais_alignement.py # appariement des sens
 python build/commun.py            # normalisation des clés
 python build/verifier.py          # tout le reste, y compris les trois ci-dessus
@@ -416,7 +474,18 @@ Un service worker demande un vrai navigateur. Deux fichiers en lancent un :
 node build/essais_navigateur.mjs  # mode hors ligne, serveur arrêté pour de bon
 node build/essais_profils.mjs     # export d'un profil de navigateur à un autre
 node build/essais_mise_a_jour.mjs # la version de main, puis celle-ci, au même endroit
+node build/essais_migration_phrases.mjs # idem, pour l'arrivée des phrases : la base
+                                  # passe en version 4 sans qu'une carte ne bouge
 ```
+
+`essais_mise_a_jour.mjs` joue le passage d'une **mouture des données** à la
+suivante ; il suppose que `main` porte la mouture d'avant, et ses contrôles sur
+l'ancien paquet n'ont pas de sens quand les deux versions partagent les mêmes
+données. `essais_migration_phrases.mjs` éprouve l'autre passage, celui du code
+et de la base : il relève sur la version publiée l'empreinte de chaque carte,
+note, mot et réglage, sert la version en cours au même port, et compare champ
+par champ — puis apprend une phrase, relit une sauvegarde de format 1, donne le
+feu vert au service worker et coupe le réseau.
 
 Ils pilotent un Chrome par le protocole DevTools — Node porte un WebSocket
 natif, donc toujours aucune dépendance. Le premier installe l'application,

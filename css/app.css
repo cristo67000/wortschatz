@@ -107,9 +107,9 @@ button { font: inherit; color: inherit; }
 
 /* ————— Recherche ————— */
 
-#bloc-recherche { position: relative; margin-bottom: 1rem; }
+#bloc-recherche, .conv-recherche { position: relative; margin-bottom: 1rem; }
 
-#q {
+#q, #conv-q {
   width: 100%;
   padding: .85rem 2.6rem .85rem 1rem;
   font-size: 1.05rem;
@@ -121,10 +121,10 @@ button { font: inherit; color: inherit; }
   -webkit-appearance: none;
   appearance: none;
 }
-#q:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
-#q::-webkit-search-cancel-button { display: none; }
+#q:focus, #conv-q:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+#q::-webkit-search-cancel-button, #conv-q::-webkit-search-cancel-button { display: none; }
 
-#q-vider {
+#q-vider, #conv-q-vider {
   position: absolute;
   right: .35rem;
   top: 50%;
@@ -137,7 +137,8 @@ button { font: inherit; color: inherit; }
   color: var(--encre-tres-douce);
   cursor: pointer;
 }
-#q-vider:hover { background: var(--accent-clair); }
+#q-vider:hover, #conv-q-vider:hover { background: var(--accent-clair); }
+#q-vider[hidden], #conv-q-vider[hidden] { display: none; }
 
 /* ————— Accueil ————— */
 
@@ -709,16 +710,19 @@ button { font: inherit; color: inherit; }
 #perso-filtre[hidden] { display: none; }
 
 #suivis-liste,
-#perso-liste { list-style: none; margin: 0; padding: 0; }
+#perso-liste,
+#conv-perso-liste { list-style: none; margin: 0; padding: 0; }
 #suivis-liste li,
-#perso-liste li {
+#perso-liste li,
+#conv-perso-liste li {
   display: flex;
   align-items: center;
   gap: .4rem;
   border-bottom: 1px solid var(--trait);
 }
 #suivis-liste li:last-child,
-#perso-liste li:last-child { border-bottom: 0; }
+#perso-liste li:last-child,
+#conv-perso-liste li:last-child { border-bottom: 0; }
 
 /* Le mot occupe toute la place restante ; `min-width: 0` autorise la
    traduction à se laisser couper plutôt qu'à pousser la croix hors de l'écran. */
@@ -1052,8 +1056,10 @@ textarea.saisie-perso { resize: vertical; line-height: 1.5; }
    que de se laisser rogner jusqu'à une lettre. C'est elle qu'on vient lire —
    « Baustellenlärm b… » ne dit rien, et une ligne de plus ne coûte rien. */
 @media (max-width: 30rem) {
-  #perso-liste .suivi-mot { flex-wrap: wrap; }
-  #perso-liste .suivi-mot .traduction { flex-basis: 100%; white-space: normal; }
+  #perso-liste .suivi-mot,
+  #conv-perso-liste .suivi-mot { flex-wrap: wrap; }
+  #perso-liste .suivi-mot .traduction,
+  #conv-perso-liste .suivi-mot .traduction { flex-basis: 100%; white-space: normal; }
 }
 
 /* ————— Expressions usuelles ————— */
@@ -1061,8 +1067,9 @@ textarea.saisie-perso { resize: vertical; line-height: 1.5; }
 /* Le groupe sous les résultats, et la section en fin de fiche, partagent la
    mise en page des listes de mots : même pastille, même mot, même traduction
    qui se laisse couper. Une expression est un mot plus long, pas autre chose. */
-#resultats-expressions { margin-top: 1.1rem; }
+#resultats-expressions, #resultats-conversation { margin-top: 1.1rem; }
 #resultats-expressions h3,
+#resultats-conversation h3,
 .expressions-usuelles h3 {
   margin: 0 0 .4rem;
   font-size: .82rem;
@@ -1071,7 +1078,7 @@ textarea.saisie-perso { resize: vertical; line-height: 1.5; }
   color: var(--encre-tres-douce);
   font-weight: 600;
 }
-#resultats-expressions[hidden] { display: none; }
+#resultats-expressions[hidden], #resultats-conversation[hidden] { display: none; }
 /* La suite des mots, sous les expressions : même liste que #resultats. */
 #resultats-suite { list-style: none; margin: .4rem 0 0; padding: 0; }
 #resultats-suite[hidden] { display: none; }
@@ -1169,3 +1176,216 @@ textarea.saisie-perso { resize: vertical; line-height: 1.5; }
   background: var(--papier-releve);
   border-radius: 0 var(--rayon) var(--rayon) 0;
 }
+
+/* ————— Phrases et dialogues ————— */
+
+/* Six onglets au lieu de cinq : sur un téléphone étroit, les libellés
+   allemands (« Einstellungen ») ne tiennent plus à la taille d'avant. */
+@media (max-width: 26rem) {
+  #onglets button { font-size: .64rem; padding-left: .1rem; padding-right: .1rem; letter-spacing: -.01em; }
+}
+
+/* Le lien de l'accueil vers le module : une ligne cliquable, pas un bouton
+   principal — c'est une porte, pas une action. */
+.vers-conversation {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  width: 100%;
+  margin: 1rem 0 0;
+  padding: .7rem .85rem;
+  text-align: left;
+  font: inherit;
+  color: var(--encre);
+  background: var(--papier-releve);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  cursor: pointer;
+}
+.vers-conversation:hover { border-color: var(--accent); color: var(--accent); }
+.vers-conversation .pictogramme { font-size: 1.2rem; line-height: 1; }
+
+/* Dans la recherche générale : une phrase entière ne se rogne pas, elle
+   passe à la ligne, et sa traduction dessous. */
+.resultat-conversation { flex-wrap: wrap; align-items: center; }
+.resultat-conversation .mot { flex: 1 1 auto; min-width: 0; white-space: normal; }
+.resultat-conversation .traduction { flex-basis: 100%; white-space: normal; }
+
+/* L'écran du module. */
+#vue-conversation h2 { margin: 1.2rem 0 .3rem; font-size: 1.25rem; }
+#vue-conversation > .discret { margin: 0 0 1rem; }
+#conv-outils { display: flex; flex-direction: column; gap: .6rem; margin: 0 0 1rem; }
+.conv-outil { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.conv-outil .segments { flex: 1 1 14rem; }
+.conv-outil-titre { font-size: .8rem; color: var(--encre-tres-douce); min-width: 6rem; }
+.conv-outil-langue .segments { flex: 0 1 14rem; }
+.conv-bascule { font-size: .9rem; color: var(--encre-douce); }
+.conv-themes { display: flex; flex-wrap: wrap; gap: .35rem; }
+.conv-theme {
+  border: 1px solid var(--trait);
+  background: var(--papier-releve);
+  border-radius: 999px;
+  padding: .3rem .75rem;
+  cursor: pointer;
+  font-size: .88rem;
+}
+.conv-theme:hover { border-color: var(--accent); color: var(--accent); }
+.conv-theme[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--papier-releve); font-weight: 600; }
+@media (prefers-color-scheme: dark) { .conv-theme[aria-pressed="true"] { color: #16171a; } }
+
+.conv-theme-bloc { margin: 0 0 1.4rem; }
+.conv-theme-bloc h3 {
+  margin: 0 0 .3rem;
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--encre-tres-douce);
+  font-weight: 600;
+}
+.conv-liste { list-style: none; margin: 0; padding: 0; }
+.conv-liste li { display: flex; align-items: center; gap: .2rem; border-bottom: 1px solid var(--trait); }
+.conv-liste li:last-child { border-bottom: 0; }
+.conv-ligne {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .1rem;
+  padding: .6rem .5rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--encre);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.conv-ligne:hover, .conv-ligne:focus-visible { background: var(--accent-clair); }
+.conv-ligne-tete { display: flex; align-items: baseline; flex-wrap: wrap; gap: .3rem .5rem; }
+.conv-principal { font-weight: 600; font-size: 1.02rem; }
+.conv-secondaire { color: var(--encre-douce); font-size: .92rem; }
+.conv-ecoute-ligne { flex: none; }
+.conv-registre {
+  font-size: .72rem;
+  padding: .1rem .45rem;
+  border-radius: 999px;
+  border: 1px solid var(--trait);
+  color: var(--encre-tres-douce);
+  white-space: nowrap;
+}
+.conv-registre.familier { border-color: var(--das); color: var(--das); }
+.conv-registre.poli { border-color: var(--der); color: var(--der); }
+#conv-rien, #conv-indisponible { padding: .5rem 0 1rem; }
+#conv-rien[hidden], #conv-indisponible[hidden] { display: none; }
+
+.conv-perso { margin-top: 1.5rem; }
+.conv-perso-boutons { flex-wrap: wrap; margin: .6rem 0; }
+#conv-perso-liste { margin-top: .4rem; }
+#conv-perso-vide[hidden] { display: none; }
+
+/* La fiche d'une phrase : les deux langues, l'une en grand. */
+.conv-fiche-texte { display: flex; align-items: baseline; flex-wrap: wrap; gap: .5rem; margin: .4rem 0; }
+.conv-fiche-texte p { margin: 0; flex: 1 1 12rem; }
+.conv-fiche-texte.principal p { font-size: 1.55rem; font-weight: 650; line-height: 1.25; }
+.conv-fiche-texte.secondaire p { font-size: 1.1rem; color: var(--encre-douce); }
+.conv-fiche-texte + .apprendre { margin-top: .9rem; }
+.conv-section { margin: 0 0 1.25rem; }
+.conv-section h3 {
+  margin: 1.25rem 0 .4rem;
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--encre-tres-douce);
+  font-weight: 600;
+}
+.conv-section p { margin: 0 0 .4rem; }
+.conv-variantes { list-style: none; margin: 0 0 .5rem; padding: 0; }
+.conv-variantes li { display: flex; align-items: baseline; gap: .5rem; padding: .3rem 0; border-bottom: 1px solid var(--trait); }
+.conv-variantes li:last-child { border-bottom: 0; }
+.conv-variantes li > span:nth-child(2) { flex: 1; }
+.conv-provenance { margin: 1rem 0 .5rem; font-size: .8rem; }
+.rappel-variantes { margin: 0 0 .4rem; font-size: .88rem; }
+
+/* Le dialogue. Deux voix : A à gauche, B décalée, comme des bulles — sans en
+   dessiner : la couleur du filet suffit. */
+.conv-dialogue-titre { margin: .3rem 0 .1rem; font-size: 1.35rem; }
+.conv-dialogue-sous-titre { margin: 0 0 .8rem; }
+.conv-dialogue-sous-titre[hidden] { display: none; }
+.conv-commandes { display: flex; flex-direction: column; gap: .5rem; margin: 0 0 1rem; padding: .7rem .8rem;
+  background: var(--papier-releve); border: 1px solid var(--trait); border-radius: var(--rayon); }
+.conv-commandes .conv-outil { gap: .5rem; }
+.conv-ecouter-dialogue { font-weight: 600; }
+.conv-ecouter-dialogue.en-cours { border-color: var(--die); color: var(--die); }
+.conv-ecouter-dialogue[disabled] { opacity: .5; cursor: default; }
+.conv-etat-voix, .conv-note-role { margin: 0; font-size: .82rem; }
+.conv-etat-voix[hidden], .conv-note-role[hidden] { display: none; }
+.conv-commandes .lien-discret { align-self: flex-start; }
+.conv-commandes .lien-discret[hidden] { display: none; }
+
+.conv-repliques { display: flex; flex-direction: column; gap: .55rem; margin: 0 0 1rem; }
+.replique {
+  position: relative;
+  padding: .55rem .75rem .5rem;
+  border: 1px solid var(--trait);
+  border-left: 3px solid var(--der);
+  border-radius: 10px;
+  background: var(--papier-releve);
+  max-width: 92%;
+}
+.replique.B { border-left-color: var(--das); align-self: flex-end; }
+.replique.moi { border-style: dashed; border-left-style: solid; }
+.replique.en-cours { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-clair); }
+.replique-qui { display: block; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--encre-tres-douce); font-weight: 600; margin-bottom: .15rem; }
+.replique.B .replique-qui { text-align: right; }
+.replique-texte { margin: 0; font-size: 1.05rem; line-height: 1.45; }
+.replique-traduction { margin: .15rem 0 0; color: var(--encre-douce); font-size: .92rem; }
+.replique-reveler {
+  display: block;
+  width: 100%;
+  padding: .5rem .8rem;
+  font: inherit;
+  color: var(--accent);
+  background: var(--accent-clair);
+  border: 1px dashed var(--accent);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.replique-actions { display: flex; align-items: center; gap: .3rem; margin-top: .3rem; }
+.replique-actions .ecouter-phrase { margin: 0; }
+.conv-apprendre-court {
+  margin-left: auto;
+  padding: .25rem .6rem;
+  font: inherit;
+  font-size: .82rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+}
+.conv-apprendre-court.suivi { background: var(--accent); color: var(--papier-releve); }
+@media (prefers-color-scheme: dark) { .conv-apprendre-court.suivi { color: #16171a; } }
+.conv-apprendre-court[disabled] { opacity: .6; }
+
+/* Les formulaires, dans leur propre volet — même mise en page que « Mes
+   mots ». */
+#panneau-conversation {
+  position: fixed;
+  inset: 0;
+  z-index: 32;
+  background: var(--papier);
+  overflow-y: auto;
+  padding: 0 1rem calc(2rem + env(safe-area-inset-bottom));
+  -webkit-overflow-scrolling: touch;
+}
+#panneau-conversation[hidden] { display: none; }
+#formulaire-conversation { max-width: 44rem; margin: 0 auto; }
+.conv-form-roles { display: flex; gap: .5rem; }
+.conv-form-roles input { flex: 1; min-width: 0; }
+.conv-form-repliques { display: flex; flex-direction: column; gap: .6rem; margin-bottom: .6rem; }
+.conv-form-replique { display: flex; flex-direction: column; gap: .4rem; padding: .6rem .7rem;
+  border: 1px solid var(--trait); border-radius: 10px; background: var(--papier-releve); }
+.conv-form-replique-tete { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.conv-form-qui { flex: 0 0 auto; }
+.conv-form-qui button { flex: none; min-width: 2.6rem; padding: .3rem .6rem; }

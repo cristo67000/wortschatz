@@ -37,9 +37,11 @@
     }
     if (nom !== 'reviser' && racine.Suivis) Suivis.reinitialiser();
     if (nom !== 'mesmots' && racine.MesMots) MesMots.reinitialiser();
+    if (nom !== 'conversation' && racine.Situations) Situations.reinitialiser();
     if (nom === 'reglages') dessinerReglages();
     if (nom === 'reviser') Seance.rafraichir();
     if (nom === 'mesmots') MesMots.dessiner();
+    if (nom === 'conversation') Situations.dessiner();
     if (nom === 'progres') Progres.dessiner(elements.progresContenu);
     if (nom === 'chercher') elements.q.focus({ preventScroll: true });
     racine.scrollTo(0, 0);
@@ -134,6 +136,67 @@
     if (plus) bloc.appendChild(plus);
   }
 
+  /* Combien de phrases et dialogues on montre d'abord sous une recherche.
+   * C'est un groupe à part, sous les mots et les expressions, et il ne doit
+   * pas les noyer : quatre lignes, puis « Voir plus ». */
+  const CONVERSATION_VISIBLES = 4;
+
+  /* Les phrases et dialogues atteints par la saisie, en groupe à part. Une
+   * ligne montre le texte dans la langue principale du module et sa
+   * traduction ; un dialogue montre la réplique qui a répondu. */
+  function ligneDeConversation(resultat) {
+    const langue = racine.Situations ? Situations.langue : 'de';
+    const autre = langue === 'de' ? 'fr' : 'de';
+    const bouton = element('button', 'resultat resultat-conversation');
+    bouton.type = 'button';
+    if (resultat.sorte === 'phrase') {
+      const p = Conversation.phrase(resultat.id);
+      bouton.appendChild(element('span', 'pastille', I18n.t('conv.marque.phrase')));
+      bouton.appendChild(element('span', 'mot', Conversation.texte(p, langue)));
+      if (p.origine === 'perso') {
+        bouton.appendChild(element('span', 'pastille perso', I18n.t('perso.marque')));
+      }
+      bouton.appendChild(element('span', 'traduction', Conversation.texte(p, autre)));
+      bouton.addEventListener('click', () => ouvrirFiche({ conversation: p.id }));
+    } else {
+      const d = Conversation.dialogue(resultat.id);
+      bouton.appendChild(element('span', 'pastille', I18n.t('conv.marque.dialogue')));
+      bouton.appendChild(element('span', 'mot', Conversation.texte(d.titre, langue)));
+      if (d.origine === 'perso') {
+        bouton.appendChild(element('span', 'pastille perso', I18n.t('perso.marque')));
+      }
+      bouton.appendChild(element('span', 'traduction', resultat.replique
+        ? Conversation.texte(resultat.replique, langue)
+        : I18n.n('conv.repliques', d.repliques.length)));
+      bouton.addEventListener('click', () => Situations.ouvrirDialogue(d.id));
+    }
+    const ligne = element('li');
+    ligne.appendChild(bouton);
+    return ligne;
+  }
+
+  function dessinerConversation(saisie) {
+    const bloc = elements.conversation;
+    if (!bloc) return false;
+    bloc.textContent = '';
+    const resultats = saisie && racine.Conversation ? Conversation.chercher(saisie) : [];
+    bloc.hidden = resultats.length === 0;
+    if (!resultats.length) return false;
+
+    bloc.appendChild(element('h3', null, I18n.t('chercher.conversation')));
+    const liste = element('ul');
+    liste.className = 'resultats-expressions';
+    for (const resultat of resultats.slice(0, CONVERSATION_VISIBLES)) {
+      liste.appendChild(ligneDeConversation(resultat));
+    }
+    bloc.appendChild(liste);
+    const plus = boutonVoirPlus(resultats.slice(CONVERSATION_VISIBLES),
+      'chercher.conversation.plus',
+      (lot) => { for (const resultat of lot) liste.appendChild(ligneDeConversation(resultat)); });
+    if (plus) bloc.appendChild(plus);
+    return true;
+  }
+
   function dessinerResultats(resultats, saisie) {
     const liste = elements.resultats;
     const suite = elements.resultatsSuite;
@@ -161,7 +224,12 @@
      * après les mots exacts et les formes fléchies — ce qu'on cherchait — et
      * les mots qui ne font que commencer pareil suivent, sous un titre à eux.
      * Sans expression, rien ne change : une seule liste, comme avant. */
-    const aDesExpressions = !elements.expressions.hidden;
+    /* Les phrases et dialogues forment un troisième groupe, après les
+     * expressions : ce qu'on cherche est peut-être « Où est la poste ? »
+     * entière, pas seulement « poste ». Ils coupent la liste des mots au
+     * même endroit que les expressions. */
+    const aDesPhrases = dessinerConversation(saisie);
+    const aDesExpressions = !elements.expressions.hidden || aDesPhrases;
     const exacts = aDesExpressions ? resultats.filter((r) => r.rang <= 1) : resultats;
     const autres = aDesExpressions ? resultats.filter((r) => r.rang > 1) : [];
     for (const resultat of exacts) liste.appendChild(ligneDeResultat(resultat));
@@ -173,7 +241,7 @@
     }
     suite.hidden = autres.length === 0;
 
-    const aQuelqueChose = resultats.length > 0 || aDesExpressions;
+    const aQuelqueChose = resultats.length > 0 || aDesExpressions || aDesPhrases;
     liste.hidden = exacts.length === 0;
     elements.accueil.hidden = !!saisie;
     elements.rien.hidden = !saisie || aQuelqueChose;
@@ -207,14 +275,29 @@
 
   // ── Fiche ─────────────────────────────────────────────────────────────────
 
-  async function ouvrirFiche(resultat) {
-    const entree = await Lexique.ouvrir(resultat);
-    if (!entree) return;
+  /* Prête le volet des fiches à qui a quelque chose à y mettre : un mot, une
+   * phrase, un dialogue. `construire(fermer)` rend ce qu'il faut afficher. */
+  function ouvrirPanneau(construire) {
+    /* Ce qui se lisait à voix haute se tait : un dialogue en cours de lecture
+     * ne doit pas continuer sous la fiche du mot qu'on vient d'ouvrir. */
+    Voix.taire();
     elements.ficheContenu.textContent = '';
-    elements.ficheContenu.appendChild(Fiche.construire(entree, fermerFiche));
+    elements.ficheContenu.appendChild(construire(fermerFiche));
     elements.fiche.hidden = false;
     elements.fiche.scrollTop = 0;
     document.body.style.overflow = 'hidden';
+  }
+
+  async function ouvrirFiche(resultat) {
+    const entree = await Lexique.ouvrir(resultat);
+    if (!entree) return;
+    /* Une phrase de « Phrases et dialogues » a sa fiche à elle — deux
+     * langues, deux voix, ses variantes — dans le même volet. */
+    if (entree.conversation && racine.Situations) {
+      ouvrirPanneau((fermer) => Situations.fiche(entree, fermer));
+      return;
+    }
+    ouvrirPanneau((fermer) => Fiche.construire(entree, fermer));
     /* L'historique de consultation ne retient que le dictionnaire : il sert à
      * retrouver ce qu'on a cherché, et un mot personnel se retrouve dans
      * « Mes mots », qui ne l'oublie jamais. */
@@ -291,7 +374,9 @@
     const versions = manifeste
       ? `${application} · données ${manifeste.construit} · Wiktionnaire (WikDict et wiktextract, CC BY-SA) · Tatoeba (CC BY 2.0 FR)`
       : '';
-    elements.aproposVersions.textContent = versions;
+    elements.aproposVersions.textContent = versions
+      + (racine.Conversation && Conversation.disponible
+        ? ' · ' + I18n.t('reglages.apropos.conversation') : '');
     elements.etatMaj.textContent = '';
 
     dessinerDictionnaire();
@@ -480,11 +565,16 @@
     compteur(details, 'sauvegarde.bilan.mots', bilan.mots.neufs.length);
     compteur(details, 'sauvegarde.bilan.notes', bilan.notes.neufs.length);
     compteur(details, 'sauvegarde.bilan.cartes', bilan.cartes.neufs.length);
+    if (bilan.conversation) {
+      compteur(details, 'sauvegarde.bilan.conversation', bilan.conversation.neufs.length);
+    }
     const pareils = bilan.mots.pareils.length + bilan.notes.pareils.length
-      + bilan.cartes.pareils.length;
+      + bilan.cartes.pareils.length
+      + (bilan.conversation ? bilan.conversation.pareils.length : 0);
     compteur(details, 'sauvegarde.bilan.identiques', pareils);
     compteur(details, 'sauvegarde.bilan.conflits', bilan.conflits);
-    const ignorees = bilan.ignorees.mots + bilan.ignorees.notes + bilan.ignorees.cartes;
+    const ignorees = bilan.ignorees.mots + bilan.ignorees.notes + bilan.ignorees.cartes
+      + (bilan.ignorees.conversation || 0);
     compteur(details, 'sauvegarde.bilan.ignorees', ignorees);
     if (!details.childNodes.length) {
       details.appendChild(element('li', null, I18n.t('sauvegarde.bilan.rien')));
@@ -524,6 +614,7 @@
       compteur(resume, 'sauvegarde.fait.mots', compte.mots);
       compteur(resume, 'sauvegarde.fait.notes', compte.notes);
       compteur(resume, 'sauvegarde.fait.cartes', compte.cartes);
+      compteur(resume, 'sauvegarde.fait.conversation', compte.conversation);
       compteur(resume, 'sauvegarde.fait.gardes', compte.gardes);
       compteur(resume, 'sauvegarde.fait.orphelines', compte.orphelines);
       if (!resume.childNodes.length) {
@@ -532,6 +623,7 @@
       avis.appendChild(element('p', null, I18n.t('sauvegarde.fait')));
       avis.appendChild(resume);
       if (racine.MesMots) MesMots.dessiner();
+      if (racine.Situations && !$('#vue-conversation').hidden) Situations.dessiner();
       if (racine.Seance) Seance.rafraichir();
       chercher();
     });
@@ -621,7 +713,9 @@
       qVider: $('#q-vider'),
       resultats: $('#resultats'),
       expressions: $('#resultats-expressions'),
+      conversation: $('#resultats-conversation'),
       resultatsSuite: $('#resultats-suite'),
+      versConversation: $('#b-vers-conversation'),
       accueil: $('#accueil'),
       rien: $('#rien'),
       rienConseil: $('#rien-conseil'),
@@ -657,6 +751,10 @@
     MotsVifs.brancher();
     Atelier.brancher();
     MesMots.brancher();
+    if (racine.Situations) Situations.brancher(reglages);
+    if (elements.versConversation) {
+      elements.versConversation.addEventListener('click', () => basculer('conversation'));
+    }
 
     elements.ajouterSousRien.addEventListener('click', ajouterLeMotCherche);
     elements.ajouterSousListe.addEventListener('click', ajouterLeMotCherche);
@@ -734,6 +832,8 @@
       chercher();
       if (!elements.fiche.hidden) fermerFiche();
       if (racine.MesMots) MesMots.fermerFormulaire();
+      if (racine.Situations) Situations.fermerFormulaire();
+      if (racine.Situations && !$('#vue-conversation').hidden) Situations.dessiner();
       if (!$('#vue-reglages').hidden) dessinerReglages();
       if (racine.Atelier) Atelier.dessiner();
       if (!$('#vue-reviser').hidden) Seance.rafraichir();
@@ -754,6 +854,6 @@
     basculer('chercher');
   }
 
-  racine.App = { brancher, basculer, ouvrirFiche, chercher };
+  racine.App = { brancher, basculer, ouvrirFiche, ouvrirPanneau, chercher };
 
 })(window);
