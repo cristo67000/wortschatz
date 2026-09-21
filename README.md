@@ -607,6 +607,15 @@ node build/essais_migration_en_ligne.mjs relever   # après
 node build/essais_migration_en_ligne.mjs nettoyer  # ne rien laisser traîner
 ```
 
+Celui-là date du passage 3.0 → 3.1 et porte sur la mouture des données.
+`essais_publication.mjs` joue la même partition — semer, relever, nettoyer —
+pour le passage d'une coquille à la suivante : le bandeau proposé, le clic
+qui active, chaque fichier servi comparé par empreinte à la révision qu'on
+croit avoir déployée, mots, notes, phrases, cartes et dictionnaire complet
+à l'identique, le contenu et ses mentions de relecture, les réglages de
+voix, puis le hors-ligne — Chrome relancé sur le même profil avec le site
+rendu introuvable.
+
 Celui-là éprouve la seule migration qui compte : celle d'une application posée
 sur un écran d'accueil depuis des mois, avec ses cartes, ses échéances et ses
 réglages, à qui l'on sert un jour une version neuve. Elle ne s'éprouve pas après
