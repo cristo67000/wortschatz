@@ -1,0 +1,215 @@
+/*
+ * Cas de contrôle de la voix : quelle voix est demandée, et pour quelle langue.
+ *
+ * ── Ce que ceci prouve, et ce que ça ne prouve pas ─────────────────────────
+ *
+ * `js/voix.js` tourne ici sur une synthèse vocale de laboratoire : une liste
+ * de voix qu'on compose, un `speak()` qui note ce qu'on lui donne. On vérifie
+ * la **logique** — un texte allemand ne part jamais qu'avec une voix
+ * allemande, la liste qui arrive en retard est prise en compte, un choix des
+ * Réglages est honoré, un choix disparu rend la main —, c'est-à-dire ce que
+ * l'application demande au moteur. Ce que le moteur en fait, comment il
+ * prononce « Zehn Züge », aucun programme ne l'entend : cela se juge à
+ * l'oreille, sur l'appareil, avec le bouton « Essayer » des Réglages.
+ *
+ *     node build/essais_voix.mjs
+ */
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+const ici = path.dirname(fileURLToPath(import.meta.url));
+const racine = path.join(ici, '..');
+
+let fautes = 0;
+let passees = 0;
+function verifier(condition, message, detail) {
+  if (condition) { passees += 1; console.log('  ok  ' + message); return true; }
+  fautes += 1;
+  console.log('  NON ' + message + (detail === undefined ? '' : '  → ' + JSON.stringify(detail)));
+  return false;
+}
+function titre(t) { console.log(''); console.log(t); }
+
+// ── Le décor : un document minimal, une synthèse de laboratoire ─────────────
+
+const evenements = [];
+globalThis.window = globalThis;
+globalThis.document = {
+  documentElement: {},
+  querySelectorAll: () => [],
+  querySelector: () => null,
+  addEventListener: () => {},
+  dispatchEvent: (e) => { evenements.push(e.type); return true; },
+};
+globalThis.CustomEvent = class { constructor(type, options) { this.type = type; this.detail = options && options.detail; } };
+Object.defineProperty(globalThis, 'navigator', {
+  value: { languages: ['fr'], userAgent: 'Laboratoire/1.0', platform: 'Labo' }, configurable: true,
+});
+globalThis.I18n = { t: (cle) => '‹' + cle + '›', langue: 'fr' };
+
+const voix = (name, lang, localService, voiceURI) => ({ name, lang, localService, voiceURI: voiceURI || name, default: false });
+const labo = {
+  liste: [],
+  ecouteurs: [],
+  paroles: [],
+  annulations: 0,
+  getVoices() { return this.liste; },
+  addEventListener(type, fn) { this.ecouteurs.push([type, fn]); },
+  speak(p) { this.paroles.push(p); },
+  cancel() { this.annulations += 1; },
+  changer(liste) {
+    this.liste = liste;
+    for (const [type, fn] of this.ecouteurs) if (type === 'voiceschanged') fn();
+  },
+};
+globalThis.speechSynthesis = labo;
+globalThis.SpeechSynthesisUtterance = class {
+  constructor(text) { this.text = text; this.voice = null; this.lang = ''; this.rate = 1; this.ecouteurs = {}; }
+  addEventListener(type, fn) { this.ecouteurs[type] = fn; }
+};
+
+function charger() {
+  (0, eval)(readFileSync(path.join(racine, 'js', 'voix.js'), 'utf8'));
+  return globalThis.Voix;
+}
+
+const derniere = () => labo.paroles[labo.paroles.length - 1];
+const bouton = () => ({ disabled: false, title: '', isConnected: true, removeAttribute() { this.title = ''; } });
+
+// ── 1. Sans voix allemande, l'allemand n'est pas lu — jamais en français ────
+
+titre('1. Une seule voix, française : l’allemand se tait plutôt que de parler français');
+labo.liste = [voix('Amélie', 'fr-FR', true)];
+let V = charger();
+verifier(V.possible('fr') && !V.possible('de'), 'le français est possible, l’allemand non');
+const avant = labo.paroles.length;
+verifier(V.dire('Zehn Züge fahren zum Zoo.', 'de') === false && labo.paroles.length === avant,
+  '« Zehn Züge fahren zum Zoo. » ne part pas : aucune parole, aucun repli sur la voix française');
+verifier(V.essayer('de') === false, 'le bouton « Essayer » de l’allemand ne fait rien non plus');
+verifier(V.dire('Bonjour.', 'fr') === true && derniere().voice.name === 'Amélie' && derniere().lang === 'fr-FR',
+  'le français, lui, part avec Amélie, en fr-FR');
+let d = V.diagnostic('de');
+verifier(d.voix === null && d.nombre === 0 && d.total === 1 && d.pret === true && d.automatique,
+  'le diagnostic de l’allemand dit : aucune voix sur une seule annoncée', d);
+let items = [], fin = null;
+V.enchainer([{ texte: 'Guten Tag.', langue: 'de' }, { texte: 'Bonjour.', langue: 'fr' }],
+  { pause: 5, surItem: (i) => items.push(i), surFin: (i) => { fin = i; } });
+verifier(labo.paroles.filter((p) => p.text === 'Guten Tag.').length === 0,
+  'dans un dialogue, la réplique allemande est passée en silence, pas lue en français');
+await new Promise((r) => setTimeout(r, 40));
+verifier(derniere().text === 'Bonjour.' && derniere().voice.name === 'Amélie',
+  'et la réplique française suit, avec la voix française');
+V.taire();
+
+// ── 2. La liste arrive en retard ────────────────────────────────────────────
+
+titre('2. La liste des voix arrive après coup : tout se met à jour');
+labo.liste = [];
+labo.ecouteurs = [];
+V = charger();
+verifier(V.pret === false && !V.possible('de') && !V.possible('fr'), 'au départ, rien n’est là et l’on sait que la liste n’est pas arrivée');
+const b = bouton();
+V.brancherBouton(b, 'de');
+verifier(b.disabled === true && b.title === '‹voix.aucune.de›', 'un bouton ▸ branché est grisé, et dit pourquoi');
+d = V.diagnostic('de');
+verifier(d.pret === false && d.total === 0, 'le diagnostic dit que la liste n’est pas encore arrivée');
+evenements.length = 0;
+labo.changer([voix('Google Deutsch', 'de-DE', false), voix('Google français', 'fr-FR', false)]);
+verifier(V.pret === true && V.possible('de') && V.possible('fr'), 'après `voiceschanged`, les deux langues sont possibles');
+verifier(b.disabled === false && b.title === '', 'le bouton ▸ est repeint : actif, sans avertissement');
+verifier(evenements.includes('voix-changees'), 'le document reçoit « voix-changees »');
+evenements.length = 0;
+labo.changer([voix('Google Deutsch', 'de-DE', false), voix('Google français', 'fr-FR', false)]);
+verifier(!evenements.includes('voix-changees'), 'la même liste, redonnée, ne dérange personne');
+const parti = bouton();
+parti.isConnected = false;
+V.brancherBouton(parti, 'fr');
+labo.changer([voix('Google Deutsch', 'de-DE', false)]);
+verifier(b.disabled === false, 'la voix allemande reste, le bouton allemand reste actif');
+labo.changer([]);
+verifier(b.disabled === true, 'les voix disparaissent (changement de moteur) : le bouton se grise à nouveau');
+
+// ── 3. La voix et la balise de langue ───────────────────────────────────────
+
+titre('3. La voix demandée, sa langue, et la balise « de_DE » des moteurs Android');
+labo.liste = [
+  voix('Google français', 'fr-FR', false),
+  voix('Deutsch (Netz)', 'de-DE', false, 'net-de'),
+  voix('Deutsch (lokal)', 'de_DE', true, 'local-de'),
+  voix('Deutsch (Schweiz)', 'de-CH', true, 'ch-de'),
+  voix('Amélie', 'fr-FR', true),
+  voix('English', 'en-US', true),
+];
+labo.ecouteurs = [];
+V = charger();
+verifier(V.dire('Zehn Züge fahren zum Zoo.', 'de') === true, 'la phrase d’essai part');
+let p = derniere();
+verifier(p.voice.name === 'Deutsch (lokal)', 'une voix locale allemande est préférée à une voix en ligne', p.voice.name);
+verifier(p.lang === 'de-DE', 'la balise « de_DE » du moteur est rendue « de-DE » sur l’énoncé', p.lang);
+verifier(p.rate === 0.9, 'un peu en dessous de la vitesse normale');
+verifier(p.text.split('').filter((c) => c === 'z' || c === 'Z').length === 4,
+  'le texte est transmis tel quel : quatre « z », aucun n’est réécrit en « ts »');
+V.dire('Bonjour.', 'fr');
+verifier(derniere().voice.name === 'Amélie' && derniere().lang === 'fr-FR', 'le français prend la voix française locale');
+verifier(V.lister('de').map((v) => v.nom).join(', ') === 'Deutsch (Netz), Deutsch (lokal), Deutsch (Schweiz)',
+  'la liste des voix allemandes ne contient que de l’allemand, de-CH compris', V.lister('de'));
+verifier(V.lister('fr').every((v) => v.lang.startsWith('fr')) && V.lister('fr').length === 2,
+  'et celle des françaises que du français');
+
+// ── 4. Le choix des Réglages ────────────────────────────────────────────────
+
+titre('4. Un choix dans les Réglages est honoré, un choix disparu rend la main');
+let choix = V.choisir('de', 'net-de');
+verifier(choix && choix.uri === 'net-de' && choix.nom === 'Deutsch (Netz)', 'choisir rend ce qu’il faut enregistrer', choix);
+V.dire('Zwanzig.', 'de');
+verifier(derniere().voice.voiceURI === 'net-de', 'la voix choisie est celle qui parle, même en ligne');
+d = V.diagnostic('de');
+verifier(!d.automatique && !d.choixIntrouvable && d.voix.nom === 'Deutsch (Netz)', 'le diagnostic le dit', d);
+V.enchainer([{ texte: 'Eins.', langue: 'de' }], { pause: 5 });
+verifier(derniere().voice.voiceURI === 'net-de', 'un dialogue aussi passe par la voix choisie');
+V.taire();
+
+verifier(V.choisir('de', null) === null, 'revenir à l’automatique');
+V.dire('Zwei.', 'de');
+verifier(derniere().voice.voiceURI === 'local-de', 'et la voix locale revient');
+
+V.configurer({ voixDe: { uri: 'ancienne-uri', nom: 'Deutsch (Schweiz)' }, voixFr: null });
+V.dire('Drei.', 'de');
+verifier(derniere().voice.voiceURI === 'ch-de', 'une voix retrouvée par son nom quand son adresse a changé');
+
+V.configurer({ voixDe: { uri: 'disparue', nom: 'Voix désinstallée' } });
+V.dire('Vier.', 'de');
+d = V.diagnostic('de');
+verifier(derniere().voice.voiceURI === 'local-de' && d.choixIntrouvable && d.automatique,
+  'une voix disparue : le choix automatique s’applique et le diagnostic le signale', d);
+
+V.configurer({ voixDe: { uri: 'Amélie', nom: 'Amélie' } });
+V.dire('Fünf.', 'de');
+verifier(derniere().voice.name === 'Deutsch (lokal)',
+  'un réglage qui désignerait une voix française pour l’allemand est ignoré : jamais l’allemand en français');
+verifier(V.choisir('de', 'Amélie') === null, 'et l’on ne peut pas le choisir non plus');
+verifier(V.choisir('it', 'x') === null, 'une langue inconnue est refusée');
+V.configurer({});
+
+// ── 5. Interrupteur, phrases d'essai, appareil ──────────────────────────────
+
+titre('5. L’interrupteur des Réglages, les phrases d’essai, l’appareil');
+V.actif = false;
+const n = labo.paroles.length;
+verifier(V.essayer('de') === false && labo.paroles.length === n, 'voix désactivée : « Essayer » ne parle pas');
+V.actif = true;
+verifier(V.essayer('de') && derniere().text === 'Zehn Züge fahren zum Zoo.' && derniere().voice.lang.startsWith('de'),
+  '« Essayer » lit « Zehn Züge fahren zum Zoo. » avec une voix allemande');
+verifier(V.essayer('fr') && derniere().text === V.phraseDEssai('fr') && derniere().voice.lang.startsWith('fr'),
+  'et la phrase française avec une voix française');
+const a = V.appareil();
+verifier(a.plateforme === 'Labo' && a.navigateur === 'Laboratoire/1.0', 'l’appareil se décrit par le système et le navigateur', a);
+const enCours = derniere();
+verifier(typeof enCours.ecouteurs.end === 'function' && typeof enCours.ecouteurs.error === 'function',
+  'l’énoncé en cours est tenu jusqu’à sa fin — Chrome ne le ramassera pas avant');
+
+console.log('');
+console.log(fautes ? `${passees} cas conformes, ${fautes} DÉFAUT(S).`
+                   : `${passees} cas conformes. La logique de la voix tient — la prononciation, elle, se juge à l’oreille.`);
+process.exit(fautes ? 1 : 0);

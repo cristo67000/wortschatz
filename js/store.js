@@ -195,6 +195,8 @@
   const DEFAUTS = {
     langue: null,            // null = suivre le navigateur au premier lancement
     voix: true,
+    voixDe: null,            // { uri, nom } d'une voix préférée, ou rien : automatique
+    voixFr: null,
     paquet: 'noyau',
     nouveautesParJour: 10,
     exigerArticle: true,     // les noms se révisent avec leur article

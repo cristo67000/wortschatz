@@ -107,10 +107,8 @@
       (reglagesBouton.court ? '▸' : '▸ ' + I18n.t('conv.ecouter.' + langue)));
     bouton.type = 'button';
     bouton.setAttribute('aria-label', I18n.t('conv.ecouter.' + langue));
-    if (!Voix.possible(langue)) {
-      bouton.disabled = true;
-      bouton.title = I18n.t('fiche.aucune-voix');
-    }
+    /* Grisé sans voix de la langue, repeint quand la liste des voix arrive. */
+    Voix.brancherBouton(bouton, langue);
     bouton.addEventListener('click', (e) => {
       e.stopPropagation();
       Voix.dire(Conversation.texteParle(texte), langue);
@@ -649,7 +647,7 @@
       const possible = Voix.possible(langue);
       ecouter.disabled = !possible || !Voix.actif;
       if (!possible) {
-        etatVoix.textContent = I18n.t('conv.voix.aucune', { langue: I18n.t('langue.' + langue) });
+        etatVoix.textContent = I18n.t('voix.aucune.' + langue);
       } else if (!Voix.actif) {
         etatVoix.textContent = I18n.t('conv.voix.desactivee');
       } else {
@@ -657,6 +655,14 @@
       }
       etatVoix.hidden = !etatVoix.textContent;
     }
+
+    /* La liste des voix arrive souvent après l'ouverture : l'état se redit
+     * alors. Le dialogue refermé, l'écouteur se retire de lui-même. */
+    const surVoix = () => {
+      if (!etatVoix.isConnected) { document.removeEventListener('voix-changees', surVoix); return; }
+      dessinerVoix();
+    };
+    document.addEventListener('voix-changees', surVoix);
 
     function dessinerTete() {
       titre.textContent = texteDe(d.titre, langue);

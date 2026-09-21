@@ -754,7 +754,7 @@ async function epreuveVoix() {
     speak(p) { paroles.push(p); },
     cancel() { annulations += 1; },
   };
-  globalThis.SpeechSynthesisUtterance = class { constructor(t) { this.text = t; } };
+  globalThis.SpeechSynthesisUtterance = class { constructor(t) { this.text = t; } addEventListener() {} };
   (0, eval)(readFileSync(path.join(racine, 'js', 'voix.js'), 'utf8'));
   const V = globalThis.Voix;
   const attendre = (ms) => new Promise((r) => setTimeout(r, ms));
