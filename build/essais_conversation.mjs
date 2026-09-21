@@ -736,7 +736,94 @@ async function epreuveSauvegarde(depot, miens) {
     'celle d’une réplique importée entre, puisque son dialogue est repris');
 }
 
-// ── 8. La coquille ─────────────────────────────────────────────────────────
+// ── 8. La voix : une suite de répliques, et ce qui l'arrête ────────────────
+
+/* `voix.js` sur une synthèse vocale de laboratoire : les paroles finissent
+ * quand on le décide. On éprouve ce que la page promet — la suite s'enchaîne
+ * avec un silence entre deux, et **tout** l'interrompt : Arrêter, `taire()`
+ * (la fermeture d'une fiche, le changement de langue de l'interface) et une
+ * autre parole (`dire()`, le bouton ▸ d'une réplique). */
+async function epreuveVoix() {
+  titre('La lecture d’un dialogue s’enchaîne, et tout l’arrête');
+  const stubVoix = globalThis.Voix;
+  const paroles = [];
+  let annulations = 0;
+  globalThis.speechSynthesis = {
+    getVoices: () => [{ lang: 'de-DE', localService: true }, { lang: 'fr-FR', localService: true }],
+    addEventListener() {},
+    speak(p) { paroles.push(p); },
+    cancel() { annulations += 1; },
+  };
+  globalThis.SpeechSynthesisUtterance = class { constructor(t) { this.text = t; } };
+  (0, eval)(readFileSync(path.join(racine, 'js', 'voix.js'), 'utf8'));
+  const V = globalThis.Voix;
+  const attendre = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  verifier(V.possible('de') && V.possible('fr'), 'deux voix de laboratoire');
+  let items = [], fin = null;
+  let suite = V.enchainer([{ texte: 'Eins.', langue: 'de' }, { texte: '', silence: 120 },
+                           { texte: 'Drei.', langue: 'de' }],
+    { pause: 20, surItem: (i) => items.push(i), surFin: (interrompu) => { fin = interrompu; } });
+  verifier(paroles.length === 1 && paroles[0].text === 'Eins.' && items[0] === 0,
+    'la première réplique part tout de suite');
+  paroles[0].onend();
+  await attendre(60);
+  verifier(items.length === 2 && paroles.length === 1, 'puis un silence — le tour de parole de qui joue un rôle');
+  await attendre(140);
+  verifier(paroles.length === 2 && paroles[1].text === 'Drei.' && items[2] === 2, 'puis la troisième, après la pause');
+  paroles[1].onend();
+  await attendre(40);
+  verifier(fin === false, 'la fin est annoncée, non interrompue');
+
+  // Arrêter.
+  fin = null;
+  const avant = annulations;
+  suite = V.enchainer([{ texte: 'A.', langue: 'fr' }, { texte: 'B.', langue: 'fr' }],
+    { pause: 20, surFin: (i) => { fin = i; } });
+  suite.arreter();
+  verifier(fin === true && annulations > avant, '« Arrêter » interrompt et annule la synthèse');
+  const nombre = paroles.length;
+  paroles[nombre - 1].onend();
+  await attendre(60);
+  verifier(paroles.length === nombre, 'plus rien ne part après l’arrêt');
+
+  // taire() : la fermeture d'une fiche, le changement de langue.
+  fin = null;
+  V.enchainer([{ texte: 'A.', langue: 'fr' }, { texte: 'B.', langue: 'fr' }],
+    { pause: 20, surFin: (i) => { fin = i; } });
+  V.taire();
+  verifier(fin === true, '`taire()` — fermeture de fiche, changement de langue — arrête la suite et le dit');
+
+  // dire() : le ▸ d'une réplique par-dessus la lecture.
+  fin = null;
+  V.enchainer([{ texte: 'A.', langue: 'fr' }, { texte: 'B.', langue: 'fr' }],
+    { pause: 20, surFin: (i) => { fin = i; } });
+  const total = paroles.length;
+  V.dire('Seule.', 'fr');
+  verifier(fin === true && paroles.length === total + 1 && paroles[total].text === 'Seule.',
+    'une parole isolée (▸) arrête la suite et parle seule');
+
+  // Une nouvelle suite remplace l'ancienne.
+  let finA = null, finB = null;
+  V.enchainer([{ texte: 'A.', langue: 'fr' }], { surFin: (i) => { finA = i; } });
+  V.enchainer([{ texte: 'B.', langue: 'fr' }], { surFin: (i) => { finB = i; } });
+  verifier(finA === true && finB === null, 'lancer une suite arrête la précédente');
+  V.taire();
+
+  // Voix coupée dans les réglages : rien ne part, la fin est annoncée.
+  V.actif = false;
+  fin = null;
+  const n2 = paroles.length;
+  V.enchainer([{ texte: 'A.', langue: 'fr' }], { surFin: (i) => { fin = i; } });
+  verifier(fin === true && paroles.length === n2, 'voix désactivée : rien ne part, et on le sait aussitôt');
+  V.actif = true;
+
+  globalThis.Voix = stubVoix;
+  delete globalThis.speechSynthesis;
+  delete globalThis.SpeechSynthesisUtterance;
+}
+
+// ── 9. La coquille ─────────────────────────────────────────────────────────
 
 function epreuveCoquille() {
   titre('La coquille : le module et son contenu sont chargés et pré-cachés');
@@ -767,6 +854,7 @@ async function principal() {
   await epreuveExercices();
   const miens = await epreuvePersonnel(depot);
   await epreuveSauvegarde(depot, miens);
+  await epreuveVoix();
   epreuveCoquille();
 
   console.log('');

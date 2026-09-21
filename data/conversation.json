@@ -75,7 +75,7 @@
     { "id": "ph-saluer-enchante", "theme": "saluer",
       "fr": "Enchanté !", "de": "Freut mich!",
       "situation": { "fr": "Juste après qu’on s’est présentés. Une femme écrit « Enchantée ». « Freut mich, Sie kennenzulernen » est la forme complète.", "de": "Gleich nach dem Vorstellen. Die vollständige Form: „Freut mich, Sie kennenzulernen“." },
-      "variantes": { "de": ["Sehr erfreut!", "Freut mich, Sie kennenzulernen."], "fr": ["Enchantée !", "Ravi de vous rencontrer."] } },
+      "variantes": { "de": ["Freut mich, Sie kennenzulernen."], "fr": ["Enchantée !", "Ravi de vous rencontrer."] } },
     { "id": "ph-saluer-je-viens-de", "theme": "saluer",
       "fr": "Je viens de France.", "de": "Ich komme aus Frankreich.",
       "situation": { "fr": "Pour dire d’où l’on vient.", "de": "Um zu sagen, woher man kommt." } },
@@ -191,10 +191,10 @@
       "situation": { "fr": "La formule orale la plus courante au guichet.", "de": "Die gebräuchlichste Formel am Schalter." },
       "variantes": { "de": ["Eine Rückfahrkarte, bitte."] } },
     { "id": "ph-transports-aller-simple", "theme": "transports",
-      "fr": "Un aller simple, s’il vous plaît.", "de": "Nur die Hinfahrt, bitte.",
+      "fr": "Un aller simple, s’il vous plaît.", "de": "Einfache Fahrt, bitte.",
       "registre": "poli",
       "situation": { "fr": "Quand on ne revient pas par le même moyen.", "de": "Wenn man nicht auf demselben Weg zurückkommt." },
-      "variantes": { "de": ["Einfache Fahrt, bitte."] } },
+      "variantes": { "de": ["Nur die Hinfahrt, bitte."] } },
     { "id": "ph-transports-prochain-train", "theme": "transports",
       "fr": "À quelle heure part le prochain train pour Berlin ?", "de": "Wann fährt der nächste Zug nach Berlin?",
       "situation": { "fr": "« Wann » suffit ; « Um wie viel Uhr » insiste sur l’heure exacte.", "de": "„Wann“ genügt; „Um wie viel Uhr“ fragt ausdrücklich nach der Uhrzeit." },
@@ -202,7 +202,7 @@
     { "id": "ph-transports-quel-quai", "theme": "transports",
       "fr": "De quel quai part-il ?", "de": "Von welchem Gleis fährt er ab?",
       "situation": { "fr": "« Gleis » désigne la voie, que les panneaux indiquent ; le quai s’appelle « Bahnsteig ».", "de": "„Gleis“ steht auf den Anzeigen; der Bahnsteig ist der Bereich, auf dem man wartet." },
-      "variantes": { "de": ["Von welchem Gleis fährt der Zug?", "Auf welchem Gleis fährt er ab?"], "fr": ["Il part de quel quai ?"] } },
+      "variantes": { "de": ["Von welchem Gleis fährt der Zug?"], "fr": ["Il part de quel quai ?"] } },
     { "id": "ph-transports-arret-mannheim", "theme": "transports",
       "fr": "Est-ce que ce train s’arrête à Mannheim ?", "de": "Hält dieser Zug in Mannheim?",
       "situation": { "fr": "Avant de monter.", "de": "Bevor man einsteigt." },
@@ -342,7 +342,7 @@
     { "id": "ph-achats-cabines", "theme": "achats",
       "fr": "Où sont les cabines d’essayage ?", "de": "Wo sind die Umkleidekabinen?",
       "situation": { "fr": "Dans un magasin de vêtements.", "de": "Im Bekleidungsgeschäft." },
-      "variantes": { "de": ["Wo kann ich das anprobieren?"] } },
+      "variantes": { "de": ["Wo sind die Umkleiden?"] } },
     { "id": "ph-achats-je-le-prends", "theme": "achats",
       "fr": "Je le prends.", "de": "Ich nehme es.",
       "situation": { "fr": "Pour conclure l’achat. « es » suit le genre de l’objet : « Ich nehme sie » pour die Jacke.", "de": "Um den Kauf abzuschließen. „es“ richtet sich nach dem Genus: „Ich nehme sie“ bei der Jacke." },
@@ -362,7 +362,7 @@
       "fr": "Vous avez de la monnaie sur cinquante euros ?", "de": "Können Sie auf fünfzig Euro herausgeben?",
       "registre": "poli",
       "situation": { "fr": "Avant de tendre un gros billet.", "de": "Bevor man einen großen Schein hinlegt." },
-      "variantes": { "de": ["Können Sie fünfzig Euro wechseln?"] } },
+      "variantes": { "fr": ["Vous pouvez me rendre sur cinquante euros ?"] } },
     { "id": "ph-achats-paquet-cadeau", "theme": "achats",
       "fr": "Pourriez-vous me faire un paquet-cadeau ?", "de": "Könnten Sie das als Geschenk einpacken?",
       "registre": "poli",
@@ -435,7 +435,7 @@
       "situation": { "fr": "« auschecken » est passé dans l’usage ; l’heure limite est souvent onze heures.", "de": "„auschecken“ ist üblich geworden; meist bis elf Uhr." },
       "variantes": { "de": ["Wann ist Check-out?"], "fr": ["Il faut libérer la chambre à quelle heure ?"] } },
     { "id": "ph-hotel-note", "theme": "hotel",
-      "fr": "Je pars aujourd’hui. Pouvez-vous préparer la note ?", "de": "Ich reise heute ab. Können Sie die Rechnung fertig machen?",
+      "fr": "Je pars aujourd’hui. Pouvez-vous préparer la note ?", "de": "Ich reise heute ab. Können Sie bitte die Rechnung vorbereiten?",
       "registre": "poli",
       "situation": { "fr": "Le matin du départ.", "de": "Am Morgen der Abreise." } },
     { "id": "ph-hotel-bagages", "theme": "hotel",
@@ -620,7 +620,7 @@
     { "id": "ph-comprendre-un-peu-allemand", "theme": "comprendre",
       "fr": "Je parle seulement un peu allemand.", "de": "Ich spreche nur ein bisschen Deutsch.",
       "situation": { "fr": "Dit d’emblée, cela met tout le monde à l’aise.", "de": "Gleich gesagt, entspannt das jedes Gespräch." },
-      "variantes": { "de": ["Ich spreche nur wenig Deutsch."], "fr": ["Je parle un peu allemand seulement."] } },
+      "variantes": { "de": ["Ich spreche nur wenig Deutsch."] } },
     { "id": "ph-comprendre-parlez-vous-francais", "theme": "comprendre",
       "fr": "Parlez-vous français ?", "de": "Sprechen Sie Französisch?",
       "registre": "poli",
@@ -697,7 +697,7 @@
       "roles": { "A": { "fr": "Le voyageur", "de": "Der Reisende" }, "B": { "fr": "La passante", "de": "Die Passantin" } },
       "repliques": [
         { "id": "r1", "qui": "A", "de": "Entschuldigen Sie, wie komme ich zum Bahnhof?", "fr": "Excusez-moi, comment aller à la gare ?" },
-        { "id": "r2", "qui": "B", "de": "Zum Hauptbahnhof? Das ist ein Stück. Am besten nehmen Sie die Straßenbahn.", "fr": "À la gare centrale ? C’est un bout de chemin. Le mieux, c’est de prendre le tram." },
+        { "id": "r2", "qui": "B", "de": "Zum Hauptbahnhof? Das ist ein ganzes Stück. Am besten nehmen Sie die Straßenbahn.", "fr": "À la gare centrale ? C’est un bon bout de chemin. Le mieux, c’est de prendre le tram." },
         { "id": "r3", "qui": "A", "de": "Können Sie mir das auf dem Stadtplan zeigen?", "fr": "Pouvez-vous me le montrer sur le plan ?", "phrase": "ph-chemin-plan" },
         { "id": "r4", "qui": "B", "de": "Natürlich. Wir sind hier, und die Haltestelle ist da vorne, gegenüber der Kirche.", "fr": "Bien sûr. Nous sommes ici, et l’arrêt est là devant, en face de l’église." },
         { "id": "r5", "qui": "A", "de": "Und welche Linie muss ich nehmen?", "fr": "Et quelle ligne dois-je prendre ?" },
@@ -765,7 +765,7 @@
         { "id": "r5", "qui": "A", "de": "Sehr gern, beides ist vegetarisch. Und zu trinken?", "fr": "Très bien, les deux sont végétariens. Et comme boisson ?" },
         { "id": "r6", "qui": "B", "de": "Ein Glas Weißwein und eine Karaffe Leitungswasser, bitte.", "fr": "Un verre de vin blanc et une carafe d’eau, s’il vous plaît." },
         { "id": "r7", "qui": "A", "de": "Leitungswasser haben wir leider nicht, nur Mineralwasser.", "fr": "Nous n’avons pas d’eau du robinet, malheureusement, seulement de l’eau minérale." },
-        { "id": "r8", "qui": "B", "de": "Dann ein kleines Mineralwasser ohne Kohlensäure, bitte.", "fr": "Alors une petite eau minérale plate, s’il vous plaît." }
+        { "id": "r8", "qui": "B", "de": "Dann ein kleines stilles Mineralwasser, bitte.", "fr": "Alors une petite eau minérale plate, s’il vous plaît." }
       ] },
 
     { "id": "dg-restaurant-addition", "theme": "restaurant", "registre": "poli",
@@ -778,7 +778,7 @@
         { "id": "r4", "qui": "B", "de": "Das freut mich. Zusammen oder getrennt?", "fr": "J’en suis ravie. Ensemble ou séparément ?" },
         { "id": "r5", "qui": "A", "de": "Zusammen, bitte.", "fr": "Ensemble, s’il vous plaît." },
         { "id": "r6", "qui": "B", "de": "Das macht dann siebenunddreißig Euro vierzig.", "fr": "Ça fait trente-sept euros quarante." },
-        { "id": "r7", "qui": "A", "de": "Machen Sie vierzig. Stimmt so.", "fr": "Faites quarante. Gardez la monnaie." },
+        { "id": "r7", "qui": "A", "de": "Vierzig, stimmt so.", "fr": "Quarante, gardez la monnaie." },
         { "id": "r8", "qui": "B", "de": "Vielen Dank, und einen schönen Abend noch!", "fr": "Merci beaucoup, et bonne fin de soirée !" }
       ] },
 
@@ -828,7 +828,7 @@
         { "id": "r2", "qui": "B", "de": "Guten Morgen. Ich hätte gern vier Brötchen und ein Roggenbrot.", "fr": "Bonjour. Je voudrais quatre petits pains et un pain de seigle." },
         { "id": "r3", "qui": "A", "de": "Das ganze Brot oder ein halbes?", "fr": "Le pain entier ou un demi ?" },
         { "id": "r4", "qui": "B", "de": "Ein halbes, bitte. Und geschnitten, wenn es geht.", "fr": "Un demi, s’il vous plaît. Et tranché, si possible." },
-        { "id": "r5", "qui": "A", "de": "Gern. Sonst noch etwas?", "fr": "Volontiers. Ce sera tout ?" },
+        { "id": "r5", "qui": "A", "de": "Gern. Sonst noch etwas?", "fr": "Volontiers. Et avec ceci ?" },
         { "id": "r6", "qui": "B", "de": "Nein, das war’s. Was kostet das?", "fr": "Non, ce sera tout. Combien ça coûte ?" },
         { "id": "r7", "qui": "A", "de": "Fünf Euro zwanzig, bitte.", "fr": "Cinq euros vingt, s’il vous plaît." }
       ] },
@@ -852,7 +852,7 @@
       "roles": { "A": { "fr": "La cliente", "de": "Der Gast" }, "B": { "fr": "Le réceptionniste", "de": "Der Rezeptionist" } },
       "repliques": [
         { "id": "r1", "qui": "A", "de": "Guten Abend, ich rufe aus Zimmer zwölf an. Die Heizung funktioniert nicht.", "fr": "Bonsoir, j’appelle de la chambre douze. Le chauffage ne fonctionne pas." },
-        { "id": "r2", "qui": "B", "de": "Das tut mir leid. Haben Sie den Regler am Fenster schon aufgedreht?", "fr": "Je suis désolé. Avez-vous déjà ouvert le thermostat, près de la fenêtre ?" },
+        { "id": "r2", "qui": "B", "de": "Das tut mir leid. Haben Sie das Thermostat an der Heizung schon aufgedreht?", "fr": "Je suis désolé. Avez-vous déjà ouvert le thermostat du radiateur ?" },
         { "id": "r3", "qui": "A", "de": "Ja, aber es bleibt kalt.", "fr": "Oui, mais ça reste froid." },
         { "id": "r4", "qui": "B", "de": "Dann schicke ich Ihnen gleich jemanden. Möchten Sie in der Zwischenzeit eine zweite Decke?", "fr": "Alors je vous envoie quelqu’un tout de suite. En attendant, voulez-vous une deuxième couverture ?" },
         { "id": "r5", "qui": "A", "de": "Ja, gern. Vielen Dank!", "fr": "Oui, volontiers. Merci beaucoup !" },
@@ -863,7 +863,7 @@
       "titre": { "fr": "Quitter l’hôtel", "de": "Abreise aus dem Hotel" },
       "roles": { "A": { "fr": "Le client", "de": "Der Gast" }, "B": { "fr": "La réceptionniste", "de": "Die Rezeptionistin" } },
       "repliques": [
-        { "id": "r1", "qui": "A", "de": "Guten Morgen. Ich reise heute ab. Können Sie die Rechnung fertig machen?", "fr": "Bonjour. Je pars aujourd’hui. Pouvez-vous préparer la note ?" },
+        { "id": "r1", "qui": "A", "de": "Guten Morgen. Ich reise heute ab. Können Sie bitte die Rechnung vorbereiten?", "fr": "Bonjour. Je pars aujourd’hui. Pouvez-vous préparer la note ?" },
         { "id": "r2", "qui": "B", "de": "Natürlich. Zimmer zwölf, zwei Nächte mit Frühstück. War alles in Ordnung?", "fr": "Bien sûr. Chambre douze, deux nuits avec petit-déjeuner. Tout s’est bien passé ?" },
         { "id": "r3", "qui": "A", "de": "Ja, sehr schön, danke. Kann ich mein Gepäck bis heute Abend hier lassen?", "fr": "Oui, très bien, merci. Puis-je laisser mes bagages ici jusqu’à ce soir ?" },
         { "id": "r4", "qui": "B", "de": "Kein Problem, wir stellen es in den Gepäckraum.", "fr": "Pas de problème, nous les mettons dans la bagagerie." },
@@ -903,7 +903,7 @@
       "repliques": [
         { "id": "r1", "qui": "A", "de": "Hast du morgen Abend Zeit? Ich will ins Kino.", "fr": "Tu es libre demain soir ? Je veux aller au cinéma." },
         { "id": "r2", "qui": "B", "de": "Klar! Welcher Film?", "fr": "Carrément ! Quel film ?" },
-        { "id": "r3", "qui": "A", "de": "Der neue Film mit Sandra Hüller. Um acht, im Kino am Markt.", "fr": "Le nouveau film avec Sandra Hüller. À huit heures, au cinéma du marché." },
+        { "id": "r3", "qui": "A", "de": "Der neue französische Film. Um acht, im Kino am Markt.", "fr": "Le nouveau film français. À huit heures, au cinéma du marché." },
         { "id": "r4", "qui": "B", "de": "Wo treffen wir uns?", "fr": "On se retrouve où ?", "phrase": "ph-rdv-ou" },
         { "id": "r5", "qui": "A", "de": "Direkt vor dem Kino, so um Viertel vor acht?", "fr": "Juste devant le cinéma, vers huit heures moins le quart ?" },
         { "id": "r6", "qui": "B", "de": "Passt. Wenn ich mich verspäte, schreibe ich dir.", "fr": "Ça marche. Si je suis en retard, je t’écris." }
@@ -915,7 +915,7 @@
       "repliques": [
         { "id": "r1", "qui": "A", "de": "Guten Tag. Mir ist nicht gut, ich habe seit gestern Kopfschmerzen und Fieber.", "fr": "Bonjour. Je ne me sens pas bien, j’ai mal à la tête et de la fièvre depuis hier." },
         { "id": "r2", "qui": "B", "de": "Wie hoch ist das Fieber?", "fr": "Combien de fièvre ?" },
-        { "id": "r3", "qui": "A", "de": "Achtunddreißig fünf. Ich bin allergisch gegen Penicillin, falls das wichtig ist.", "fr": "Trente-huit cinq. Je suis allergique à la pénicilline, si c’est important." },
+        { "id": "r3", "qui": "A", "de": "Achtunddreißig Komma fünf. Ich bin allergisch gegen Penicillin, falls das wichtig ist.", "fr": "Trente-huit cinq. Je suis allergique à la pénicilline, si c’est important." },
         { "id": "r4", "qui": "B", "de": "Danke für den Hinweis. Ich gebe Ihnen etwas gegen die Schmerzen. Wenn es morgen nicht besser ist, gehen Sie bitte zum Arzt.", "fr": "Merci de me le dire. Je vous donne quelque chose contre la douleur. Si ça ne va pas mieux demain, allez voir un médecin, s’il vous plaît." },
         { "id": "r5", "qui": "A", "de": "Wie oft soll ich das nehmen?", "fr": "Je dois en prendre combien de fois ?" },
         { "id": "r6", "qui": "B", "de": "Eine Tablette morgens und eine abends, nach dem Essen. Gute Besserung!", "fr": "Un comprimé le matin et un le soir, après le repas. Bon rétablissement !" }

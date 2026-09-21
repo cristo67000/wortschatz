@@ -278,6 +278,9 @@
   /* Prête le volet des fiches à qui a quelque chose à y mettre : un mot, une
    * phrase, un dialogue. `construire(fermer)` rend ce qu'il faut afficher. */
   function ouvrirPanneau(construire) {
+    /* Ce qui se lisait à voix haute se tait : un dialogue en cours de lecture
+     * ne doit pas continuer sous la fiche du mot qu'on vient d'ouvrir. */
+    Voix.taire();
     elements.ficheContenu.textContent = '';
     elements.ficheContenu.appendChild(construire(fermerFiche));
     elements.fiche.hidden = false;
