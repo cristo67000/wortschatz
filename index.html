@@ -9,6 +9,11 @@
   <meta name="referrer" content="no-referrer">
   <meta name="description" content="Dictionnaire français ⇄ allemand hors ligne, phrases et dialogues pour les situations courantes, exercices de mémorisation : cherchez un mot ou une expression, écoutez-le, apprenez-le. Tout reste sur l’appareil.">
   <meta name="theme-color" content="#1d3557">
+  <!-- La version de la coquille, la même que dans sw.js : à l'installation,
+       le service worker refuse une page d'une autre version — relais en
+       retard, publication en cours. build/essais_conversation.mjs vérifie
+       que les deux numéros sont égaux. -->
+  <meta name="application-version" content="v3.3.0">
   <title>Wortschatz — français ⇄ allemand</title>
   <!-- Installation sur iOS : Safari ne lit pas le manifeste pour l'écran
        d'accueil, il lui faut ces trois-là. -->
@@ -284,6 +289,8 @@
           <input type="checkbox" id="reglage-voix">
           <span data-t="reglages.voix.active"></span>
         </label>
+        <p class="discret" data-t="reglages.voix.note"></p>
+        <div id="zone-voix"></div>
         <p id="etat-voix" class="discret"></p>
       </section>
 

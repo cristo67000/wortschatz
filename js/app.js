@@ -352,6 +352,115 @@
 
   // ── Réglages ──────────────────────────────────────────────────────────────
 
+  /* Le bloc « Prononciation » : par langue, la voix retenue, un menu pour en
+   * préférer une autre, et un bouton qui la fait lire une phrase à sons
+   * pièges. Il dit clairement quand une langue n'a aucune voix — et qu'alors
+   * rien n'est lu, plutôt qu'une voix d'une autre langue —, et donne, sous
+   * « Détails techniques », ce qu'il faut pour signaler un défaut : le
+   * système, le navigateur, le nom de la voix. Redessiné quand la liste des
+   * voix arrive (`voix-changees`), puisqu'elle arrive souvent en retard. */
+  function dessinerVoix() {
+    const zone = elements.zoneVoix;
+    if (!zone) return;
+    zone.textContent = '';
+    elements.etatVoix.textContent = '';
+    if (!Voix.disponible) {
+      elements.etatVoix.textContent = I18n.t('reglages.voix.indisponible');
+      return;
+    }
+    const cle = (langue) => (langue === 'de' ? 'voixDe' : 'voixFr');
+
+    for (const langue of Voix.LANGUES) {
+      const d = Voix.diagnostic(langue);
+      const bloc = element('div', 'reglage-voix-langue');
+      const ligne = element('div', 'reglage-voix-ligne');
+      const etiquette = element('label', 'reglage-voix-titre', I18n.t('reglages.voix.pour.' + langue));
+      etiquette.htmlFor = 'reglage-voix-' + langue;
+      ligne.appendChild(etiquette);
+
+      const menu = element('select', 'reglage-voix-menu');
+      menu.id = 'reglage-voix-' + langue;
+      const auto = element('option', null, I18n.t('reglages.voix.automatique'));
+      auto.value = '';
+      menu.appendChild(auto);
+      for (const v of Voix.lister(langue)) {
+        const option = element('option', null, v.nom + ' (' + v.lang + ')');
+        option.value = v.uri;
+        menu.appendChild(option);
+      }
+      menu.value = d.choix && !d.choixIntrouvable ? d.choix.uri : '';
+      menu.disabled = !d.nombre;
+      menu.addEventListener('change', async () => {
+        const choix = Voix.choisir(langue, menu.value || null);
+        reglages[cle(langue)] = choix;
+        await Store.ecrireReglage(cle(langue), choix).catch(() => {});
+        dessinerVoix();
+      });
+      ligne.appendChild(menu);
+
+      const essayer = element('button', 'bouton-discret', I18n.t('reglages.voix.essayer'));
+      essayer.type = 'button';
+      essayer.disabled = !d.voix || !Voix.actif;
+      essayer.addEventListener('click', () => Voix.essayer(langue));
+      ligne.appendChild(essayer);
+      bloc.appendChild(ligne);
+
+      let etat;
+      if (d.voix) {
+        etat = I18n.t('reglages.voix.retenue', {
+          nom: d.voix.nom, lang: d.voix.lang,
+          ou: I18n.t(d.voix.locale ? 'reglages.voix.locale' : 'reglages.voix.reseau'),
+        });
+        if (d.choixIntrouvable) {
+          etat = I18n.t('reglages.voix.introuvable', { nom: d.choix.nom || d.choix.uri }) + ' ' + etat;
+        }
+      } else if (!d.pret && !d.total) {
+        etat = I18n.t('reglages.voix.attente');
+      } else {
+        etat = I18n.t('voix.aucune.' + langue) + ' ' + I18n.t('voix.installer');
+      }
+      bloc.appendChild(element('p', 'discret', etat));
+      bloc.appendChild(element('p', 'discret', I18n.t('reglages.voix.essai.' + langue)));
+      zone.appendChild(bloc);
+    }
+
+    zone.appendChild(element('p', 'discret', I18n.t('reglages.voix.z')));
+
+    /* Les détails techniques, repliés : ce qu'on demande à qui signale un
+     * défaut. Rien n'est envoyé — c'est à lire, ou à recopier. */
+    const details = element('details', 'reglage-voix-details');
+    details.appendChild(element('summary', null, I18n.t('reglages.voix.details')));
+    details.appendChild(element('p', 'discret', I18n.t('reglages.voix.details.note')));
+    const appareil = Voix.appareil();
+    const liste = element('ul', 'reglage-voix-liste');
+    liste.appendChild(element('li', null, I18n.t('reglages.voix.details.appareil', {
+      plateforme: appareil.plateforme || '?' })));
+    liste.appendChild(element('li', null, I18n.t('reglages.voix.details.navigateur', {
+      navigateur: appareil.navigateur || '?' })));
+    const de = Voix.diagnostic('de');
+    const fr = Voix.diagnostic('fr');
+    liste.appendChild(element('li', null, de.total
+      ? I18n.t('reglages.voix.details.nombre', { n: de.total, de: de.nombre, fr: fr.nombre })
+      : I18n.t('reglages.voix.details.aucune-liste')));
+    /* La pièce à conviction : le dernier énoncé confié au moteur, et à quelle
+     * voix. Après « Essayer », ou après la phrase qui sonnait faux. */
+    const dernier = Voix.dernier();
+    liste.appendChild(element('li', 'reglage-voix-dernier', dernier
+      ? I18n.t('reglages.voix.details.dernier', { texte: dernier.texte, nom: dernier.voix || '?', lang: dernier.lang || '?' })
+      : I18n.t('reglages.voix.details.dernier.aucun')));
+    /* Ce que cette ligne prouve, et ce qu'elle ne prouve pas : la voix
+     * demandée, pas la voix employée — le moteur ne le dit pas. */
+    liste.appendChild(element('li', 'reglage-voix-detail', I18n.t('reglages.voix.details.dernier.note')));
+    for (const langue of Voix.LANGUES) {
+      for (const v of Voix.lister(langue)) {
+        liste.appendChild(element('li', 'reglage-voix-detail',
+          v.nom + ' — ' + v.lang + ' — ' + I18n.t(v.locale ? 'reglages.voix.locale' : 'reglages.voix.reseau')));
+      }
+    }
+    details.appendChild(liste);
+    zone.appendChild(details);
+  }
+
   function dessinerReglages() {
     for (const bouton of document.querySelectorAll('[data-langue]')) {
       bouton.setAttribute('aria-pressed', String(bouton.dataset.langue === I18n.langue));
@@ -365,8 +474,7 @@
     elements.reglageVoix.checked = !!reglages.voix;
     elements.reglageArticle.checked = reglages.exigerArticle !== false;
     elements.reglageNouveautes.value = String(reglages.nouveautesParJour);
-    elements.etatVoix.textContent = Voix.possible('de') && Voix.possible('fr')
-      ? '' : I18n.t('fiche.aucune-voix');
+    dessinerVoix();
 
     /* La version de l'application vient du service worker, seul à la connaître ;
      * elle manque au tout premier lancement, avant qu'il ne contrôle la page. */
@@ -730,6 +838,7 @@
       reglageArticle: $('#reglage-article'),
       reglageNouveautes: $('#reglage-nouveautes'),
       etatVoix: $('#etat-voix'),
+      zoneVoix: $('#zone-voix'),
       ajouterSousRien: $('#b-ajouter-rien'),
       ajouterSousListe: $('#b-ajouter-liste'),
       zoneSauvegarde: $('#zone-sauvegarde'),
@@ -817,6 +926,24 @@
       Voix.actif = elements.reglageVoix.checked;
       reglages.voix = elements.reglageVoix.checked;
       await Store.ecrireReglage('voix', reglages.voix);
+      dessinerVoix();
+    });
+
+    /* La liste des voix arrive souvent après l'écran : le bloc des Réglages
+     * se redessine pour dire ce qui est vraiment là. Les boutons ▸ des
+     * fiches, eux, se repeignent d'eux-mêmes (`Voix.brancherBouton`). */
+    document.addEventListener('voix-changees', () => {
+      if (!$('#vue-reglages').hidden) dessinerVoix();
+    });
+    /* Après « Essayer », les détails disent aussitôt à quelle voix la phrase
+     * est partie — les détails restent dépliés, seul leur texte change. */
+    document.addEventListener('voix-parle', () => {
+      const ligne = $('#zone-voix .reglage-voix-dernier');
+      const dernier = Voix.dernier();
+      if (ligne && dernier) {
+        ligne.textContent = I18n.t('reglages.voix.details.dernier',
+          { texte: dernier.texte, nom: dernier.voix || '?', lang: dernier.lang || '?' });
+      }
     });
 
     document.addEventListener('keydown', (e) => {
@@ -842,6 +969,7 @@
     });
 
     Revision.sensDeTravail = reglages.sensDeTravail || 'les-deux';
+    Voix.configurer(reglages);
     Voix.actif = !!reglages.voix;
     $('#b-donnees-mettre-a-jour').addEventListener('click', () => {
       cacherAvisDonnees();

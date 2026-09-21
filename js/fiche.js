@@ -146,10 +146,9 @@
     }
     const bouton = element('button', 'ecouter', '▸ ' + I18n.t('fiche.ecouter'));
     bouton.type = 'button';
-    if (!Voix.possible(entree.langue)) {
-      bouton.disabled = true;
-      bouton.title = I18n.t('fiche.aucune-voix');
-    }
+    /* Grisé tant qu'aucune voix de la langue n'est là — et repeint quand la
+     * liste des voix arrive, ce qu'elle fait souvent après la fiche. */
+    Voix.brancherBouton(bouton, entree.langue);
     bouton.addEventListener('click', () => Voix.dire(formeParlee(entree), entree.langue));
     ligne.appendChild(bouton);
     return ligne;
@@ -277,10 +276,11 @@
     if (reference) {
       bloc.appendChild(element('p', 'citation-source', reference));
     }
-    if (Voix.possible(langue)) {
+    if (Voix.possible(langue) || !Voix.pret) {
       const ecouter = element('button', 'ecouter-phrase', '▸');
       ecouter.type = 'button';
       ecouter.setAttribute('aria-label', I18n.t('fiche.ecouter'));
+      Voix.brancherBouton(ecouter, langue);
       ecouter.addEventListener('click', () => Voix.dire(texte, langue));
       phrase.appendChild(ecouter);
     }
@@ -304,10 +304,11 @@
       entree.langue === 'de' ? paire.fr : paire.de, autre, {}));
     bloc.appendChild(cible);
 
-    if (Voix.possible(entree.langue)) {
+    if (Voix.possible(entree.langue) || !Voix.pret) {
       const ecouter = element('button', 'ecouter-phrase', '▸');
       ecouter.type = 'button';
       ecouter.setAttribute('aria-label', I18n.t('fiche.ecouter'));
+      Voix.brancherBouton(ecouter, entree.langue);
       ecouter.addEventListener('click', () => Voix.dire(
         entree.langue === 'de' ? paire.de : paire.fr, entree.langue));
       source.appendChild(ecouter);
@@ -413,10 +414,11 @@
       const source = element('p', 'exemple-source');
       source.appendChild(MotsVifs.tisser(sien, entree.langue,
         { cible: Lexique.cle(entree.mot) }));
-      if (Voix.possible(entree.langue)) {
+      if (Voix.possible(entree.langue) || !Voix.pret) {
         const ecouter = element('button', 'ecouter-phrase', '▸');
         ecouter.type = 'button';
         ecouter.setAttribute('aria-label', I18n.t('fiche.ecouter'));
+        Voix.brancherBouton(ecouter, entree.langue);
         ecouter.addEventListener('click', () => Voix.dire(sien, entree.langue));
         source.appendChild(ecouter);
       }

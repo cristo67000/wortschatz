@@ -519,6 +519,34 @@ button { font: inherit; color: inherit; }
 .bascule { display: flex; align-items: center; gap: .6rem; cursor: pointer; }
 .bascule input { width: 1.15rem; height: 1.15rem; accent-color: var(--accent); }
 
+/* Prononciation : une voix par langue, à choisir et à essayer. */
+#zone-voix { margin-top: .9rem; }
+.reglage-voix-langue { margin: 0 0 .9rem; }
+.reglage-voix-langue .discret { margin: .3rem 0 0; font-size: .82rem; }
+.reglage-voix-ligne { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .7rem; }
+.reglage-voix-titre { font-weight: 600; font-size: .92rem; flex: 0 0 100%; }
+.reglage-voix-menu {
+  flex: 1 1 10rem;
+  min-width: 0;
+  max-width: 100%;
+  padding: .45rem .6rem;
+  font: inherit;
+  color: var(--encre);
+  background: var(--papier-releve);
+  border: 1px solid var(--trait);
+  border-radius: 8px;
+}
+.reglage-voix-menu:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.reglage-voix-ligne .bouton-discret { flex: 0 0 auto; }
+.reglage-voix-ligne .bouton-discret[disabled] { opacity: .45; cursor: default; }
+#zone-voix > .discret { margin: .6rem 0 0; font-size: .82rem; }
+.reglage-voix-details { margin: .8rem 0 0; font-size: .82rem; }
+.reglage-voix-details > summary { cursor: pointer; color: var(--encre-douce); }
+.reglage-voix-details .discret { margin: .4rem 0; font-size: .82rem; }
+.reglage-voix-liste { margin: .3rem 0 0; padding-left: 1.1rem; color: var(--encre-douce); }
+.reglage-voix-liste li { margin: .15rem 0; overflow-wrap: anywhere; }
+.reglage-voix-detail { color: var(--encre-tres-douce); }
+
 .bouton-principal {
   display: block;
   width: 100%;

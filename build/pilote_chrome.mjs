@@ -30,7 +30,7 @@ function trouverChrome() {
   throw new Error('Chrome introuvable. Indiquez-le par la variable CHROME.');
 }
 
-export async function lancerChrome({ port = 9222, profil = null, telechargements = null } = {}) {
+export async function lancerChrome({ port = 9222, profil = null, telechargements = null, options = [] } = {}) {
   /* Si quelque chose répond déjà sur ce port, le Chrome qu'on va lancer ne
    * pourra pas s'y installer, et l'on parlerait sans le savoir à un autre —
    * un navigateur laissé par une épreuve précédente, avec ses cartes et ses
@@ -55,6 +55,12 @@ export async function lancerChrome({ port = 9222, profil = null, telechargements
     'about:blank',
   ];
   if (telechargements) arguments_.push('--disable-features=DownloadBubble');
+  /* Des options de plus, pour une épreuve qui en a besoin : par exemple
+   * `--host-resolver-rules="MAP … ~NOTFOUND"`, qui coupe un site sans
+   * toucher au profil — la seule façon d'éprouver le hors-ligne sur le site
+   * publié, les émulations de réseau du protocole ne coupant pas ce que le
+   * service worker répond. */
+  arguments_.push(...options);
   const processus = spawn(trouverChrome(), arguments_, { stdio: 'ignore', detached: false });
 
   // On attend que le point d'entrée réponde.

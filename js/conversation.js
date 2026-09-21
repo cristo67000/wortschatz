@@ -32,6 +32,16 @@
  * deux langues — à la casse et à la ponctuation près —, ou le sien. C'est
  * `canonique()`, et tout ce qui apprend passe par lui.
  *
+ * ── Ce qui a été relu, et par qui ──────────────────────────────────────────
+ *
+ * Le contenu fourni est rédigé par un assistant d'écriture. Un dialogue dont
+ * le texte allemand a été validé par une locutrice native porte
+ * `relu: {de: 'natif'}` dans les données ; c'est le cas des dialogues de la
+ * version 3.2. Rien d'autre n'est couvert : ni les phrases isolées — même
+ * quand un dialogue validé les reprend —, ni les traductions françaises, ni
+ * ce qui a été ajouté depuis. `entree()` porte la mention telle quelle, et la
+ * fiche la dit ; une phrase sans champ est une phrase non relue.
+ *
  * ── L'entrée a la forme de celles du dictionnaire ──────────────────────────
  *
  * `entree(id)` rend ce que `Lexique.ouvrir()` rend pour un mot : une vedette
@@ -433,9 +443,59 @@
       registre: p ? (p.registre || '') : (t.dialogue ? (t.dialogue.registre || '') : ''),
       situation: p ? p.situation : '',
       origine: p ? p.origine : (t.dialogue ? t.dialogue.origine : 'fourni'),
+      relu: relectureDe(p || t.dialogue),
       dialogue: t.dialogue ? t.dialogue.id : null,
       perso: null,
     };
+  }
+
+  /* La mention de relecture d'un item fourni : `{de: 'natif'}` ou null. Une
+   * valeur venue des données est relue avec méfiance — seule cette forme est
+   * reconnue, le reste vaut « non relu ». */
+  function relectureDe(item) {
+    if (!item || item.origine === 'perso' || !item.relu || typeof item.relu !== 'object') return null;
+    return item.relu.de === 'natif' ? { de: 'natif' } : null;
+  }
+
+  /* Les expressions usuelles du dictionnaire que la phrase contient — dans
+   * sa langue, mot pour mot, sur au moins deux mots : « Kein Problem. » est
+   * « kein Problem », « Danke, das ist sehr nett von Ihnen. » contient
+   * « nett von jemandem ». Un seul mot ne compte pas : `MotsVifs` le rend
+   * déjà cliquable. C'est une passerelle, pas une fusion : la phrase garde
+   * ses cartes, l'expression les siennes, et la fiche de l'une mène à
+   * l'autre. Rend des résultats au format de `Lexique.chercher`, sans
+   * doublon, la langue demandée d'abord. */
+  function expressionsDans(id, langueDAbord) {
+    const t = textes(canonique(id) || id);
+    if (!t || !racine.Lexique || !Lexique.expressionsPar) return [];
+    const sortie = [];
+    const vues = new Set();
+    const langues = langueDAbord === 'fr' ? ['fr', 'de'] : ['de', 'fr'];
+    /* La comparaison garde les accents : la clé du dictionnaire les ignore,
+     * et « de la rue » y passerait pour « de là ». */
+    const brut = (valeur) => {
+      const mots = texteParle(valeur).toLowerCase().normalize('NFC').match(/[\p{L}\p{N}]+/gu);
+      return ' ' + (mots ? mots.join(' ') : '') + ' ';
+    };
+    for (const langue of langues) {
+      const texteEntier = brut(t[langue]);
+      for (const mot of motsDe(t[langue])) {
+        let refs = [];
+        try { refs = Lexique.expressionsPar(langue, mot, 0, true) || []; } catch (erreur) { refs = []; }
+        for (const ref of refs) {
+          if (!ref.exact || ref.langue !== langue) continue;
+          const k = brut(ref.mot);
+          if (k.trim().indexOf(' ') === -1) continue;
+          if (texteEntier.indexOf(k) === -1) continue;
+          const empreinteRef = langue + ' ' + ref.mot;
+          if (vues.has(empreinteRef)) continue;
+          vues.add(empreinteRef);
+          const v = Lexique.vedette(langue, ref.mot);
+          if (v) { v.expression = true; v.sansEquivalent = !v.apercu; sortie.push(v); }
+        }
+      }
+    }
+    return sortie;
   }
 
   /* Les dialogues où une phrase apparaît, par son identifiant canonique. */
@@ -658,7 +718,7 @@
     REGISTRES,
     charger, chargerPerso, indexer,
     themes, theme, phrases, dialogues, phrase, dialogue, replique, existe, estPersonnel,
-    canonique, textes, apercu, entree, dialoguesAvec, leurres, chercher,
+    canonique, textes, apercu, entree, dialoguesAvec, leurres, chercher, expressionsDans, relectureDe,
     creer, modifier, supprimer, remettre, personnels, brut, cartesDe, accorderLesCartes,
     normaliserPhrase, normaliserDialogue, assainirLigne, listeAssainie,
     texte, texteParle, typographier, cleTexte, compter,

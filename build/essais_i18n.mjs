@@ -104,6 +104,11 @@ const FAMILLES = {
                  'role.A', 'role.B', 'phrase.ajouter', 'phrase.modifier',
                  'dialogue.ajouter', 'dialogue.modifier'],
   'exercice.consigne.ecoute.': ['phrase'],
+  // La prononciation : une voix par langue, et ce qu'on dit quand elle manque.
+  'voix.aucune.': ['de', 'fr'],
+  'reglages.voix.pour.': ['de', 'fr'],
+  'reglages.voix.essai.': ['de', 'fr'],
+  'conv.provenance.fourni.': ['relu-de'],
 };
 for (const [prefixe, suites] of Object.entries(FAMILLES)) {
   for (const suite of suites) employees.add(prefixe + suite);

@@ -19,17 +19,24 @@
  *   4. que la nouvelle version, une fois activée, tient hors ligne, phrases
  *      comprises.
  *
- *     node build/essais_migration_phrases.mjs
+ *     node build/essais_migration_phrases.mjs [révision de la version publiée]
+ *
+ * La révision vaut `main` par défaut. Depuis que `main` porte les phrases,
+ * c'est `c99b13a` — la 3.1 — qu'il faut donner pour que l'épreuve garde son
+ * sens ; elle le vérifie, et s'arrête si la révision servie connaît déjà les
+ * phrases.
  */
 import { execSync, spawn } from 'node:child_process';
-import { existsSync, readdirSync, rmSync, statSync, utimesSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, rmSync, statSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lancerChrome, fermerChrome, ouvrirOnglet } from './pilote_chrome.mjs';
 
 const RACINE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const REVISION = process.argv[2] || 'main';
 const PORT_WEB = 8153;
+const versionDe = (dossier) => (readFileSync(path.join(dossier, 'sw.js'), 'utf8').match(/const VERSION = '([^']+)'/) || [])[1];
 const ORIGINE = 'http://localhost:' + PORT_WEB + '/';
 const ANCIENNE = path.join(tmpdir(), 'wortschatz-version-publiee');
 
@@ -108,8 +115,11 @@ async function principal() {
     try { execSync(`git worktree remove --force "${ANCIENNE}"`, { cwd: RACINE, stdio: 'ignore' }); } catch (e) { /* … */ }
     rmSync(ANCIENNE, { recursive: true, force: true });
   }
-  execSync(`git worktree add --detach "${ANCIENNE}" main`, { cwd: RACINE, stdio: 'ignore' });
+  execSync(`git worktree add --detach "${ANCIENNE}" ${REVISION}`, { cwd: RACINE, stdio: 'ignore' });
   vieillir(ANCIENNE, new Date('2020-01-01T00:00:00Z'));
+  const versionAncienne = versionDe(ANCIENNE);
+  const versionNeuve = versionDe(RACINE);
+  console.log(`Version publiée : ${REVISION} (${versionAncienne}) → ${versionNeuve}`);
 
   let serveur = servir(ANCIENNE);
   await attendreServeur(true);
@@ -156,8 +166,10 @@ async function principal() {
                ffi: ffi.id, sauvegarde, empreinte, aConversation: !!window.Conversation };
     `);
     verifier(avant.version === 3, 'la base est en version 3', avant.version);
-    verifier(avant.coquille === 'wortschatz-coquille-v3.1.0', 'la coquille est celle de la 3.1', avant.coquille);
-    verifier(!avant.aConversation, 'cette version ne connaît pas les phrases et dialogues — c’est bien l’ancienne');
+    verifier(avant.coquille === 'wortschatz-coquille-' + versionAncienne, 'la coquille est celle de la version publiée', avant.coquille);
+    if (!verifier(!avant.aConversation, 'cette version ne connaît pas les phrases et dialogues — c’est bien l’ancienne')) {
+      throw new Error('La révision ' + REVISION + ' porte déjà les phrases : donner celle de la 3.1 (c99b13a).');
+    }
     verifier(JSON.stringify(avant.cartesHaus) === JSON.stringify(['genre', 'vers-de', 'vers-fr'])
              && avant.cartesFFI === 2, 'cinq cartes : « Haus » (3) et « FFI » (2)');
     verifier(avant.empreinte.cartes.length === 5 && avant.empreinte.notes.length === 2
@@ -246,8 +258,8 @@ async function principal() {
       ${ATTENDRE_PRET}
       return { caches: await caches.keys() };
     `);
-    verifier(active.caches.includes('wortschatz-coquille-v3.2.0') && !active.caches.includes('wortschatz-coquille-v3.1.0'),
-      'la coquille 3.2.0 a remplacé la 3.1.0', active.caches);
+    verifier(active.caches.includes('wortschatz-coquille-' + versionNeuve) && !active.caches.includes('wortschatz-coquille-' + versionAncienne),
+      `la coquille ${versionNeuve} a remplacé la ${versionAncienne}`, active.caches);
 
     serveur.kill();
     await attendreServeur(false);

@@ -180,10 +180,11 @@
     const boutons = element('div', 'cartouche-boutons');
     boutons.appendChild(boutonApprendre(entree));
 
-    if (Voix.possible(entree.langue)) {
+    if (Voix.possible(entree.langue) || !Voix.pret) {
       const ecouter = element('button', 'cartouche-ecouter', '▸');
       ecouter.type = 'button';
       ecouter.setAttribute('aria-label', I18n.t('fiche.ecouter'));
+      Voix.brancherBouton(ecouter, entree.langue);
       ecouter.addEventListener('click', () => Voix.dire(entree.mot, entree.langue));
       boutons.appendChild(ecouter);
     }
