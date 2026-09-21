@@ -354,7 +354,7 @@ async function relever(empreinte) {
       'un dialogue de la 3.3 se dit non relu, et s’ouvre avec ses 7 répliques');
     verifier(/n’ont encore été relus|von Muttersprachlern durchgesehen/.test(mentions.phrase),
       'une phrase isolée — même reprise par un dialogue validé — se dit non relue');
-    verifier(/3\\.3\\.0/.test(mentions.apropos) && /locutrice native|Muttersprachlerin/.test(mentions.apropos),
+    verifier(mentions.apropos.indexOf(attendu.version) !== -1 && /locutrice native|Muttersprachlerin/.test(mentions.apropos),
       '« À propos » donne la version 3.3.0 et la portée de la validation', mentions.apropos);
 
     titre('4. Les réglages de voix, sur le site publié');
@@ -382,7 +382,7 @@ async function relever(empreinte) {
         choix = (await Store.lireReglages()).voixFr;
       }
       return { blocs: blocs.length, etats, de: { nombre: de.nombre, voix: de.voix }, fr: { nombre: fr.nombre },
-               notees, details: details.slice(0, 400), choix, dernier: Voix.dernier() };
+               notees, details, choix, dernier: Voix.dernier() };
     `);
     console.log(`  (${voix.de.nombre} voix allemandes, ${voix.fr.nombre} françaises ; allemand : ${voix.de.voix ? voix.de.voix.nom : 'aucune'})`);
     verifier(voix.blocs === 2 && voix.etats.length === 2, 'un bloc de réglage par langue');
