@@ -420,6 +420,27 @@
         etat = I18n.t('voix.aucune.' + langue) + ' ' + I18n.t('voix.installer');
       }
       bloc.appendChild(element('p', 'discret', etat));
+      /* Une voix canadienne lit le français malgré tout : on dit pourquoi, et
+       * comment avoir la voix de France — l'application la choisit d'office,
+       * mais ne peut pas l'installer sur le téléphone. */
+      if (d.avis) {
+        const avis = element('div', 'avis-voix');
+        avis.appendChild(element('p', null, I18n.t('reglages.voix.avis.' + d.avis)));
+        if (d.avis === 'choix-canadien') {
+          const revenir = element('button', 'bouton-discret', I18n.t('reglages.voix.avis.revenir'));
+          revenir.type = 'button';
+          revenir.addEventListener('click', async () => {
+            const choix = Voix.choisir(langue, null);
+            reglages[cle(langue)] = choix;
+            await Store.ecrireReglage(cle(langue), choix).catch(() => {});
+            dessinerVoix();
+          });
+          avis.appendChild(revenir);
+        } else {
+          avis.appendChild(element('p', 'discret', I18n.t('reglages.voix.avis.installer')));
+        }
+        bloc.appendChild(avis);
+      }
       bloc.appendChild(element('p', 'discret', I18n.t('reglages.voix.essai.' + langue)));
       zone.appendChild(bloc);
     }

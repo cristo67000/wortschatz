@@ -926,7 +926,11 @@ function epreuveCoquille() {
   }
   verifier(caches.has('data/conversation.json'), 'le contenu fourni est pré-caché avec la coquille');
   verifier(/data-vue="conversation"/.test(html), 'l’onglet existe');
-  verifier(/v3\.3\.0/.test(sw), 'la version de la coquille a changé : le contenu neuf voyage avec elle');
+  // Au moins la 3.3.0, qui a apporté le contenu actuel : une correction
+  // ultérieure (3.3.1…) ne doit pas faire échouer cette épreuve.
+  const version = (sw.match(/const VERSION = 'v(\d+)\.(\d+)\.(\d+)'/) || []).slice(1).map(Number);
+  verifier(version.length === 3 && (version[0] > 3 || (version[0] === 3 && version[1] >= 3)),
+    'la version de la coquille est au moins la 3.3.0 : le contenu neuf voyage avec elle', version);
   const versionSw = (sw.match(/const VERSION = '([^']+)'/) || [])[1];
   const versionPage = (html.match(/name="application-version" content="([^"]+)"/) || [])[1];
   verifier(!!versionSw && versionSw === versionPage,

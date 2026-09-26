@@ -29,7 +29,14 @@ voisinage.
 **Écouter.** La lecture à voix haute passe par les voix de l'appareil, sans
 réseau. Un texte allemand n'est lu que par une voix allemande, un texte
 français que par une voix française — s'il manque une voix, rien n'est lu,
-plutôt que mal, et l'écran le dit pour la langue qui manque. Les Réglages
+plutôt que mal, et l'écran le dit pour la langue qui manque. Parmi les voix
+d'une langue, l'accent de France ou d'Allemagne passe devant (depuis la
+3.3.1) : le téléphone donne souvent la voix canadienne en premier — fr-CA
+avant fr-FR sur Android, Amélie avant Thomas sur iPhone —, elle vient
+désormais en dernier ; à région égale, la voix de l'appareil avant la voix en
+ligne, les meilleures d'abord. Si c'est malgré tout une voix canadienne qui
+lit, les Réglages disent pourquoi et comment installer la voix de France.
+Les Réglages
 montrent la voix retenue pour chaque langue, permettent d'en préférer une
 autre parmi celles du système, et la font lire une phrase à sons pièges —
 « Zehn Züge fahren zum Zoo. » : ses quatre « z » doivent sonner « ts ».

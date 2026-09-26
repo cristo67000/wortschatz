@@ -523,6 +523,11 @@ button { font: inherit; color: inherit; }
 #zone-voix { margin-top: .9rem; }
 .reglage-voix-langue { margin: 0 0 .9rem; }
 .reglage-voix-langue .discret { margin: .3rem 0 0; font-size: .82rem; }
+/* Une voix canadienne lit le français malgré tout : l'avis, et le remède. */
+.avis-voix { margin: .6rem 0 0; padding: .6rem .75rem; border-radius: 8px;
+  background: var(--accent-clair); border-left: 3px solid var(--accent); }
+.avis-voix p { margin: 0 0 .35rem; font-size: .9rem; }
+.avis-voix .bouton-discret { margin-top: .2rem; }
 .reglage-voix-ligne { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .7rem; }
 .reglage-voix-titre { font-weight: 600; font-size: .92rem; flex: 0 0 100%; }
 .reglage-voix-menu {

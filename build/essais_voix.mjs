@@ -152,8 +152,9 @@ verifier(p.text.split('').filter((c) => c === 'z' || c === 'Z').length === 4,
   'le texte est transmis tel quel : quatre « z », aucun n’est réécrit en « ts »');
 V.dire('Bonjour.', 'fr');
 verifier(derniere().voice.name === 'Amélie' && derniere().lang === 'fr-FR', 'le français prend la voix française locale');
-verifier(V.lister('de').map((v) => v.nom).join(', ') === 'Deutsch (Netz), Deutsch (lokal), Deutsch (Schweiz)',
-  'la liste des voix allemandes ne contient que de l’allemand, de-CH compris', V.lister('de'));
+verifier(V.lister('de').map((v) => v.nom).join(', ') === 'Deutsch (lokal), Deutsch (Netz), Deutsch (Schweiz)',
+  'la liste des voix allemandes ne contient que de l’allemand, de-CH compris, dans l’ordre du choix automatique :'
+  + ' Allemagne sur l’appareil, Allemagne en ligne, Suisse', V.lister('de'));
 verifier(V.lister('fr').every((v) => v.lang.startsWith('fr')) && V.lister('fr').length === 2,
   'et celle des françaises que du français');
 
@@ -223,6 +224,102 @@ verifier(d6.texte === 'Bonjour.' && d6.langue === 'fr' && d6.voix === 'Amélie',
 V.taire();
 d6.texte = 'trafiqué';
 verifier(V.dernier().texte === 'Bonjour.', 'ce qui est rendu est une copie');
+
+// ── 7. L'accent : la France et l'Allemagne d'abord, le Canada en dernier ────
+//
+// Des listes telles que les rendent les systèmes, dans leur ordre : la voix
+// canadienne arrive souvent la première, et c'est elle qu'on entendait.
+
+titre('7. L’accent attendu : France et Allemagne d’abord, le Canada en dernier');
+function avecVoix(liste, enLigne) {
+  Object.defineProperty(globalThis, 'navigator', {
+    value: { languages: ['fr'], userAgent: 'Laboratoire/1.0', platform: 'Labo', onLine: enLigne !== false },
+    configurable: true,
+  });
+  labo.liste = liste;
+  labo.ecouteurs = [];
+  return charger();
+}
+const apple = (nom, lang, uri) => voix(nom, lang, true, 'com.apple.' + uri);
+const IPHONE = [
+  apple('Amélie', 'fr-CA', 'voice.compact.fr-CA.Amelie'),
+  apple('Anna', 'de-DE', 'voice.compact.de-DE.Anna'),
+  apple('Eddy (français (Canada))', 'fr-CA', 'eloquence.fr-CA.Eddy'),
+  apple('Eddy (français (France))', 'fr-FR', 'eloquence.fr-FR.Eddy'),
+  apple('Eddy (Deutsch (Deutschland))', 'de-DE', 'eloquence.de-DE.Eddy'),
+  apple('Flo (français (France))', 'fr-FR', 'eloquence.fr-FR.Flo'),
+  apple('Grand-mère (français (France))', 'fr-FR', 'eloquence.fr-FR.Grandma'),
+  apple('Thomas', 'fr-FR', 'voice.compact.fr-FR.Thomas'),
+];
+V = avecVoix(IPHONE);
+V.dire('Bonjour.', 'fr');
+verifier(derniere().voice.name === 'Thomas' && derniere().lang === 'fr-FR',
+  'iPhone : le français part avec Thomas (France), ni Amélie (Canada) ni Eddy', derniere().voice.name);
+V.dire('Guten Tag.', 'de');
+verifier(derniere().voice.name === 'Anna', 'iPhone : l’allemand avec Anna, pas avec Eddy (Eloquence)', derniere().voice.name);
+verifier(V.lister('fr')[0].nom === 'Thomas' && V.lister('fr').at(-1).region === 'CA',
+  'iPhone : la liste des Réglages commence par la France et finit par le Canada', V.lister('fr').map((x) => x.nom));
+verifier(V.diagnostic('fr').avis === null && V.diagnostic('fr').voix.region === 'FR',
+  'iPhone : voix de France présente, aucun avis', V.diagnostic('fr'));
+V = avecVoix([...IPHONE, apple('Audrey (amélioré)', 'fr-FR', 'voice.enhanced.fr-FR.Audrey')]);
+V.dire('Bonjour.', 'fr');
+verifier(derniere().voice.name === 'Audrey (amélioré)', 'iPhone : une voix améliorée téléchargée passe devant la compacte');
+
+const android = (nom, lang) => voix(nom, lang, true);
+V = avecVoix([android('Français Canada', 'fr-CA'), android('Français France', 'fr-FR'), android('Deutsch Deutschland', 'de-DE')]);
+V.dire('Bonjour.', 'fr');
+verifier(derniere().voice.name === 'Français France', 'Android : fr-FR, pas fr-CA venu d’abord', derniere().voice.name);
+V = avecVoix([android('fr_CA', 'fr_CA'), android('fr_FR', 'fr_FR')]);
+V.dire('Bonjour.', 'fr');
+verifier(derniere().voice.name === 'fr_FR' && derniere().lang === 'fr-FR',
+  'Android, balises à tiret bas : fr_FR retenue, balise rendue « fr-FR »', derniere().voice.name);
+V = avecVoix([android('Français (Canada)', 'fr'), android('eSpeak French', 'fr')]);
+V.dire('Bonjour.', 'fr');
+verifier(derniere().voice.name === 'eSpeak French', 'balise sans région : le nom « Canada » suffit à la reléguer', derniere().voice.name);
+
+const windows = (nom, lang, locale) => voix(nom, lang, locale);
+V = avecVoix([
+  windows('Microsoft Sylvie Online (Natural) - French (Canada)', 'fr-CA', false),
+  windows('Microsoft Denise Online (Natural) - French (France)', 'fr-FR', false),
+  windows('Microsoft Hortense - French (France)', 'fr-FR', true),
+  windows('Microsoft Karsten - German (Switzerland)', 'de-CH', true),
+  windows('Microsoft Katja - German (Germany)', 'de-DE', true),
+]);
+V.dire('Bonjour.', 'fr');
+verifier(derniere().voice.name === 'Microsoft Hortense - French (France)', 'Edge : la voix française de l’appareil, avant les voix en ligne');
+V.dire('Guten Tag.', 'de');
+verifier(derniere().voice.name === 'Microsoft Katja - German (Germany)', 'Edge : l’allemand d’Allemagne avant celui de Suisse, venu d’abord');
+
+const QUEBEC = [windows('Microsoft Caroline - French (Canada)', 'fr-CA', true), windows('Google français', 'fr-FR', false)];
+V = avecVoix(QUEBEC);
+V.dire('Bonjour.', 'fr');
+verifier(derniere().voice.name === 'Google français', 'en ligne : une voix de France en ligne plutôt qu’une canadienne');
+V = avecVoix(QUEBEC, false);
+V.dire('Bonjour.', 'fr');
+verifier(derniere().voice.name === 'Microsoft Caroline - French (Canada)', 'hors ligne : la voix de l’appareil, seule à pouvoir parler');
+verifier(V.diagnostic('fr').avis === 'france-en-ligne', 'et les Réglages disent pourquoi : « france-en-ligne »', V.diagnostic('fr').avis);
+
+V = avecVoix([android('Français Canada', 'fr-CA'), android('Deutsch Deutschland', 'de-DE')]);
+verifier(V.diagnostic('fr').avis === 'pas-de-france', 'aucune voix française d’Europe : avis « pas-de-france »', V.diagnostic('fr').avis);
+verifier(V.diagnostic('de').avis === null, 'l’allemand n’a pas d’avis canadien');
+
+V = avecVoix(IPHONE);
+V.configurer({ voixFr: { uri: 'com.apple.voice.compact.fr-CA.Amelie', nom: 'Amélie' } });
+V.dire('Bonjour.', 'fr');
+verifier(derniere().voice.name === 'Amélie', 'une voix choisie dans les Réglages reste la sienne, même canadienne');
+verifier(V.diagnostic('fr').avis === 'choix-canadien', 'et l’avis propose de revenir à la France : « choix-canadien »', V.diagnostic('fr').avis);
+V.choisir('fr', null);
+V.dire('Bonjour.', 'fr');
+verifier(derniere().voice.name === 'Thomas' && V.diagnostic('fr').avis === null, 'retour à l’automatique : Thomas, plus d’avis');
+
+V = avecVoix([windows('Google Deutsch', 'de-DE', false), windows('Microsoft Karsten - German (Switzerland)', 'de-CH', true)], false);
+V.configurer({ voixDe: { uri: 'Google Deutsch', nom: 'Google Deutsch' } });
+V.dire('Guten Tag.', 'de');
+verifier(derniere().voice.name === 'Microsoft Karsten - German (Switzerland)',
+  'hors ligne, une voix en ligne choisie se tairait : la voix de l’appareil prend le relais', derniere().voice.name);
+verifier(V.diagnostic('de').automatique === true && V.diagnostic('de').choixIntrouvable === false,
+  'le diagnostic dit que l’automatique s’applique, sans prétendre la voix disparue', V.diagnostic('de'));
+avecVoix([]);
 
 console.log('');
 console.log(fautes ? `${passees} cas conformes, ${fautes} DÉFAUT(S).`

@@ -33,7 +33,7 @@
  * efface, sur demande explicite ou en installant une version plus récente.
  */
 
-const VERSION = 'v3.3.0';
+const VERSION = 'v3.3.1';
 const COQUILLE = 'wortschatz-coquille-' + VERSION;
 
 /* Les ressources obligatoires : sans l'une d'elles, il n'y a pas
