@@ -47,6 +47,10 @@ import { demarrerServeur } from './serveur_essai.mjs';
 
 const RACINE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const REVISION = process.argv[2] || 'main';
+/* « Le code neuf s'exécute » se lit à la version inscrite dans la page
+ * (`<meta name="application-version">`), comparée à celle du dépôt. Le repère
+ * d'origine — `Voix.choisir`, apparu avec la 3.3 — ne distinguait plus rien
+ * dès que la version publiée l'avait aussi (passage 3.3.0 → 3.3.1). */
 const PORT_WEB = 8155;
 const ORIGINE = 'http://localhost:' + PORT_WEB + '/';
 const TEMP = path.join(tmpdir(), 'wortschatz-coquille');
@@ -287,7 +291,7 @@ async function principal() {
       ${servis(COQUILLE)}
       return { fini, mot, tranche: entree && entree.tranche, paquet: Lexique.paquet, versionSw,
                caches: await caches.keys(), empreinte, servis,
-               codeNeuf: typeof Voix.choisir === 'function' };
+               codeNeuf: (document.querySelector('meta[name="application-version"]') || {}).content === '${versionNeuve}' };
     `);
     const MOT = avant.mot;
     verifier(avant.versionSw === versionAncienne && !avant.codeNeuf, `le service worker ${versionAncienne} contrôle la page, avec son code`, avant.versionSw);
@@ -307,7 +311,7 @@ async function principal() {
       ${PRET}
       ${VERSION_SW}
       ${servis(COQUILLE)}
-      return { versionSw, codeNeuf: typeof Voix.choisir === 'function', servis, paquet: Lexique.paquet };
+      return { versionSw, codeNeuf: (document.querySelector('meta[name="application-version"]') || {}).content === '${versionNeuve}', servis, paquet: Lexique.paquet };
     `);
     verifier(sousAncien.versionSw === versionAncienne, 'l’ancien service worker sert encore');
     const attenduSousAncien = ancienneCacheDAbord ? 'ancienne' : 'neuve';

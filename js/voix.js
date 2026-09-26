@@ -22,8 +22,10 @@
  *
  * ── Le choix de la voix ────────────────────────────────────────────────────
  *
- * Par défaut, la première voix **locale** de la langue — elle marche sans
- * réseau, et c'est tout l'objet de l'application —, sinon la première venue.
+ * Par défaut, la mieux placée des voix de la langue : l'accent de France ou
+ * d'Allemagne d'abord, le canadien en dernier (voir `REGIONS` plus bas), et à
+ * région égale une voix **locale** — elle marche sans réseau, et c'est tout
+ * l'objet de l'application. Hors réseau, une voix en ligne est sautée.
  * Les Réglages permettent d'en préférer une autre, par langue, et de l'essayer
  * sur une phrase choisie pour ses sons pièges. Le choix est retenu par
  * `voiceURI` et par nom ; une voix disparue (désinstallée, autre appareil)
@@ -56,6 +58,46 @@
     de: 'Zehn Züge fahren zum Zoo.',
     fr: 'Les enfants chantent dans le jardin.',
   };
+
+  /* ── L'accent attendu ─────────────────────────────────────────────────────
+   *
+   * Le système donne ses voix dans son ordre à lui, et la première voix
+   * française venue est souvent canadienne : « fr-CA » avant « fr-FR » sur
+   * Android, Amélie avant Thomas sur iPhone. Un accent québécois que personne
+   * n'a demandé — plainte de l'utilisateur sur La Langue verte, puis sur Le
+   * Mot juste, et c'est ici le même code. Les voix de chaque langue sont
+   * donc rangées par région : pour le français, la France, les voix sans
+   * région, la Belgique, la Suisse et voisins, les autres, le Canada en
+   * dernier ; pour l'allemand, l'Allemagne, sans région, l'Autriche, la
+   * Suisse et voisins. À région égale, la voix de l'appareil avant la voix en
+   * ligne ; puis la meilleure, « premium » ou « améliorée » avant la compacte,
+   * et les voix Eloquence d'Apple (Eddy, Flo, Grand-mère…), robotiques, en
+   * queue.
+   *
+   * `motif` reconnaît la région dans le nom quand la balise se tait ou ment :
+   * « Microsoft Sylvie - French (Canada) », « Français Canada ». */
+  const REGIONS = {
+    fr: {
+      FR: { rang: 0, motif: /france/i },
+      '': { rang: 1, motif: null },
+      BE: { rang: 2, motif: /belgi/i },
+      CH: { rang: 2, motif: /suisse|switzerland|schweiz/i },
+      LU: { rang: 2, motif: /luxemb/i },
+      MC: { rang: 2, motif: /monaco/i },
+      CA: { rang: 9, motif: /canad|qu[ée]bec/i },
+    },
+    de: {
+      DE: { rang: 0, motif: /deutschland|germany|allemagne/i },
+      '': { rang: 1, motif: null },
+      AT: { rang: 2, motif: /österreich|austria|autriche/i },
+      CH: { rang: 3, motif: /schweiz|switzerland|suisse/i },
+      LI: { rang: 3, motif: /liechtenstein/i },
+      LU: { rang: 3, motif: /luxemb/i },
+      BE: { rang: 3, motif: /belgi/i },
+    },
+  };
+  const AUTRE_REGION = 5;
+  const ELOQUENCE = /^(eddy|flo|grandma|grandpa|grand-m[èe]re|grand-p[èe]re|oma|opa|reed|rocko|sandy|shelley)\b/i;
 
   let voix = [];                 // toutes les voix du système, telles quelles
   let pret = false;              // la liste est-elle arrivée au moins une fois ?
@@ -131,17 +173,61 @@
     if (delai && typeof delai.unref === 'function') delai.unref();
   }
 
+  function rangDans(table, code) {
+    const r = table[code];
+    return r ? r.rang : AUTRE_REGION;
+  }
+
+  /* La région d'une voix : la sous-balise (« fr-CA » → CA), sauf si le nom
+   * désigne une région moins bien placée — « Français (Canada) » annoncé en
+   * « fr » tout court reste canadien. */
+  function regionDe(v, langue) {
+    const table = REGIONS[langue] || {};
+    const sous = baliseDe(v.lang).split('-').slice(1).find((s) => /^([a-z]{2}|\d{3})$/i.test(s));
+    let code = sous ? sous.toUpperCase() : '';
+    for (const autre of Object.keys(table)) {
+      const r = table[autre];
+      if (r.motif && r.motif.test(v.name || '') && r.rang > rangDans(table, code)) code = autre;
+    }
+    return code;
+  }
+
+  function qualite(v) {
+    const signes = (v.voiceURI || '') + ' ' + (v.name || '');
+    if (/eloquence/i.test(signes) || ELOQUENCE.test(v.name || '')) return 0;
+    if (/premium/i.test(signes)) return 3;
+    if (/enhanced|am[ée]lior|verbessert|erweitert|natural|neural/i.test(signes)) return 2;
+    return 1;
+  }
+
+  /* Les voix d'une langue, les meilleures d'abord : région, appareil avant
+   * réseau, qualité, voix par défaut du système, puis l'ordre du système. */
   function candidates(langue) {
     if (!disponible) return [];
     if (!voix.length) recenser();
-    return voix.filter((v) => codeDe(v.lang) === langue);
+    const table = REGIONS[langue] || {};
+    const liste = voix.filter((v) => codeDe(v.lang) === langue);
+    const cles = new Map(liste.map((v, i) => [v, [
+      rangDans(table, regionDe(v, langue)), v.localService ? 0 : 1, -qualite(v), v.default ? 0 : 1, i,
+    ]]));
+    return liste.sort((a, b) => {
+      const x = cles.get(a);
+      const y = cles.get(b);
+      for (let k = 0; k < x.length; k += 1) if (x[k] !== y[k]) return x[k] - y[k];
+      return 0;
+    });
   }
 
-  /* Le choix automatique : une voix locale d'abord. */
+  /* Hors réseau, une voix en ligne resterait muette : on la saute. */
+  function utilisable(v) {
+    return !!v && (v.localService || typeof navigator === 'undefined' || navigator.onLine !== false);
+  }
+
+  /* Le choix automatique : la mieux placée de celles qui peuvent parler. */
   function automatique(langue) {
     const liste = candidates(langue);
     if (!liste.length) return null;
-    return liste.find((v) => v.localService) || liste[0];
+    return liste.find(utilisable) || liste[0];
   }
 
   /* La voix retenue dans les réglages, si elle est toujours là — et si elle
@@ -156,23 +242,49 @@
       || null;
   }
 
+  /* La voix choisie dans les Réglages, si elle peut parler ; sinon le choix
+   * automatique — une voix en ligne choisie ne ferait que se taire hors
+   * réseau. */
   function voixPour(langue) {
     const cible = langue === 'de' ? 'de' : 'fr';
-    return preferee(cible) || automatique(cible);
+    const pref = preferee(cible);
+    return utilisable(pref) ? pref : automatique(cible);
   }
 
   function possible(langue) {
     return !!voixPour(langue);
   }
 
-  function decrire(v) {
+  function decrire(v, langue) {
     if (!v) return null;
-    return { uri: v.voiceURI, nom: v.name, lang: baliseDe(v.lang), locale: !!v.localService };
+    const code = langue || codeDe(v.lang);
+    return { uri: v.voiceURI, nom: v.name, lang: baliseDe(v.lang), locale: !!v.localService,
+             region: regionDe(v, code) };
   }
 
-  /* Les voix qu'on peut choisir pour une langue, dans l'ordre du système. */
+  /* Les voix qu'on peut choisir pour une langue, dans l'ordre où le choix
+   * automatique les prendrait. */
   function lister(langue) {
-    return candidates(langue).map(decrire);
+    return candidates(langue).map((v) => decrire(v, langue));
+  }
+
+  /* Pourquoi une voix canadienne lit le français malgré tout, s'il y a lieu :
+   *
+   *   choix-canadien   choisie à la main, alors qu'une voix d'Europe est là ;
+   *   france-en-ligne  la voix de France ne marche qu'en ligne, et l'on est
+   *                    hors réseau ;
+   *   pas-de-france    aucune voix française d'Europe sur l'appareil : il
+   *                    faut l'installer — l'application ne le peut pas.
+   *
+   * Rend null quand la voix qui lit n'est pas canadienne, et pour l'allemand. */
+  function avisCanadien(langue) {
+    if (langue !== 'fr') return null;
+    const v = voixPour('fr');
+    if (!v || regionDe(v, 'fr') !== 'CA') return null;
+    const europe = candidates('fr').filter((x) => regionDe(x, 'fr') !== 'CA');
+    if (choisies.fr && europe.some(utilisable)) return 'choix-canadien';
+    if (europe.length && !europe.some(utilisable)) return 'france-en-ligne';
+    return 'pas-de-france';
   }
 
   /* Ce que les Réglages affichent, et ce qu'on demande à qui signale un
@@ -182,7 +294,8 @@
     const liste = candidates(langue);
     const choix = choisies[langue];
     const pref = preferee(langue);
-    const retenue = pref || automatique(langue);
+    const prefParle = utilisable(pref);
+    const retenue = prefParle ? pref : automatique(langue);
     return {
       langue,
       disponible,
@@ -190,10 +303,11 @@
       actif,
       nombre: liste.length,
       total: voix.length,
-      voix: decrire(retenue),
+      voix: decrire(retenue, langue),
       choix: choix ? { uri: choix.uri, nom: choix.nom } : null,
       choixIntrouvable: !!(choix && !pref),
-      automatique: !pref,
+      automatique: !prefParle,
+      avis: avisCanadien(langue),
     };
   }
 

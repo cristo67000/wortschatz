@@ -354,8 +354,8 @@ async function relever(empreinte) {
       'un dialogue de la 3.3 se dit non relu, et s’ouvre avec ses 7 répliques');
     verifier(/n’ont encore été relus|von Muttersprachlern durchgesehen/.test(mentions.phrase),
       'une phrase isolée — même reprise par un dialogue validé — se dit non relue');
-    verifier(/3\\.3\\.0/.test(mentions.apropos) && /locutrice native|Muttersprachlerin/.test(mentions.apropos),
-      '« À propos » donne la version 3.3.0 et la portée de la validation', mentions.apropos);
+    verifier(/3\\.3\\.[0-9]/.test(mentions.apropos) && /locutrice native|Muttersprachlerin/.test(mentions.apropos),
+      '« À propos » donne une version 3.3.x et la portée de la validation', mentions.apropos);
 
     titre('4. Les réglages de voix, sur le site publié');
     const voix = await onglet.evaluer(`
