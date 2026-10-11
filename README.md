@@ -222,10 +222,12 @@ les licences.
 
 | Source | Ce qu'on en tire | Licence |
 |---|---|---|
-| [WikDict](https://www.wikdict.com/) (TEI + SQLite) | 106 000 entrées : mot, phonétique, nature, **genre**, formes, définitions, traductions ; et les formes fléchies du français | CC BY-SA 3.0 |
-| [Wiktionnaire](https://www.wiktionary.org/) intégral, via [wiktextract](https://kaikki.org/) | définitions, **exemples par sens**, synonymes, tableaux de formes, et **les tables de traduction** | CC BY-SA + GFDL |
-| [Tatoeba](https://tatoeba.org/) | phrases allemand/français alignées, et la mesure de fréquence d'usage | CC BY 2.0 FR |
-| `build/grammaire.py` | sept mots-outils français absents du dictionnaire source | écrits pour l'application |
+| [WikDict](https://www.wikdict.com/) (TEI + SQLite) | 106 000 entrées du TEI : mot, phonétique, nature, **genre**, formes, définitions, traductions ; les formes fléchies du français ; et, depuis la 3.4, **15 000 vedettes** que seule la base SQLite, plus récente, connaît | CC BY-SA 3.0 |
+| [Wiktionnaire](https://www.wiktionary.org/) intégral, via [wiktextract](https://kaikki.org/) | définitions, **exemples par sens**, synonymes, tableaux de formes, **les tables de traduction**, et ce que chaque édition dit des mots de l'autre langue | CC BY-SA + GFDL |
+| [Tatoeba](https://tatoeba.org/) | phrases allemand/français alignées, et l'un des deux témoins de la fréquence d'usage | CC BY 2.0 FR |
+| [wordfreq](https://github.com/rspeer/wordfreq) | l'autre témoin de la fréquence d'usage (sous-titres, réseaux sociaux, presse, Wikipédia, livres) — sert à la construction, pas redistribué | CC BY-SA 4.0 |
+| `build/grammaire.py` | sept mots-outils français absents du dictionnaire source, et les formes des articles et pronoms allemands | écrits pour l'application |
+| `build/mots_editoriaux.json` | les traductions de 243 mots courants qu'aucune source libre ne traduit (*bof*, *resto*, *naja*, *Abo*…), non relues par un locuteur natif ; leur définition et leurs exemples viennent du Wiktionnaire | CC BY-SA 4.0, écrites pour l'application |
 | `data/conversation.json` | 280 phrases et 40 dialogues par situation, rédigés par un assistant d'écriture et contrôlés par programme ; l'allemand des 26 dialogues de la 3.2 validé par une locutrice native, le reste non relu | CC BY-SA 4.0, original |
 
 Origine commune du dictionnaire : le Wiktionnaire, via
@@ -239,11 +241,12 @@ même service et se laisse redistribuer.
 
 Deux paquets sont produits :
 
-- **noyau** — 24 000 mots, 21 Mo, livré avec l'application et pré-caché : elle
+- **noyau** — 25 700 mots, 22 Mo, livré avec l'application et pré-caché : elle
   est utilisable hors ligne dès l'installation. Il est passé de 9 000 à 12 000
   mots par langue en version 2, parce qu'un mot cliquable absent du paquet ne
-  mène nulle part ;
-- **complet** — 112 000 mots, 75 Mo, téléchargé depuis les Réglages sur
+  mène nulle part ; depuis la 3.4, ce sont les 12 000 mots les plus courants
+  **dans la langue** (wordfreq et Tatoeba), et plus seulement dans Tatoeba ;
+- **complet** — 134 000 mots, 88 Mo, téléchargé depuis les Réglages sur
   décision de l'utilisateur. Les Réglages affichent le paquet actif, son poids
   sur l'appareil, le nombre d'entrées traduites, et qu'il est utilisable hors
   ligne.
@@ -297,6 +300,47 @@ le porte plus — sans quoi la révision sautait la carte en silence.
 
 Le noyau, les mots personnels, les notes et les révisions ne bougent pas.
 
+### Ce que la version 3.4 a ajouté : les mots de tous les jours, mesuré
+
+La demande : plus de mots du langage courant, dans les deux langues. La mesure
+de départ prend les 10 000 mots les plus fréquents de chaque langue selon
+wordfreq et regarde ce que l'application en fait. Ce qu'on y a trouvé n'était
+pas seulement des mots absents :
+
+- **des mots présents mais introuvables** — « freue », « historischen »,
+  « das », « ihm », « deinen », « im », « contient », « vend », « reprend »
+  ne menaient nulle part, faute de formes fléchies (voir `tei.py`,
+  `grammaire.py`, `formes_fr.py`, `formes_de.py`) ;
+- **des mots présents mais mal classés** — « aujourd'hui », « jusqu'à »,
+  « d'accord » rangés « rares » et hors du noyau (une apostrophe), des verbes
+  rares comme « bauchreden » parmi les mille deux cents premiers mots (un
+  auxiliaire compté comme forme) ;
+- **des mots absents** — *mission*, *faveur*, *similaire*, *Stabilität*,
+  *blockieren*, *Kita*, *bof*, *resto*.
+
+|  | version 3.3 | version 3.4 |
+|---|---|---|
+| vedettes allemandes (complet) | 65 240 | **69 466** |
+| vedettes françaises (complet) | 55 957 | **64 364** |
+| formes fléchies allemandes reconnues | 217 483 | **248 582** |
+| formes fléchies françaises reconnues | 48 892 | **81 201** |
+| top 10 000 allemand introuvable dans le complet | 1 230 | **≈ 900** |
+| top 10 000 français introuvable dans le complet | 1 406 | **≈ 870** |
+| top 10 000 allemand présent au complet mais hors du noyau | 730 | **≈ 230** |
+| top 10 000 français présent au complet mais hors du noyau | 225 | **≈ 80** |
+| poids du noyau | 22,8 Mo | 22,0 Mo |
+| poids du complet | 80,7 Mo | 88,3 Mo |
+
+Ce qui reste introuvable dans le top 10 000 est surtout fait de noms propres,
+de mots anglais et de sigles. Les vedettes nouvelles viennent de la base SQLite
+de WikDict (15 354), des gloses de l'édition d'en face (930) et du supplément
+éditorial (243) ; le détail est dans [build/SOURCES.md](build/SOURCES.md).
+
+La part des sens illustrés baisse un peu dans le noyau (de 95,4 % à 94,2 %
+côté allemand, de 81,8 % à 80,9 % côté français) : le noyau compte désormais
+les mots courants dans la langue, et plus seulement ceux que Tatoeba emploie
+beaucoup — or Tatoeba fournit une partie des exemples.
+
 ### Ce que la version 3 a ajouté au dictionnaire, mesuré
 
 `build/mesurer_gain.py` compare les paquets construits à ceux de la version
@@ -336,9 +380,10 @@ pour le noyau.
 ## Construire les données
 
 ```bash
+pip install wordfreq            # la fréquence d'usage (version 3.4), une seule fois
 python build/telecharger.py    # ~1,6 Go de sources, une seule fois
-python build/wiktionnaire.py   # extrait les 2 Go de dumps, ~2 minutes
-python build/construire.py     # produit data/, environ deux minutes
+python build/wiktionnaire.py   # extrait les 2 Go de dumps, ~5 minutes
+python build/construire.py     # produit data/, environ trois minutes
 python build/verifier.py       # contrôle tout, et écrit build/rapport.txt
 python build/mesurer_gain.py   # compare les paquets à ceux de la révision HEAD
 ```
@@ -362,8 +407,8 @@ Un troisième script, `build/generer-icones.py`, redessine les icônes.
   par programme ; l'application affiche donc la marche à suivre — Partager,
   puis « Sur l'écran d'accueil ».
 - Une fois installée, l'icône est sur l'écran d'accueil et l'application s'ouvre
-  sans barre d'adresse. Elle pèse alors 8 Mo et fonctionne déjà sans réseau ;
-  le dictionnaire complet (30 Mo) reste facultatif.
+  sans barre d'adresse. Elle pèse alors 22 Mo et fonctionne déjà sans réseau ;
+  le dictionnaire complet (88 Mo) reste facultatif.
 
 Le bouton *Partager le lien* ouvre la feuille de partage du système, ou copie
 l'adresse là où elle n'existe pas.

@@ -282,7 +282,17 @@
   function meilleur(lot, graphie) {
     const exact = lot.find((resultat) => resultat.mot === graphie);
     if (exact) return exact;
-    return lot.reduce((a, b) => (b.bande < a.bande ? b : a));
+    /* Une graphie en minuscules désigne une vedette en minuscules quand il y
+     * en a une : « ihm » mène au pronom « er », pas au nom « Er » (le mâle),
+     * qui partage sa clé. L'inverse ne vaut pas — une majuscule peut n'être
+     * que celle d'un début de phrase (« Ging er… ») —, d'où la seule règle
+     * dans ce sens. */
+    let candidats = lot;
+    if (graphie && graphie === graphie.toLowerCase()) {
+      const minuscules = lot.filter((resultat) => resultat.mot === resultat.mot.toLowerCase());
+      if (minuscules.length) candidats = minuscules;
+    }
+    return candidats.reduce((a, b) => (b.bande < a.bande ? b : a));
   }
 
   /* Le lemme d'une forme fléchie, s'il est connu. Renvoie une liste : « ist »
@@ -390,7 +400,17 @@
      *    une dichotomie. */
     if (racine.Perso) ajouter(Perso.chercher(k, limite), 2, null);
 
-    resultats.sort(ordonner);
+    /* À égalité complète — même rang, même bande, même clé —, une saisie en
+     * minuscules met la vedette en minuscules devant : « ihm » donne d'abord
+     * le pronom « er », puis le nom « Er ». */
+    const minuscule = saisie === saisie.toLowerCase();
+    resultats.sort((a, b) => {
+      const ordre = ordonner(a, b);
+      if (ordre || !minuscule || a.cle !== b.cle) return ordre;
+      const aBas = a.mot === a.mot.toLowerCase();
+      const bBas = b.mot === b.mot.toLowerCase();
+      return aBas === bBas ? 0 : (aBas ? -1 : 1);
+    });
     return resultats.slice(0, limite);
   }
 

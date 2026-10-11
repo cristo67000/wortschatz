@@ -51,6 +51,7 @@ from pathlib import Path
 import commun
 import tei
 import traductions
+import wikdict_sqlite
 
 RACINE = Path(__file__).resolve().parent
 SOURCES = RACINE / "sources"
@@ -243,6 +244,96 @@ def mots_lies(entree, champ):
     return vus
 
 
+# --- Toutes les formes, pour la recherche (version 3.4) ---------------------
+#
+# Ce que la fiche montre (`formes_de`, plus bas) n'est qu'une douzaine de
+# formes. La recherche, elle, a besoin des quatre-vingts : qui lit « zeitlosen »
+# ou « blockierte » doit arriver à « zeitlos » et « blockieren ». Le TEI les
+# donne pour ses vedettes ; pour celles qui viennent d'ailleurs — la base
+# SQLite de WikDict, les gloses croisées —, c'est le Wiktionnaire qui les
+# fournit, et lui seul.
+#
+# On ne garde que les formes d'un seul mot : « hat blockiert », « ich freue
+# mich » ne se tapent pas dans une case de recherche, et leurs morceaux utiles
+# (« blockiert », « freue ») figurent déjà seuls dans le tableau.
+
+NATURES_FLECHIES = {"noun", "verb", "adj"}
+FORMES_COMPLETES_MAX = 90
+FORME_SIMPLE = re.compile(r"[^\W\d_]+(?:['’\-][^\W\d_]+)*", re.UNICODE)
+# Étiquettes de ce qui n'est pas une forme du mot : l'auxiliaire (« haben »
+# n'est pas une forme de « blockieren »), une graphie concurrente.
+ETIQUETTES_ETRANGERES = {"auxiliary", "alternative", "romanization", "abbreviation"}
+
+
+def formes_completes(entree):
+    """Les formes fléchies d'un nom, d'un verbe ou d'un adjectif, d'un mot
+    chacune, sans la vedette."""
+    nature = entree.get("pos") or ""
+    if nature not in NATURES_FLECHIES:
+        return []
+    mot = entree.get("word") or ""
+    sortie = []
+    for forme in entree.get("forms", ()):
+        graphie = (forme.get("form") or "").strip().rstrip("!").strip()
+        if len(graphie) < 2 or graphie == mot or not FORME_SIMPLE.fullmatch(graphie):
+            continue
+        if ETIQUETTES_ETRANGERES & set(forme.get("tags") or ()):
+            continue
+        # Les tableaux de conjugaison allemands traînent leurs en-têtes
+        # (« Höflichkeitsform ») parmi les formes : un verbe ou un adjectif
+        # en minuscules n'a pas de forme à majuscule.
+        if nature != "noun" and graphie[:1].isupper() and not mot[:1].isupper():
+            continue
+        if graphie not in sortie:
+            sortie.append(graphie)
+        if len(sortie) >= FORMES_COMPLETES_MAX:
+            break
+    return sortie
+
+
+# --- Les mots de l'autre langue, décrits par cette édition (version 3.4) ----
+#
+# Le Wiktionnaire français décrit « Handy » en français, l'allemand décrit
+# « copine » en allemand : ces gloses sont, le plus souvent, des traductions.
+# Jusqu'ici on n'en lisait que les expressions ; on garde désormais aussi les
+# mots isolés, avec leur nature et leur genre — `croisees.py` en fera des
+# traductions pour les vedettes qui n'en ont aucune, et des vedettes pour les
+# mots courants que rien d'autre n'apporte.
+
+GLOSES_CROISEES_MAX = 4
+
+
+def gloses_croisees(entree):
+    """Les gloses utiles d'une entrée de l'autre langue : pas les renvois de
+    flexion (« Pluriel de… »), pas les sens sans glose."""
+    gloses = []
+    for sens in entree.get("senses", ()):
+        if not sens_utile(sens):
+            continue
+        glose = (sens.get("glosses") or [""])[0].strip()
+        if glose and glose not in gloses:
+            gloses.append(glose)
+        if len(gloses) >= GLOSES_CROISEES_MAX:
+            break
+    return gloses
+
+
+# Un mot sans traduction et absent du dictionnaire n'entre dans l'extrait que
+# s'il est d'usage courant (échelle de Zipf de wordfreq : 3 ≈ une occurrence
+# par million de mots). Il ne deviendra une fiche que si l'édition d'en face
+# le traduit — voir `croisees.py`.
+ZIPF_SANS_TRADUCTION = 3.0
+
+
+def frequence_zipf():
+    """`zipf(mot, langue)`, ou None si wordfreq n'est pas installé."""
+    try:
+        from wordfreq import zipf_frequency
+    except ImportError:
+        return None
+    return lambda mot, langue: zipf_frequency(mot.replace("’", "'"), langue)
+
+
 # --- Les formes qu'on apprend, et les soixante-dix autres -------------------
 #
 # Le Wiktionnaire tabule tout : « schnell » y figure sous quarante-huit formes
@@ -399,6 +490,9 @@ def compacter(entree, langue):
         "syn": mots_lies(entree, "synonyms"),
         "ant": mots_lies(entree, "antonyms"),
     }
+    toutes = formes_completes(entree)
+    if toutes:
+        compact["ff"] = toutes
     degre = degre_d_idiome(entree)
     if degre:
         compact["idiome"] = degre
@@ -457,6 +551,11 @@ def extraire(chemin, langue, vedettes, journal=None):
     motif = motif_de_langue(chemin, langue)
     motif_autre = motif_de_langue(chemin, autre) if autre else None
     lues = retenues = neuves = expressions = croisees = 0
+    mots_croises = sans_traduction = 0
+    zipf = frequence_zipf()
+    if zipf is None:
+        print("  ! wordfreq absent : les mots courants sans traduction ne seront "
+              "pas gardés (pip install wordfreq)")
     debut = time.time()
 
     with gzip.open(chemin, "rt", encoding="utf-8", errors="replace") as flux:
@@ -485,6 +584,19 @@ def extraire(chemin, langue, vedettes, journal=None):
                            "croise": 1,
                            "g": [s["glosses"][0].strip() for s in entree.get("senses", ())
                                  if s.get("glosses")][:3]}
+                elif (" " not in mot and entree.get("pos") not in NATURES_ECARTEES
+                      and entree.get("pos") != "name"):
+                    # Un mot isolé : sa glose servira de traduction (version
+                    # 3.4, voir `croisees.py`). Marqué 2 pour ne pas se mêler
+                    # aux expressions, que `charger_croises` lit seules.
+                    gloses = gloses_croisees(entree)
+                    if gloses:
+                        mots_croises += 1
+                        etiquettes = entree.get("tags", ())
+                        yield {"m": mot, "l": autre, "p": entree.get("pos") or "",
+                               "croise": 2, "g": gloses,
+                               "ge": next((GENRES[t] for t in etiquettes
+                                           if t in GENRES), "")}
                 continue
             if entree.get("lang_code") != langue:
                 continue
@@ -506,7 +618,13 @@ def extraire(chemin, langue, vedettes, journal=None):
                     compact["fx"] = 1
                     expressions += 1
                 elif not any(bloc["tr"] for bloc in compact["s"]):
-                    continue
+                    # Sans traduction : gardé seulement s'il est courant, pour
+                    # le cas où l'édition d'en face le traduirait.
+                    if (zipf is None or " " in mot or entree.get("pos") == "name"
+                            or zipf(mot, langue) < ZIPF_SANS_TRADUCTION):
+                        continue
+                    compact["nt"] = 1
+                    sans_traduction += 1
                 else:
                     compact["n"] = 1
                     neuves += 1
@@ -528,6 +646,8 @@ def extraire(chemin, langue, vedettes, journal=None):
         journal["neuves"] = neuves
         journal["expressions"] = expressions
         journal["croisees"] = croisees
+        journal["mots_croises"] = mots_croises
+        journal["sans_traduction"] = sans_traduction
 
 
 def vedettes_de(fichier_tei):
@@ -598,7 +718,30 @@ def charger_croises(edition):
             if not ligne:
                 continue
             enregistrement = json.loads(ligne)
-            if not enregistrement.get("croise"):
+            if enregistrement.get("croise") != 1:
+                continue
+            par_cle.setdefault(commun.cle(enregistrement["m"]), []).append(enregistrement)
+    return par_cle
+
+
+def charger_gloses_croisees(edition):
+    """Les mots isolés de l'autre langue, décrits par cette édition.
+
+    Rend `{clé: [enregistrement, …]}` ; chaque enregistrement porte la graphie
+    `m`, la nature `p`, le genre `ge` et les gloses `g` dans la langue de
+    l'édition. « Handy » → *Téléphone portable* (édition française).
+    """
+    chemin = chemin_extrait(edition)
+    if not chemin.exists():
+        return {}
+    par_cle = {}
+    with chemin.open("r", encoding="utf-8") as flux:
+        for ligne in flux:
+            ligne = ligne.strip()
+            if not ligne:
+                continue
+            enregistrement = json.loads(ligne)
+            if enregistrement.get("croise") != 2:
                 continue
             par_cle.setdefault(commun.cle(enregistrement["m"]), []).append(enregistrement)
     return par_cle
@@ -628,7 +771,13 @@ def main():
 
         print(f"\n{langue} — vedettes du dictionnaire bilingue…")
         vedettes = vedettes_de(SOURCES / nom_tei)
-        print(f"  {len(vedettes):,} vedettes".replace(",", " "))
+        # Version 3.4 : celles de la base SQLite de WikDict aussi, que le TEI
+        # n'a pas encore — sans quoi leurs définitions, exemples et formes
+        # resteraient dans le dump.
+        de_la_base = wikdict_sqlite.vedettes(langue) - vedettes
+        vedettes |= de_la_base
+        print(f"  {len(vedettes):,} vedettes, dont {len(de_la_base):,} de la base "
+              f"SQLite seulement".replace(",", " "))
 
         print(f"{langue} — lecture de {dump.name} ({commun.humain(dump.stat().st_size)})")
         journal = {}
@@ -650,6 +799,9 @@ def main():
               f" et {journal['expressions']:,} expressions sans traduction,"
               f" + {journal['croisees']:,} expressions de l'autre langue"
               f", en {duree:.0f} s".replace(",", " "))
+        print(f"    + {journal['mots_croises']:,} mots isolés de l'autre langue glosés,"
+              f" {journal['sans_traduction']:,} mots courants sans traduction"
+              .replace(",", " "))
         print(f"  → {sortie.name}, {commun.humain(sortie.stat().st_size)}")
 
     print("\nÉtape suivante : python build/construire.py")

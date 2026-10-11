@@ -80,6 +80,86 @@ ENTREES = {
 }
 
 
+# ── Les formes des mots-outils allemands (version 3.4) ──────────────────────
+#
+# Les vedettes allemandes sont là — *der*, *ein*, *dein*, *dieser*, *er* —,
+# mais pas leurs formes : le TEI n'en donne aucune pour les articles, les
+# pronoms et les déterminants. Taper « das », « eine », « ihm », « deinen »
+# ou « im » ne menait donc nulle part, alors que ce sont parmi les vingt mots
+# les plus fréquents de la langue. La déclinaison de ces mots est une liste
+# close, celle de toutes les grammaires : on l'écrit ici, comme les
+# déterminants français de `formes_fr.py`, et une forme ne renvoie qu'à une
+# vedette présente au dictionnaire.
+#
+# Les contractions suivent la même logique : « im » est « in dem », « zur »
+# est « zu der » ; on les rattache à la préposition, qui est ce qu'on cherche.
+
+def _declinaison(radical, *fins):
+    return " ".join(radical + fin for fin in fins)
+
+
+FORMES_DE = {
+    # L'article, et les formes propres au relatif et au démonstratif.
+    "der": "die das dem den des dessen deren denen derer",
+    "anderer": "andere anderen anderem anderes",
+    "jeglicher": "jegliche jeglichen jeglichem jegliches",
+    "ein": _declinaison("ein", "e", "en", "em", "er", "es"),
+    "kein": _declinaison("kein", "e", "en", "em", "er", "es"),
+    "mein": _declinaison("mein", "e", "en", "em", "er", "es"),
+    "dein": _declinaison("dein", "e", "en", "em", "er", "es"),
+    "sein": _declinaison("sein", "e", "en", "em", "er", "es"),
+    "ihr": _declinaison("ihr", "e", "en", "em", "er", "es") + " euch",
+    "unser": _declinaison("unser", "e", "en", "em", "er", "es")
+             + " unsre unsren unsrem unsrer unsres unsern unserm",
+    "euer": "eure euren eurem eurer eures euere eueren euerem euerer eueres",
+    "irgendein": _declinaison("irgendein", "e", "en", "em", "er", "es"),
+    "dieser": "diese diesen diesem dieses dies",
+    "jener": "jene jenen jenem jenes",
+    "welcher": "welche welchen welchem welches",
+    "jeder": "jede jeden jedem jedes",
+    "mancher": "manche manchen manchem manches",
+    "solcher": "solche solchen solchem solches",
+    "derselbe": "dieselbe dasselbe denselben demselben desselben dieselben derselben",
+    "derjenige": "diejenige dasjenige denjenigen demjenigen desjenigen diejenigen "
+                 "derjenigen",
+    "all": "alle allen allem alles aller",
+    "viel": "viele vielen vielem vieles",
+    "wenig": "wenige wenigen wenigem weniges",
+    "beide": "beiden beider beides",
+    "einige": "einigen einiger einigem einiges",
+    "ich": "mich mir meiner",
+    "du": "dich dir deiner",
+    "er": "ihn ihm seiner",
+    "es": "ihm seiner",
+    "sie": "ihr ihrer ihnen",
+    "Sie": "Ihnen Ihrer",
+    "wir": "uns",
+    "wer": "wen wem wessen",
+    "jemand": "jemanden jemandem",
+    "niemand": "niemanden niemandem",
+    # Les contractions de la préposition et de l'article.
+    "in": "im ins",
+    "an": "am ans",
+    "auf": "aufs",
+    "zu": "zum zur",
+    "von": "vom",
+    "bei": "beim",
+    "um": "ums",
+    "durch": "durchs",
+    "für": "fürs",
+    "über": "übers überm",
+    "unter": "unters unterm",
+    "vor": "vors vorm",
+    "hinter": "hinters hinterm",
+}
+
+
+def formes_allemandes():
+    """(forme, vedette) pour les mots-outils allemands."""
+    return [(forme, lemme) for lemme, liste in FORMES_DE.items()
+            for forme in liste.split()]
+
+
 def ajouter(dictionnaires, journal=None):
     """Complète les dictionnaires, sans jamais écraser une entrée existante."""
     ajoutees = []

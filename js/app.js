@@ -535,9 +535,7 @@
     if (ancien) {
       /* Le message qui compte : ce qui marche encore, ce qui manque, ce que
        * ça coûte, et que rien ne sera perdu en route. */
-      zone.appendChild(element('p', 'avis-donnees', I18n.t('donnees.anciennes.detail', {
-        taille: Paquets.humain(Paquets.poids(manifeste), I18n.langue),
-      })));
+      zone.appendChild(element('p', 'avis-donnees', avisDonnees(true)));
       const bouton = element('button', 'bouton-principal', I18n.t('reglages.mettre-a-jour', {
         taille: Paquets.humain(Paquets.poids(manifeste), I18n.langue),
       }));
@@ -816,12 +814,37 @@
    * sert encore, mais les nouveautés attendent un téléchargement. « Mettre à
    * jour » mène aux réglages, où le téléchargement se lance ; « Plus tard »
    * replie le bandeau pour cette fois — les réglages le rediront. */
+  /* Ce que la nouvelle mouture apporte, dit d'après ce qu'on sait de
+   * l'ancienne. Un paquet d'avant la version 3.1 n'avait pas les expressions
+   * usuelles : c'est ce qui lui manque. Depuis, une nouvelle mouture apporte
+   * surtout des mots — la 3.4 en ajoute plus de douze mille —, et l'on dit
+   * combien quand les deux manifestes le permettent, plutôt que de promettre
+   * des expressions que l'utilisateur a déjà. */
+  function avisDonnees(detail) {
+    const taille = Paquets.humain(Paquets.poids(manifeste), I18n.langue);
+    const precedent = Lexique.ancien && Lexique.ancien.manifeste;
+    if (!precedent || !(precedent.version >= 3)) {
+      return detail ? I18n.t('donnees.anciennes.detail', { taille })
+                    : I18n.t('donnees.anciennes', { taille });
+    }
+    const compte = (m) => {
+      const complet = m && m.paquets && m.paquets.complet;
+      return complet && complet.entrees ? complet.entrees.de + complet.entrees.fr : 0;
+    };
+    const gain = compte(manifeste) - compte(precedent);
+    if (gain > 0) {
+      const n = gain.toLocaleString(I18n.langue);
+      return detail ? I18n.t('donnees.anciennes.mots.detail', { n, taille })
+                    : I18n.t('donnees.anciennes.mots', { n, taille });
+    }
+    return detail ? I18n.t('donnees.anciennes.corrections.detail', { taille })
+                  : I18n.t('donnees.anciennes.corrections', { taille });
+  }
+
   function montrerAvisDonnees() {
     const bandeau = $('#donnees-anciennes');
     if (!bandeau || !Lexique.ancien) return;
-    $('#donnees-anciennes-texte').textContent = I18n.t('donnees.anciennes', {
-      taille: Paquets.humain(Paquets.poids(manifeste), I18n.langue),
-    });
+    $('#donnees-anciennes-texte').textContent = avisDonnees(false);
     bandeau.hidden = false;
     requestAnimationFrame(() => bandeau.classList.add('visible'));
   }

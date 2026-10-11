@@ -82,12 +82,28 @@ licence <a href="https://creativecommons.org/licenses/by-sa/3.0/legalcode">Creat
 Commons Attribution — Partage dans les mêmes conditions 3.0</a>. Les données
 préparées pour cette application sont donc, elles aussi, sous cette licence.</p>
 
+<p>Depuis la version 3.4, les vedettes que ce fichier n’a pas encore viennent de
+la base SQLite du même projet, plus récente (mouture 2026-06) : environ 6 000
+mots allemands et 9 000 français, dont <em>mission</em>, <em>norme</em>,
+<em>Stabilität</em> ou <em>blockieren</em>. Seules les traductions que WikDict
+juge sûres sont retenues.</p>
+
 <h3>Tatoeba — les phrases d’exemple</h3>
 
 <p>Phrases allemandes et françaises alignées du projet
 <a href="https://tatoeba.org/">Tatoeba</a>, sous licence
 <a href="https://creativecommons.org/licenses/by/2.0/fr/">Creative Commons
 Attribution 2.0 France</a>, quelques-unes sous CC0 1.0.</p>
+
+<h3>wordfreq — la fréquence d’usage</h3>
+
+<p>Le classement des mots, du plus courant au plus rare, combine la fréquence des
+phrases de Tatoeba et celle de <a href="https://github.com/rspeer/wordfreq">wordfreq</a>
+(Robyn Speer), qui agrège sous-titres, réseaux sociaux, presse, Wikipédia et
+livres. Ses données sont sous licence
+<a href="https://creativecommons.org/licenses/by-sa/4.0/legalcode">CC BY-SA 4.0</a> ;
+elles ne servent qu’à la construction et ne sont pas redistribuées — seul le
+rang des mots en est tiré.</p>
 
 <h3>Wiktionnaire intégral — les exemples et les formes</h3>
 
@@ -97,7 +113,10 @@ Attribution 2.0 France</a>, quelques-unes sous CC0 1.0.</p>
 <a href="https://kaikki.org/">wiktextract</a> (Tatu Ylonen), sous les licences
 du Wiktionnaire : <a href="https://creativecommons.org/licenses/by-sa/3.0/legalcode">CC
 BY-SA</a> et GFDL. C’est ce qui permet, en version 2, de placer une phrase sous
-<em>chaque</em> signification d’un mot plutôt qu’une poignée sous le mot entier.</p>
+<em>chaque</em> signification d’un mot plutôt qu’une poignée sous le mot entier.
+Depuis la version 3.4, ce que chaque édition dit des mots de l’autre langue
+(« Kita » : <em>crèche</em>) traduit aussi un millier de mots courants que les
+tables de traduction oublient.</p>
 
 <h3>Deux dictionnaires que nous ne pouvons pas utiliser</h3>
 
@@ -108,13 +127,27 @@ aucune licence de réutilisation ; le second est une ressource entièrement
 commerciale. Aucun des deux n’est donc présent ici, et ce n’est pas un oubli.
 Le Wiktionnaire rend le même service et se laisse redistribuer.</p>
 
-<h3>Sept entrées écrites pour l’application</h3>
+<h3>Les mots-outils écrits pour l’application</h3>
 
 <p>Les mots <em>mon</em>, <em>notre</em>, <em>votre</em>, <em>leur</em>,
 <em>ce</em>, <em>celui</em> et <em>ne</em> manquaient au dictionnaire source —
 il ne retient que les entrées dotées d’une traduction bien attestée. Ils ont été
-rédigés pour cette application. Ce sont les seuls : tout le reste vient des
-sources ci-dessus, sans retouche.</p>
+rédigés pour cette application. Les formes des articles et des pronoms
+allemands (« das », « ihm », « deinen », « im »…), que le dictionnaire source ne
+donne pas, l’ont été aussi.</p>
+
+<h3>Le supplément des mots courants</h3>
+
+<p>Depuis la version 3.4, quelque 240 mots d’usage courant qu’aucune source libre
+ne traduit — <em>bof</em>, <em>resto</em>, <em>ordi</em>, <em>nettement</em>,
+<em>similaire</em>, <em>naja</em>, <em>sorry</em>, <em>Abo</em>,
+<em>Pommes</em>… — ont reçu des traductions <strong>rédigées pour
+l’application</strong> par un assistant d’écriture (Claude, d’Anthropic), sous
+licence <a href="https://creativecommons.org/licenses/by-sa/4.0/legalcode">CC
+BY-SA 4.0</a>. Elles n’ont <strong>pas</strong> été relues par un locuteur natif.
+Leur définition, leurs exemples et leurs formes viennent du Wiktionnaire, comme
+pour les autres mots, et une traduction des sources prend leur place dès
+qu’elle existe. Tout le reste vient des sources ci-dessus, sans retouche.</p>
 
 <h3>Les phrases et dialogues</h3>
 
@@ -151,7 +184,8 @@ rendez-vous médical, une démarche administrative — mérite d’être vérifi
 auprès d’un locuteur natif ou d’un manuel.</p>
 
 <p>Enfin, les niveaux affichés (« premiers pas », « courant », « étendu »,
-« rare ») sont des rangs de fréquence mesurés dans un corpus de phrases réelles.
+« rare ») sont des rangs de fréquence mesurés dans des textes réels — les phrases
+de Tatoeba et les corpus agrégés par wordfreq.
 Ce ne sont <strong>pas</strong> les niveaux A1, A2 ou B1 du Cadre européen : les
 listes officielles des certifications sont protégées par le droit d’auteur et ne
 peuvent pas être redistribuées.</p>

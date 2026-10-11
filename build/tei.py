@@ -64,6 +64,53 @@ def _forme_utile(forme):
     return " ".join(morceaux)
 
 
+# ── Trois défauts des formes fléchies du TEI (version 3.4) ──────────────────
+#
+# Mesurés en cherchant pourquoi « freue », « historischen » ou « zeitlose » ne
+# menaient nulle part, et pourquoi « bauchreden » figurait parmi les mille deux
+# cents premiers mots de la langue :
+#
+# 1. **L'auxiliaire est rangé parmi les formes.** « bauchreden » a pour
+#    formes « bauchgeredet », « gebauchredet », « haben » et « Hilfsverb ».
+#    « haben » n'est pas une forme de ce verbe ; et comme aucune des autres
+#    n'est attestée, le classement lui créditait toute la fréquence de
+#    « haben ». D'où une poignée de verbes rares en tête de liste.
+# 2. **Les verbes pronominaux traînent leur pronom** : « freue mich »,
+#    « freut sich ». Une forme à deux mots n'entre pas dans l'index, si bien
+#    que « freue » et « freut » ne menaient pas à « freuen ».
+# 3. **Les adjectifs déclinés ont une espace parasite** : « historisch e »,
+#    « historisch en ». Toute la déclinaison du positif était perdue.
+
+AUXILIAIRES = {"Hilfsverb", "haben", "sein"}
+PRONOMS_REFLECHIS = {"mich", "dich", "sich", "uns", "euch", "mir", "dir", "Sie"}
+TERMINAISONS_ADJECTIF = {"e", "em", "en", "er", "es"}
+# Une forme est faite de lettres : le TEI range aussi parmi elles des tirets
+# de tableau vide (« – », 174 fois), des renvois (« P112 ») et des chiffres.
+MOT_DE_LETTRES = re.compile(r"[^\W\d_]+(?:['’\-][^\W\d_]+)*", re.UNICODE)
+
+
+def forme_de_recherche(vedette, forme):
+    """Une forme du TEI → la graphie sous laquelle on la cherchera, ou ""."""
+    if forme in AUXILIAIRES and forme != vedette:
+        return ""
+    if not all(MOT_DE_LETTRES.fullmatch(m) for m in forme.split()):
+        return ""
+    # Une lettre seule n'est pas une forme mais un symbole : « Urethan » a
+    # pour « formes » C, H, N et O, sa formule chimique, et « Durchmesser » D
+    # — qui lui prêtaient la fréquence de « o » et de « d ».
+    if len(forme) < 2:
+        return ""
+    morceaux = forme.split()
+    if len(morceaux) == 2 and morceaux[1] in TERMINAISONS_ADJECTIF \
+            and morceaux[0][:1].islower():
+        return morceaux[0] + morceaux[1]
+    if len(morceaux) > 1:
+        sans_pronom = [m for m in morceaux if m not in PRONOMS_REFLECHIS]
+        if len(sans_pronom) == 1:
+            return sans_pronom[0]
+    return forme
+
+
 def lire(chemin):
     """Produit une entrée à la fois, sous forme de dictionnaire.
 
@@ -108,7 +155,9 @@ def lire(chemin):
                     continue
                 if orth.get(WIKDICT + "show") == "true":
                     montrer.append(utile)
-                flechies.append(utile)
+                recherche = forme_de_recherche(vedette, utile)
+                if recherche and recherche != vedette and recherche not in flechies:
+                    flechies.append(recherche)
 
         grammaire = element.find(TEI + "gramGrp")
         pos = genre = ""

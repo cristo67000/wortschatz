@@ -127,14 +127,15 @@ IRREGULIERS = {
               "sachent sachant su sue sues",
     "voir": "vois voit voyons voyez voient voyais voyait voyions voyiez voyaient vis "
             "vit vîmes virent verrai verras verra verrons verrez verront verrais "
-            "verrait verrions verriez verraient voie voies voyant vu vue vues",
+            "verrait verrions verriez verraient voie voies voyant vu vue vus vues",
     "venir": "viens vient venons venez viennent venais venait venions veniez venaient "
              "vins vint vinrent viendrai viendras viendra viendrons viendrez viendront "
              "viendrais viendrait viendrions viendriez viendraient vienne viennes "
-             "venant venu venue venues",
+             "venant venu venue venus venues",
     "tenir": "tiens tient tenons tenez tiennent tenais tenait tenions teniez tenaient "
              "tins tint tinrent tiendrai tiendras tiendra tiendrons tiendrez tiendront "
-             "tiendrais tiendrait tiendraient tienne tiennes tenant tenu tenue tenues",
+             "tiendrais tiendrait tiendraient tienne tiennes tenant tenu tenue tenus "
+             "tenues",
     "prendre": "prends prend prenons prenez prennent prenais prenait prenions preniez "
                "prenaient pris prit prirent prendrai prendras prendra prendrons "
                "prendrez prendront prendrais prendrait prendrions prendriez "
@@ -197,24 +198,108 @@ IRREGULIERS = {
     "asseoir": "assieds assied asseyons asseyez asseyent asseyais asseyait assis "
                "assit assirent assiérai assiérait asseye asseyant assise assises",
     "battre": "bats bat battons battez battent battais battait battirent battrai "
-              "battra battrais battrait batte battes battant battu battue battues",
+              "battra battrais battrait batte battes battant battu battue battus "
+              "battues",
     "craindre": "crains craint craignons craignez craignent craignais craignait "
-                "craignis craignit craindrai craindra craindrait craigne craignant",
+                "craignis craignit craindrai craindra craindrait craigne craignant "
+                "craints crainte craintes",
     "joindre": "joins joint joignons joignez joignent joignais joignait joignit "
-               "joindrai joindra joindrait joigne joignant",
+               "joindrai joindra joindrait joigne joignant jointe joints jointes",
     "peindre": "peins peint peignons peignez peignent peignais peignait peignit "
-               "peindrai peindra peindrait peigne peignant",
+               "peindrai peindra peindrait peigne peignant peinte peints peintes",
     "conduire": "conduis conduit conduisons conduisez conduisent conduisais conduisait "
-                "conduisis conduirai conduira conduirait conduise conduisant conduite",
+                "conduisis conduirai conduira conduirait conduise conduisant conduite "
+                "conduits conduites",
     "fuir": "fuis fuit fuyons fuyez fuient fuyais fuyait fuirai fuira fuirait fuie "
             "fuyant fui",
     "cueillir": "cueille cueilles cueillent cueillons cueillez cueillais cueillait "
                 "cueillerai cueillera cueillerait cueillant cueilli",
     "acquérir": "acquiers acquiert acquérons acquérez acquièrent acquérais acquérait "
-                "acquis acquit acquerrai acquerra acquerrait acquière acquérant",
+                "acquis acquit acquerrai acquerra acquerrait acquière acquérant "
+                "acquise acquises",
     "haïr": "hais hait haïssons haïssez haïssent haïssais haïssait haïrai haïra "
             "haïrait haïsse haïssant haï",
+    # Version 3.4 : six patrons de plus, choisis parce qu'ils ouvrent chacun
+    # une famille courante — « se taire », « conclure / exclure / inclure »,
+    # « résoudre », « convaincre », « extraire / distraire », « offrir /
+    # souffrir ». Aucune règle ne les produit.
+    "taire": "tais tait taisons taisez taisent taisais taisait taisions taisiez "
+             "taisaient tus tut turent tairai taira tairons tairez tairont tairais "
+             "tairait taise taises taisant tu tue tues",
+    "conclure": "conclus conclut concluons concluez concluent concluais concluait "
+                "concluions concluiez concluaient conclurent conclurai conclura "
+                "conclurons conclurez concluront conclurais conclurait conclue "
+                "conclues concluant conclu",
+    "résoudre": "résous résout résolvons résolvez résolvent résolvais résolvait "
+                "résolvions résolviez résolvaient résolus résolut résolurent "
+                "résoudrai résoudra résoudrons résoudrez résoudront résoudrais "
+                "résoudrait résolve résolves résolvant résolu résolue résolues",
+    "vaincre": "vaincs vainc vainquons vainquez vainquent vainquais vainquait "
+               "vainquions vainquiez vainquaient vainquis vainquit vainquirent "
+               "vaincrai vaincra vaincrons vaincrez vaincront vaincrais vaincrait "
+               "vainque vainques vainquant vaincu vaincue vaincus vaincues",
+    "traire": "trais trait trayons trayez traient trayais trayait trayions trayiez "
+              "trayaient trairai traira trairons trairez trairont trairais trairait "
+              "traie traies trayant traite traits traites",
+    "suffire": "suffis suffit suffisons suffisez suffisent suffisais suffisait "
+               "suffisions suffisiez suffisaient suffirent suffira suffiront "
+               "suffirait suffiraient suffise suffisent suffisant suffi",
+    "offrir": "offre offres offrons offrez offrent offrais offrait offrions offriez "
+              "offraient offris offrit offrirent offrirai offriras offrira offrirons "
+              "offrirez offriront offrirais offrirait offrant offert offerte offerts "
+              "offertes",
 }
+
+# ── Les familles des verbes irréguliers (version 3.4) ───────────────────────
+#
+# La table ci-dessus conjugue « tenir », « prendre », « mettre » — mais
+# « contenir », « reprendre », « promettre » n'y figurent pas, et aucune règle
+# ne les devine : « contient », « reprend », « promis », « conçu »,
+# « produisent » restaient sans réponse alors que les verbes étaient au
+# dictionnaire. Un verbe qui se termine par un verbe de la table se conjugue
+# comme lui, préfixe en tête ; c'est ainsi que les grammaires les présentent.
+#
+# Certaines familles n'ont pas de chef dans la table sous leur propre nom :
+# « produire », « construire » et « cuire » suivent « conduire » privé de
+# « cond » ; « atteindre » suit « peindre » privé de « p ». La terminaison
+# commune sert alors de base.
+FAMILLES = {
+    "uire": ("conduire", "cond"),
+    "eindre": ("peindre", "p"),
+    "aindre": ("craindre", "cr"),
+    "oindre": ("joindre", "j"),
+    "aître": ("connaître", "conn"),
+    "quérir": ("acquérir", "ac"),
+    "crire": ("écrire", "é"),
+    "cevoir": ("recevoir", "re"),
+    "vrir": ("ouvrir", "ou"),
+    "ffrir": ("offrir", "o"),
+}
+
+
+def bases_irregulieres():
+    """Terminaison de verbe → les terminaisons de ses formes.
+
+    Pour un verbe de la table, la terminaison est le verbe entier et les
+    formes sont les siennes ; pour une famille, on retire le début du modèle.
+    """
+    bases = {lemme: liste.split() for lemme, liste in IRREGULIERS.items()}
+    for fin, (modele, debut) in FAMILLES.items():
+        bases[fin] = [f[len(debut):] for f in IRREGULIERS[modele].split()
+                      if f.startswith(debut)]
+    return bases
+
+
+def formes_derivees(verbe, bases):
+    """« contenir » → les formes de « tenir » précédées de « con ». La base la
+    plus longue l'emporte : « décrire » suit « crire », pas « rire »."""
+    if verbe in IRREGULIERS:
+        return set()
+    for fin in sorted(bases, key=len, reverse=True):
+        if verbe.endswith(fin) and len(verbe) > len(fin):
+            prefixe = verbe[:-len(fin)]
+            return {prefixe + forme for forme in bases[fin]}
+    return set()
 
 
 # ── Déterminants et pronoms ─────────────────────────────────────────────────
@@ -267,6 +352,17 @@ TERMINAISONS_RE = (
     "s s ons ez ent ais ait ions iez aient is it irent "
     "rai ras ra rons rez ront rais rait rions riez raient u ue us ues ant e es"
 ).split()
+# La troisième personne du singulier n'a pas de terminaison : « il vend »,
+# « il attend », « il répond ». Une chaîne vide ne survit pas à `split()`,
+# d'où cet ajout à part — son absence laissait « vend » sans réponse.
+TERMINAISONS_RE.append("")
+
+# Devant un e muet, « appeler » et « jeter » doublent leur consonne
+# (« appellent », « jettent »), « nettoyer » change son y en i (« nettoient »).
+# La clé de recherche ignore les accents, si bien que « achète » / « achete »
+# n'a pas besoin de règle ; ces deux-là, si.
+TERMINAISONS_E_MUET = [f for f in TERMINAISONS_ER
+                       if f in ("e", "es", "ent") or f.startswith("er")]
 
 
 def candidats(verbe):
@@ -285,6 +381,12 @@ def candidats(verbe):
         radical_doux = radical + "e" if radical.endswith("g") else radical
         for fin in TERMINAISONS_ER:
             formes.add((radical_doux if fin[0] in "aoâ" else radical) + fin)
+        if verbe.endswith(("eler", "eter")):
+            for fin in TERMINAISONS_E_MUET:
+                formes.add(radical + radical[-1] + fin)
+        elif verbe.endswith("yer"):
+            for fin in TERMINAISONS_E_MUET:
+                formes.add(radical[:-1] + "i" + fin)
     elif verbe.endswith("ir") and len(verbe) > 3:
         for fin in TERMINAISONS_IR2:
             formes.add(verbe[:-2] + fin)
@@ -303,16 +405,24 @@ def candidats(verbe):
     return formes
 
 
-def construire(entrees, compte_corpus, journal=None):
+def construire(entrees, compte_corpus, journal=None, atteste=None):
     """L'index des formes françaises. Renvoie {clé de forme: {clés de lemme}}.
 
     `entrees` est le dictionnaire des vedettes françaises,
     `compte_corpus` le décompte des graphies vues dans le corpus Tatoeba.
+    `atteste(clé)`, s'il est donné, est un second témoin d'usage (wordfreq,
+    depuis la version 3.4) : Tatoeba est écrit par des apprenants, et
+    « produisent » ou « appellent » peuvent y manquer sans être rares.
     """
     vedettes = set(entrees)
     cles_vedettes = {commun.cle(m) for m in entrees}
     resultat = defaultdict(set)
-    bilan = {"base": 0, "irreguliers": 0, "regles": 0, "ecartees": 0, "homographes": 0, "determinants": 0}
+    bilan = {"base": 0, "irreguliers": 0, "regles": 0, "ecartees": 0, "homographes": 0,
+             "determinants": 0, "derivees": 0}
+
+    def est_attestee(cle_forme):
+        return (compte_corpus.get(cle_forme, 0) >= 1
+                or (atteste is not None and atteste(cle_forme)))
 
     def poser(forme, lemme):
         cle_forme = commun.cle(forme)
@@ -348,6 +458,24 @@ def construire(entrees, compte_corpus, journal=None):
         if lemme in vedettes and poser(forme, lemme):
             bilan["determinants"] += 1
 
+    # 2 ter. Les familles des irréguliers — « contenir », « reprendre »,
+    #        « produire » —, sous condition d'attestation. Une forme qui
+    #        coïncide avec une vedette garde son droit, comme celles de la
+    #        table : « permis » est bien le participe de « permettre ».
+    #        Les règles du point 3 s'appliquent aussi à ces verbes : une base
+    #        trouvée par hasard (« installer » finit par « aller ») ne doit
+    #        pas les priver de leur conjugaison régulière.
+    bases = bases_irregulieres()
+    for mot, entree in entrees.items():
+        if " " in mot or not any(lecture[0] == "v" for lecture in entree["lectures"]):
+            continue
+        for forme in formes_derivees(mot, bases):
+            if not est_attestee(commun.cle(forme)):
+                bilan["ecartees"] += 1
+                continue
+            if poser(forme, mot):
+                bilan["derivees"] += 1
+
     # 3. Les verbes réguliers, sous condition d'attestation.
     for mot, entree in entrees.items():
         if mot in IRREGULIERS or " " in mot:
@@ -361,7 +489,7 @@ def construire(entrees, compte_corpus, journal=None):
             # modéliser les alternances é/è, qui ne changent rien à la
             # recherche.
             cle_forme = commun.cle(forme)
-            if compte_corpus.get(cle_forme, 0) < 1:
+            if not est_attestee(cle_forme):
                 bilan["ecartees"] += 1
                 continue
             # Une forme *engendrée* ne prend jamais la place d'un mot existant.

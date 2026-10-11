@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "construit": "2026-09-13",
+  "construit": "2026-10-11",
   "moutures": {
     "de": "2025.11.21",
     "fr": "2025.11.21"
@@ -17,42 +17,42 @@
   ],
   "gain": {
     "de": {
-      "wikdict": 59027,
-      "neuves": 3884,
-      "sens_traduits": 5265,
-      "sens_sans_traduction": 10802
+      "wikdict": 65013,
+      "neuves": 1437,
+      "sens_traduits": 5285,
+      "sens_sans_traduction": 11722
     },
     "fr": {
-      "wikdict": 47340,
-      "neuves": 1689,
-      "sens_traduits": 28527,
-      "sens_sans_traduction": 5497
+      "wikdict": 56707,
+      "neuves": 667,
+      "sens_traduits": 28910,
+      "sens_sans_traduction": 10119
     }
   },
   "paquets": {
     "noyau": {
       "entrees": {
-        "de": 12505,
-        "fr": 13554
+        "de": 12428,
+        "fr": 13245
       },
       "traduites": {
-        "de": 12505,
-        "fr": 13554
+        "de": 12428,
+        "fr": 13245
       },
       "expressions": {
-        "de": 507,
-        "fr": 1581
+        "de": 525,
+        "fr": 1862
       },
       "expressions_traduites": {
-        "de": 507,
-        "fr": 1581
+        "de": 525,
+        "fr": 1862
       },
       "expressions_sans_equivalent": {
         "de": 0,
         "fr": 0
       },
-      "phrases": 39714,
-      "octets": 23891255,
+      "phrases": 37299,
+      "octets": 23109950,
       "fichiers": [
         "noyau/de.idx",
         "noyau/de-000.json",
@@ -86,7 +86,6 @@
         "noyau/fr-012.json",
         "noyau/fr-013.json",
         "noyau/fr-014.json",
-        "noyau/fr-015.json",
         "noyau/formes-fr.idx",
         "noyau/phrases-000.json",
         "noyau/phrases-001.json",
@@ -130,36 +129,33 @@
         "noyau/phrases-039.json",
         "noyau/phrases-040.json",
         "noyau/phrases-041.json",
-        "noyau/phrases-042.json",
-        "noyau/phrases-043.json",
-        "noyau/phrases-044.json",
         "noyau/expressions-de.idx",
         "noyau/expressions-fr.idx"
       ]
     },
     "complet": {
       "entrees": {
-        "de": 65240,
-        "fr": 55957
+        "de": 69466,
+        "fr": 64364
       },
       "traduites": {
-        "de": 63210,
-        "fr": 49245
+        "de": 67472,
+        "fr": 57811
       },
       "expressions": {
-        "de": 3579,
-        "fr": 9618
+        "de": 3482,
+        "fr": 9702
       },
       "expressions_traduites": {
-        "de": 1549,
-        "fr": 2906
+        "de": 1488,
+        "fr": 3149
       },
       "expressions_sans_equivalent": {
-        "de": 2030,
-        "fr": 6712
+        "de": 1994,
+        "fr": 6553
       },
-      "phrases": 46039,
-      "octets": 84669822,
+      "phrases": 47171,
+      "octets": 92522804,
       "fichiers": [
         "complet/de.idx",
         "complet/de-000.json",
@@ -235,6 +231,11 @@
         "complet/de-070.json",
         "complet/de-071.json",
         "complet/de-072.json",
+        "complet/de-073.json",
+        "complet/de-074.json",
+        "complet/de-075.json",
+        "complet/de-076.json",
+        "complet/de-077.json",
         "complet/formes-de.idx",
         "complet/fr.idx",
         "complet/fr-000.json",
@@ -300,6 +301,15 @@
         "complet/fr-060.json",
         "complet/fr-061.json",
         "complet/fr-062.json",
+        "complet/fr-063.json",
+        "complet/fr-064.json",
+        "complet/fr-065.json",
+        "complet/fr-066.json",
+        "complet/fr-067.json",
+        "complet/fr-068.json",
+        "complet/fr-069.json",
+        "complet/fr-070.json",
+        "complet/fr-071.json",
         "complet/formes-fr.idx",
         "complet/phrases-000.json",
         "complet/phrases-001.json",
@@ -353,6 +363,7 @@
         "complet/phrases-049.json",
         "complet/phrases-050.json",
         "complet/phrases-051.json",
+        "complet/phrases-052.json",
         "complet/expressions-de.idx",
         "complet/expressions-fr.idx"
       ]
