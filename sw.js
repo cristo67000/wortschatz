@@ -33,7 +33,7 @@
  * efface, sur demande explicite ou en installant une version plus récente.
  */
 
-const VERSION = 'v3.4.0';
+const VERSION = 'v3.4.1';
 const COQUILLE = 'wortschatz-coquille-' + VERSION;
 
 /* Les ressources obligatoires : sans l'une d'elles, il n'y a pas
@@ -226,7 +226,8 @@ function nomDesDonnees() {
         const reponse = await coquille.match('data/manifeste.json');
         if (!reponse) return null;
         const m = await reponse.json();
-        return 'wortschatz-donnees-' + m.version + (m.construit ? '-' + m.construit : '');
+        return 'wortschatz-donnees-' + m.version + (m.construit ? '-' + m.construit : '')
+          + (m.empreinte ? '-' + m.empreinte : '');
       } catch (erreur) {
         return null;
       }

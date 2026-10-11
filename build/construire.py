@@ -62,6 +62,7 @@ une requête de plus au moment précis où l'on veut lire.
 
 import argparse
 import functools
+import hashlib
 import json
 import math
 import shutil
@@ -1359,6 +1360,17 @@ def main():
                 f"\nLe paquet « {nom} » dépasse son budget de "
                 f"{commun.humain(octets - budget)}. Rogne SENS_MAX, DEFINITION_MAX "
                 f"ou TAILLE_NOYAU dans construire.py, ou passe --sans-budget.")
+
+    # L'empreinte du contenu, qui entre dans le nom du cache de la mouture
+    # (`Paquets.nomDuCache`, `sw.js`). La date seule ne suffit pas : deux
+    # constructions publiées le même jour partageaient un cache, et qui avait
+    # téléchargé le premier paquet ne recevait jamais le second (version 3.4.1).
+    empreinte = hashlib.sha256()
+    for nom in sorted(f for paquet in manifeste["paquets"].values()
+                      for f in paquet["fichiers"]):
+        empreinte.update(nom.encode("utf-8"))
+        empreinte.update((DATA / nom).read_bytes())
+    manifeste["empreinte"] = empreinte.hexdigest()[:10]
 
     ecrire(DATA / "manifeste.json",
            json.dumps(manifeste, ensure_ascii=False, indent=2) + "\n")

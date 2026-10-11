@@ -44,12 +44,16 @@
 
   const PREFIXE = 'wortschatz-donnees-';
 
-  /* Le nom du cache d'une mouture : format et date de construction. Un
-   * ancien nom sans date (`wortschatz-donnees-2`, version 3.0) reste reconnu
+  /* Le nom du cache d'une mouture : format, date de construction et, depuis
+   * la version 3.4.1, empreinte du contenu — deux constructions le même jour
+   * partageaient sinon un même cache, et le second paquet n'aurait jamais
+   * remplacé le premier chez qui l'avait déjà. Un ancien nom sans date
+   * (`wortschatz-donnees-2`, version 3.0) ou sans empreinte reste reconnu
    * comme un cache de données, d'une mouture antérieure. */
   function nomDuCache(manifeste) {
     if (typeof manifeste !== 'object') return PREFIXE + manifeste;
-    return PREFIXE + manifeste.version + (manifeste.construit ? '-' + manifeste.construit : '');
+    return PREFIXE + manifeste.version + (manifeste.construit ? '-' + manifeste.construit : '')
+      + (manifeste.empreinte ? '-' + manifeste.empreinte : '');
   }
 
   async function cachesDeDonnees() {
@@ -134,7 +138,8 @@
     const total = manifeste.paquets.complet.fichiers.length;
     let faits = total - aFaire.length;
     let octets = 0;
-    const marque = '?mouture=' + encodeURIComponent(manifeste.construit || manifeste.version);
+    const marque = '?mouture=' + encodeURIComponent(
+      [manifeste.construit || manifeste.version, manifeste.empreinte].filter(Boolean).join('-'));
 
     // Quatre à la fois : assez pour ne pas attendre la latence de chaque
     // requête, assez peu pour ne pas saturer une connexion mobile.

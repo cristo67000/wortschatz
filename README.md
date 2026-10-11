@@ -283,8 +283,10 @@ suit donc trois règles, que `js/paquets.js` tient et que
    directement dans son cache, par l'API Cache — ni réseau ni service worker
    entre les deux, donc rien qui puisse y substituer un fichier d'une autre
    mouture. Une révision sur un mot absent du noyau s'ouvre comme avant.
-2. **Rien n'est mélangé.** Chaque mouture a son cache, nommé par le format et
-   la date de construction (`wortschatz-donnees-3-2026-09-13`). Le service
+2. **Rien n'est mélangé.** Chaque mouture a son cache, nommé par le format, la
+   date de construction et, depuis la 3.4.1, l'empreinte du contenu
+   (`wortschatz-donnees-3-2026-10-11-136f25fa7d`) : deux constructions publiées
+   le même jour ne partagent plus un cache. Le service
    worker ne sert les données que depuis la coquille et le cache de *sa*
    mouture ; le nouveau paquet se télécharge à côté, avec un paramètre
    d'adresse qui déjoue même le service worker de la version d'avant.
@@ -335,6 +337,14 @@ Ce qui reste introuvable dans le top 10 000 est surtout fait de noms propres,
 de mots anglais et de sigles. Les vedettes nouvelles viennent de la base SQLite
 de WikDict (15 354), des gloses de l'édition d'en face (930) et du supplément
 éditorial (243) ; le détail est dans [build/SOURCES.md](build/SOURCES.md).
+
+La recette du site publié (3.4.1) a corrigé quatre défauts de recherche, dont
+trois anciens que les nouvelles formes rendaient visibles : un renvoi de forme
+passait devant le mot exact (« ihm » donnait d'abord *er*), la transcription
+« ue → ü » ajoutait des intrus quand la forme était connue (« freue » →
+*Freund*), « Fälle » ouvrait *Falle* au lieu de *Fall*, et un mot en minuscules
+lu dans un texte allemand pouvait ouvrir un nom (« falle » → *Falle*). Les
+traductions du supplément se rangent désormais sous le sens principal du mot.
 
 La part des sens illustrés baisse un peu dans le noyau (de 95,4 % à 94,2 %
 côté allemand, de 81,8 % à 80,9 % côté français) : le noyau compte désormais

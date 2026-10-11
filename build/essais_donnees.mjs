@@ -763,6 +763,39 @@ async function epreuveDictionnaire() {
       `« ${forme} » mène à « ${lemme} »`);
   }
 
+  /* Version 3.4 : les mots du langage courant, et ce que la recette du site
+   * publié a relevé (3.4.1). Chaque cas est un mot qui ne menait nulle part,
+   * ou ailleurs. */
+  for (const [forme, langue, lemme] of [['freue', 'de', 'freuen'], ['das', 'de', 'der'],
+                                        ['deinen', 'de', 'dein'], ['im', 'de', 'in'],
+                                        ['historischen', 'de', 'historisch'],
+                                        ['anzufangen', 'de', 'anfangen'],
+                                        ['contient', 'fr', 'contenir'], ['vend', 'fr', 'vendre'],
+                                        ['appellent', 'fr', 'appeler'], ['suffit', 'fr', 'suffire'],
+                                        ['tschüss', 'de', 'tschüs'], ['lors', 'fr', 'lors de']]) {
+    const lu = Lexique.resoudre(forme, langue);
+    verifier(lu && lu.mot === lemme, `« ${forme} » lu dans un texte mène à « ${lemme} »`
+      + (lu && lu.mot !== lemme ? ` (et non « ${lu.mot} »)` : ''));
+  }
+  for (const [mot, langue] of [['aujourd’hui', 'fr'], ['mission', 'fr'], ['Stabilität', 'de'],
+                               ['bof', 'fr'], ['resto', 'fr'], ['Kita', 'de'], ['naja', 'de']]) {
+    verifier(!!Lexique.vedette(langue, mot), `« ${mot} » est une vedette du noyau`);
+  }
+  const ihm = Lexique.chercher('ihm').filter((r) => !r.perso);
+  verifier(ihm.length && ihm[0].mot === 'ihm',
+    `« ihm » : la vedette passe devant les renvois (${ihm.slice(0, 3).map((r) => r.mot).join(', ')})`);
+  const freue = Lexique.chercher('freue').filter((r) => !r.perso);
+  verifier(freue.length && freue[0].mot === 'freuen' && !freue.some((r) => r.mot === 'Freund'),
+    `« freue » donne « freuen », sans « Freund » par transcription (${freue.slice(0, 3).map((r) => r.mot).join(', ')})`);
+  const parEr = Lexique.chercher('ihm').filter((r) => r.cle === 'er');
+  verifier(parEr.length < 2 || parEr[0].mot === 'er',
+    '« ihm » : le pronom « er » passe devant le nom « Er »');
+  for (const [graphie, attendu] of [['Fälle', 'Fall'], ['falle', 'fallen'], ['Falle', 'Falle']]) {
+    const lu = Lexique.resoudre(graphie, 'de');
+    verifier(lu && lu.mot === attendu, `« ${graphie} » mène à « ${attendu} »`
+      + (lu && lu.mot !== attendu ? ` (et non « ${lu.mot} »)` : ''));
+  }
+
   // Homographes : la clé ne distingue pas la casse, la graphie si.
   const gehen = Lexique.resoudre('gehen', 'de');
   const Gehen = Lexique.resoudre('Gehen', 'de');

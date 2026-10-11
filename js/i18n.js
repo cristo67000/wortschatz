@@ -595,6 +595,7 @@
       'sauvegarde.fait.conversation': '{n} phrases ou dialogues repris',
       'sauvegarde.fait.conversation.un': '1 phrase ou dialogue repris',
       'exercice.consigne.ecoute.phrase': 'Écoutez, puis écrivez la phrase.',
+      'reglages.apropos.supplement': 'Mots courants du supplément (bof, resto, naja…) : traductions rédigées pour l’application par un assistant d’écriture (CC BY-SA 4.0), non relues par un locuteur natif.',
       'reglages.apropos.conversation': 'Phrases et dialogues : contenu original de l’application (CC BY-SA 4.0), rédigé par un assistant d’écriture. Les dialogues de la version 3.2 ont été validés en allemand par une locutrice native ; les phrases isolées, les traductions françaises et les contenus ajoutés depuis ne l’ont pas encore été.',
 
       'nature.locution': 'locution',
@@ -1176,6 +1177,7 @@
       'sauvegarde.fait.conversation': '{n} Sätze oder Dialoge übernommen',
       'sauvegarde.fait.conversation.un': '1 Satz oder Dialog übernommen',
       'exercice.consigne.ecoute.phrase': 'Hören Sie zu, und schreiben Sie den Satz.',
+      'reglages.apropos.supplement': 'Ergänzte Alltagswörter (bof, resto, naja …): Übersetzungen, eigens für die Anwendung von einem Schreibassistenten verfasst (CC BY-SA 4.0), nicht von Muttersprachlern geprüft.',
       'reglages.apropos.conversation': 'Sätze und Dialoge: eigener Inhalt der Anwendung (CC BY-SA 4.0), von einem Schreibassistenten verfasst. Die Dialoge der Version 3.2 wurden auf Deutsch von einer Muttersprachlerin bestätigt; die einzelnen Sätze, die französischen Übersetzungen und die seither hinzugekommenen Inhalte noch nicht.',
 
       'nature.locution': 'Redewendung',

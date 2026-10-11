@@ -105,6 +105,7 @@ const ATTENDRE_PRET = `
 let ANCIEN_CACHE = '';
 let NOUVEAU_CACHE = '';
 let MOT_NEUF = '';
+let GAIN = 0;
 
 async function principal() {
   if (existsSync(ANCIENNE)) {
@@ -120,7 +121,8 @@ async function principal() {
    * c'est lui qui dit si les deux paquets sont restés séparés. */
   const lireManifeste = (racine) =>
     JSON.parse(readFileSync(path.join(racine, 'data', 'manifeste.json'), 'utf8'));
-  const nomDuCache = (m) => 'wortschatz-donnees-' + m.version + (m.construit ? '-' + m.construit : '');
+  const nomDuCache = (m) => 'wortschatz-donnees-' + m.version + (m.construit ? '-' + m.construit : '')
+    + (m.empreinte ? '-' + m.empreinte : '');
   const manifesteAncien = lireManifeste(ANCIENNE);
   const manifesteNeuf = lireManifeste(RACINE);
   ANCIEN_CACHE = nomDuCache(manifesteAncien);
@@ -136,8 +138,14 @@ async function principal() {
     path.join(racine, 'data', 'complet', 'de.idx'), 'utf8').split('\n').map((l) => l.split('\t')[1]));
   const anciennes = vedettesDe(ANCIENNE);
   const neuves = [...vedettesDe(RACINE)].filter((m) => m && !anciennes.has(m));
-  MOT_NEUF = ['Stabilität', 'Konstruktion', 'blockieren'].find((m) => neuves.includes(m)) || neuves[0];
-  console.log(`Mouture ${ANCIEN_CACHE} → ${NOUVEAU_CACHE} ; mot que seule la nouvelle connaît : ${MOT_NEUF}`);
+  // Une mouture qui n'apporte que des corrections (3.4.0 → 3.4.1) n'a pas
+  // de mot neuf : les contrôles qui en dépendent sont alors sans objet.
+  MOT_NEUF = ['Stabilität', 'Konstruktion', 'blockieren'].find((m) => neuves.includes(m))
+    || neuves[0] || '';
+  const total = (m) => m.paquets.complet.entrees.de + m.paquets.complet.entrees.fr;
+  GAIN = total(manifesteNeuf) - total(manifesteAncien);
+  console.log(`Mouture ${ANCIEN_CACHE} → ${NOUVEAU_CACHE} ; ${GAIN} vedettes de plus`
+              + (MOT_NEUF ? ` ; mot que seule la nouvelle connaît : ${MOT_NEUF}` : ''));
   /* Les fichiers de l'ancienne version datent d'avant ceux de la nouvelle :
    * le navigateur revalide par `If-Modified-Since`, et `http.server` répond
    * « 304 » à un fichier plus vieux que celui qu'on lui montre. Un arbre
@@ -178,8 +186,10 @@ async function principal() {
       avant);
     verifier(avant.caches.includes(ANCIEN_CACHE),
       `ses données vivent dans « ${ANCIEN_CACHE} »`, avant.caches);
-    verifier(!avant.neuf,
-      `cette mouture ne connaît pas « ${MOT_NEUF} » — c’est bien l’ancienne`);
+    if (MOT_NEUF) {
+      verifier(!avant.neuf,
+        `cette mouture ne connaît pas « ${MOT_NEUF} » — c’est bien l’ancienne`);
+    }
     const MOT = avant.mot;
     const TRANCHE = avant.tranche;
 
@@ -244,15 +254,21 @@ async function principal() {
       'le dictionnaire complet d’avant sert toujours, lu dans son propre cache', apres);
     verifier(apres.ouvre && apres.motOuvert === MOT && apres.vedette,
       'la carte de révision sur « ' + MOT + ' » s’ouvre : rien n’est perdu', apres);
-    verifier(!apres.neuf,
-      `« ${MOT_NEUF} » n’apparaît pas : l’ancienne mouture n’est pas mélangée à la nouvelle`, apres.neuf);
+    if (MOT_NEUF) {
+      verifier(!apres.neuf,
+        `« ${MOT_NEUF} » n’apparaît pas : l’ancienne mouture n’est pas mélangée à la nouvelle`, apres.neuf);
+    }
     verifier(!!apres.bandeau && /télécharg|Download|herunterladen/.test(apres.bandeau),
       'un bandeau dit qu’un nouveau téléchargement est nécessaire', apres.bandeau);
-    if (manifesteAncien.version >= 3) {
+    if (manifesteAncien.version >= 3 && GAIN > 0) {
       verifier(/mots de plus|Wörter mehr/.test(apres.bandeau || '')
                && !/expressions usuelles|gängigen Wendungen/.test(apres.bandeau || ''),
         'il dit combien de mots la nouvelle mouture ajoute, sans promettre des expressions déjà là',
         apres.bandeau);
+    } else if (manifesteAncien.version >= 3) {
+      verifier(/dernières corrections|letzten Korrekturen/.test(apres.bandeau || '')
+               && !/mots de plus|expressions usuelles/.test(apres.bandeau || ''),
+        'il annonce des corrections, sans promettre des mots ni des expressions', apres.bandeau);
     }
     verifier(/mouture précédente|vorherige Ausgabe/.test(apres.reglages)
              && /Mettre à jour le dictionnaire complet|aktualisieren/.test(apres.reglages),
@@ -316,7 +332,9 @@ async function principal() {
     verifier(!remplace.caches.includes(ANCIEN_CACHE) && remplace.caches.includes(NOUVEAU_CACHE),
       'l’ancien cache est parti, le nouveau porte le format et la date de construction',
       remplace.caches);
-    verifier(remplace.neuf, `« ${MOT_NEUF} », que seule la nouvelle mouture connaît, est là`);
+    if (MOT_NEUF) {
+      verifier(remplace.neuf, `« ${MOT_NEUF} », que seule la nouvelle mouture connaît, est là`);
+    }
     verifier(remplace.ouvre,
       `la carte s’ouvre encore — sa tranche ${remplace.trancheCarte} → ${remplace.trancheNeuve} aujourd’hui`
       + (remplace.trancheCarte !== remplace.trancheNeuve ? ' (le mot avait changé de tranche)' : ''),

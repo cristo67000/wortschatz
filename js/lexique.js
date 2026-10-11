@@ -263,14 +263,26 @@
 
     const direct = [];
     collecter(langue, k, true, direct, 8);
-    if (direct.length) return meilleur(direct, graphie);
+    /* La clé ignore les accents : « Fälle » et « Falle » la partagent. Une
+     * vedette qui ne s'écrit pas comme la graphie lue — accents compris, la
+     * casse et l'apostrophe mises à part — ne passe qu'après les lemmes : le
+     * pluriel de « Fall » mène au cas, pas au piège (version 3.4.1). */
+    /* En allemand, une graphie en minuscules n'est jamais un nom : « falle »
+     * dans « ich falle » est une forme de « fallen », pas « die Falle ». */
+    const pli = (texte) => String(texte).toLowerCase().replace(/[’‘]/g, "'");
+    const minuscule = graphie === graphie.toLowerCase();
+    const sEcritPareil = (resultat) => pli(resultat.mot) === pli(graphie)
+      && !(langue === 'de' && minuscule && resultat.mot !== resultat.mot.toLowerCase());
+    if (direct.some(sEcritPareil)) return meilleur(direct, graphie);
 
+    // Les lemmes ensemble, départagés par `meilleur` : « falle » a pour lemmes
+    // « Fall » et « fallen », et c'est la minuscule qui tranche.
+    const parLemmes = [];
     for (const lemme of lemmes(langue, k)) {
-      const lot = [];
-      collecter(langue, lemme, true, lot, 8);
-      if (lot.length) return meilleur(lot, graphie);
+      collecter(langue, lemme, true, parLemmes, parLemmes.length + 8);
     }
-    return null;
+    if (parLemmes.length) return meilleur(parLemmes, graphie);
+    return direct.length ? meilleur(direct, graphie) : null;
   }
 
   /* Plusieurs vedettes partagent souvent une clé : « gehen » le verbe et
@@ -354,7 +366,11 @@
           : resultat.langue + ' ' + resultat.mot;
         if (vus.has(empreinte)) continue;
         vus.add(empreinte);
-        resultat.rang = resultat.exact ? 0 : rang;
+        /* `exact` dit que la clé cherchée est celle de la vedette ; atteinte
+         * par une forme (`via`), cette clé est celle du lemme, pas la saisie.
+         * Le rang 0 est réservé à la saisie elle-même : sans cela « ihm »
+         * plaçait « er » et « es » devant la vedette « ihm » (version 3.4.1). */
+        resultat.rang = resultat.exact && !via ? 0 : rang;
         // Un mot personnel atteint par sa traduction porte déjà son « via ».
         resultat.via = via || resultat.via || null;
         resultats.push(resultat);
@@ -379,8 +395,17 @@
     // 2. Une transcription sans tréma ? « ueber » pour « über », « Strasse »
     //    pour « Straße ». Uniquement côté allemand : replier « oe » en français
     //    changerait « oeuvre » en « ouvre », qui est un autre mot.
+    //    Seulement si la saisie n'est pas déjà un mot ou une forme connus :
+    //    « freue » est une forme de « freuen », pas « fröh… » mal tapé, et le
+    //    replier en « freu » faisait suivre « Freund » et « Freundin » d'un
+    //    « ← freue » trompeur (version 3.4.1).
     const repliee = cleAllemandeRepliee(saisie);
-    if (repliee) {
+    const connue = resultats.length > 0 || ['de', 'fr'].some((langue) => {
+      const lot = [];
+      collecter(langue, k, true, lot, 1);
+      return lot.length > 0;
+    });
+    if (repliee && !connue) {
       const lot = [];
       collecter('de', repliee, false, lot, 6);
       ajouter(lot, 1, saisie);

@@ -501,9 +501,10 @@
      * elle manque au tout premier lancement, avant qu'il ne contrôle la page. */
     const application = 'Wortschatz' + (MiseAJour.version ? ' ' + MiseAJour.version : '');
     const versions = manifeste
-      ? `${application} · données ${manifeste.construit} · Wiktionnaire (WikDict et wiktextract, CC BY-SA) · Tatoeba (CC BY 2.0 FR)`
+      ? `${application} · données ${manifeste.construit} · Wiktionnaire (WikDict et wiktextract, CC BY-SA) · Tatoeba (CC BY 2.0 FR) · wordfreq (CC BY-SA 4.0)`
       : '';
     elements.aproposVersions.textContent = versions
+      + (manifeste ? ' · ' + I18n.t('reglages.apropos.supplement') : '')
       + (racine.Conversation && Conversation.disponible
         ? ' · ' + I18n.t('reglages.apropos.conversation') : '');
     elements.etatMaj.textContent = '';
