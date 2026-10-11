@@ -371,7 +371,7 @@ async function principal() {
     verifier(perimes.version === 3, 'le format des données est en version 3', perimes.version);
     verifier(perimes.utilisable === null && !perimes.resteAncien && perimes.effaces >= 1,
       'sans ses index, l’ancien cache n’est pas utilisable et il est effacé');
-    verifier(/^wortschatz-donnees-3-\d{4}-\d{2}-\d{2}$/.test(perimes.nomCourant) && !perimes.completInstalle,
+    verifier(/^wortschatz-donnees-3-\d{4}-\d{2}-\d{2}(-[0-9a-f]{10})?$/.test(perimes.nomCourant) && !perimes.completInstalle,
       'le cache courant porte format et date de construction ; le complet se propose au téléchargement',
       perimes);
 

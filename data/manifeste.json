@@ -52,7 +52,7 @@
         "fr": 0
       },
       "phrases": 37299,
-      "octets": 23109950,
+      "octets": 23120810,
       "fichiers": [
         "noyau/de.idx",
         "noyau/de-000.json",
@@ -155,7 +155,7 @@
         "fr": 6553
       },
       "phrases": 47171,
-      "octets": 92522804,
+      "octets": 92537786,
       "fichiers": [
         "complet/de.idx",
         "complet/de-000.json",
@@ -368,5 +368,6 @@
         "complet/expressions-fr.idx"
       ]
     }
-  }
+  },
+  "empreinte": "136f25fa7d"
 }

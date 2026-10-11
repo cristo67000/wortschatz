@@ -68,10 +68,13 @@ def appliquer(dictionnaires, extraits, index_formes, index_graphies, supplement,
             siens = [e for e in propres.get(mot, ())
                      if voulue is None or alignement.NATURE_WIKT.get(e.get("p")) == voulue]
             sien = siens[0] if siens else {}
-            # Même règle que pour les gloses croisées : un mot à sens unique
-            # réunit sa définition et ses traductions ; sinon les traductions
-            # restent en tête, et les sens du Wiktionnaire suivent.
-            definition = sien["s"][0]["d"] if len(sien.get("s", ())) == 1 else ""
+            # Les traductions ont été écrites pour le sens principal, celui que
+            # le Wiktionnaire place en tête : elles se rangent sous sa
+            # définition et ses exemples. (La 3.4 ne le faisait que pour un mot
+            # à sens unique, comme pour les gloses croisées : « bof » montrait
+            # ses traductions d'un côté, et sa définition de l'autre sous
+            # « sens sans traduction connue ».)
+            definition = sien["s"][0]["d"] if sien.get("s") else ""
             lecture = [nature, brut.get("genre") or sien.get("g") or "",
                        sien.get("api") or "", [],
                        [[traductions.couper(definition),
