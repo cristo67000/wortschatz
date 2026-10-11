@@ -278,8 +278,16 @@ async function principal() {
     verifier(conv.neuve !== conv.ancienne && pendant.servis['data/conversation.json'] === conv.ancienne,
       'conversation.json a changé, et c’est bien l’ancien qui est servi — aucun fichier ne vient d’une version et demie');
     const manifeste = donnees.find((e) => e.fichier === 'data/manifeste.json');
-    verifier(manifeste && manifeste.neuve === manifeste.ancienne,
-      'le manifeste des données est le même dans les deux versions : la mouture du dictionnaire n’a pas changé');
+    /* Écrit pour le passage 3.2 → 3.3, qui gardait la mouture. Depuis la 3.4,
+     * la version courante en apporte une nouvelle : ce passage-là est éprouvé
+     * par `essais_mise_a_jour.mjs`, et l'on se contente ici de le dire. */
+    if (manifeste && manifeste.neuve !== manifeste.ancienne) {
+      console.log('  --  la mouture du dictionnaire a changé entre les deux versions :'
+                  + ' voir essais_mise_a_jour.mjs');
+    } else {
+      verifier(!!manifeste,
+        'le manifeste des données est le même dans les deux versions : la mouture du dictionnaire n’a pas changé');
+    }
     const neufsEnCache = ['index.html', 'js/voix.js', 'js/app.js', 'js/conversation.js', 'css/app.css']
       .filter((f) => pendant.enCache[f] === EMPREINTES.find((e) => e.fichier === f).neuve);
     verifier(neufsEnCache.length === 5 && pendant.enCache['data/conversation.json'] === conv.ancienne,

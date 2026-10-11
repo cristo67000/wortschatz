@@ -272,7 +272,13 @@ def ajouter(dictionnaires, index_formes, index_graphies, langue, par_mot, journa
                     (mot, entree["lectures"][0][0], entree["lectures"][0][4][0][1][:3]))
 
             cle_lemme = commun.cle(mot)
-            for _code, graphie, _article in enregistrement.get("f", ()):
+            # L'auxiliaire (code « aux ») figure au tableau de la fiche, mais
+            # « haben » n'est pas une forme du verbe : le compter parmi ses
+            # graphies lui prêtait la fréquence de « haben » (version 3.4).
+            graphies = [graphie for code, graphie, _article in enregistrement.get("f", ())
+                        if code != "aux"]
+            graphies += list(enregistrement.get("ff", ()))
+            for graphie in graphies:
                 k = commun.cle(graphie)
                 if k and " " not in k and k != cle_lemme:
                     index_formes.setdefault(k, set()).add(cle_lemme)

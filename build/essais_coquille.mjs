@@ -372,6 +372,7 @@ async function principal() {
       const ouvre = !!(await Lexique.ouvrir(Lexique.vedette('de', ${JSON.stringify(MOT)})));
       const complet = await Paquets.complet(Lexique.manifeste);
       return { versionSw, servis, empreinte, paquet: Lexique.paquet, ouvre, complet, caches: await caches.keys(),
+               ancien: Lexique.ancien ? Lexique.ancien.nom : null,
                phrases: Conversation.compter().phrases, version: MiseAJour.version };
     `);
     const jeuApres = jeu(apres.servis, versions);
@@ -379,8 +380,16 @@ async function principal() {
       `le service worker ${versionNeuve} sert la page : les ${FICHIERS.length} fichiers, tous de sa version`, jeuApres.par);
     verifier(apres.caches.length === 2 && apres.caches.includes('wortschatz-coquille-' + versionNeuve) && apres.caches.includes(cacheDonnees),
       'l’ancienne coquille est effacée, le cache des données ne bouge pas', apres.caches);
-    verifier(apres.paquet === 'complet' && apres.complet && apres.ouvre,
-      `le dictionnaire complet sert toujours : « ${MOT} » s’ouvre`);
+    /* Deux cas légitimes. Une version qui garde les données (3.2 → 3.3) :
+     * son paquet complet est celui qu'on avait. Une version qui en apporte
+     * une nouvelle mouture (3.3 → 3.4) : le paquet d'avant sert, lu dans son
+     * propre cache, jusqu'au téléchargement — c'est `essais_mise_a_jour.mjs`
+     * qui éprouve la suite. Dans les deux cas, rien ne doit manquer. */
+    verifier(apres.paquet === 'complet' && apres.ouvre
+             && (apres.complet || apres.ancien === cacheDonnees),
+      `le dictionnaire complet sert toujours : « ${MOT} » s’ouvre`
+      + (apres.complet ? '' : ` (paquet de la mouture précédente, ${apres.ancien})`),
+      { complet: apres.complet, ancien: apres.ancien, ouvre: apres.ouvre });
     verifier(JSON.stringify(apres.empreinte) === JSON.stringify(avant.empreinte),
       'cartes, notes et réglages : identiques champ par champ', { avant: avant.empreinte, apres: apres.empreinte });
     verifier(apres.phrases >= 280, `le contenu de la ${versionNeuve} est là (${apres.phrases} phrases)`);

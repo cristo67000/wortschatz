@@ -33,7 +33,7 @@
  *     node build/essais_mise_a_jour.mjs
  */
 import { execSync, spawn } from 'node:child_process';
-import { existsSync, readdirSync, rmSync, statSync, utimesSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, rmSync, statSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -102,12 +102,42 @@ const ATTENDRE_PRET = `
   }
 `;
 
+let ANCIEN_CACHE = '';
+let NOUVEAU_CACHE = '';
+let MOT_NEUF = '';
+
 async function principal() {
   if (existsSync(ANCIENNE)) {
     try { execSync(`git worktree remove --force "${ANCIENNE}"`, { cwd: RACINE, stdio: 'ignore' }); } catch (e) { /* … */ }
     rmSync(ANCIENNE, { recursive: true, force: true });
   }
   execSync(`git worktree add --detach "${ANCIENNE}" main`, { cwd: RACINE, stdio: 'ignore' });
+
+  /* Les deux moutures, lues sur le disque plutôt que supposées. L'épreuve a
+   * été écrite pour le passage du format 2 au format 3 ; depuis, `main` porte
+   * le format 3 et ses expressions, et ce qui distingue une mouture de la
+   * suivante, ce sont ses mots. On en prend un que seule la nouvelle connaît :
+   * c'est lui qui dit si les deux paquets sont restés séparés. */
+  const lireManifeste = (racine) =>
+    JSON.parse(readFileSync(path.join(racine, 'data', 'manifeste.json'), 'utf8'));
+  const nomDuCache = (m) => 'wortschatz-donnees-' + m.version + (m.construit ? '-' + m.construit : '');
+  const manifesteAncien = lireManifeste(ANCIENNE);
+  const manifesteNeuf = lireManifeste(RACINE);
+  ANCIEN_CACHE = nomDuCache(manifesteAncien);
+  NOUVEAU_CACHE = nomDuCache(manifesteNeuf);
+  if (ANCIEN_CACHE === NOUVEAU_CACHE) {
+    console.log(`Les données n'ont pas changé depuis main (${ANCIEN_CACHE}) : `
+                + 'pas de passage de mouture à éprouver.');
+    try { execSync(`git worktree remove --force "${ANCIENNE}"`, { cwd: RACINE, stdio: 'ignore' }); } catch (e) { /* … */ }
+    rmSync(ANCIENNE, { recursive: true, force: true });
+    return;
+  }
+  const vedettesDe = (racine) => new Set(readFileSync(
+    path.join(racine, 'data', 'complet', 'de.idx'), 'utf8').split('\n').map((l) => l.split('\t')[1]));
+  const anciennes = vedettesDe(ANCIENNE);
+  const neuves = [...vedettesDe(RACINE)].filter((m) => m && !anciennes.has(m));
+  MOT_NEUF = ['Stabilität', 'Konstruktion', 'blockieren'].find((m) => neuves.includes(m)) || neuves[0];
+  console.log(`Mouture ${ANCIEN_CACHE} → ${NOUVEAU_CACHE} ; mot que seule la nouvelle connaît : ${MOT_NEUF}`);
   /* Les fichiers de l'ancienne version datent d'avant ceux de la nouvelle :
    * le navigateur revalide par `If-Modified-Since`, et `http.server` répond
    * « 304 » à un fichier plus vieux que celui qu'on lui montre. Un arbre
@@ -134,20 +164,22 @@ async function principal() {
       const mot = horsNoyau.find(m => Lexique.vedette('de', m));
       const entree = mot ? await Lexique.ouvrir(Lexique.vedette('de', mot)) : null;
       const cartes = entree ? await Revision.apprendre(entree) : [];
-      return { version: Lexique.manifeste.version, fini, paquet: Lexique.paquet,
+      return { version: Lexique.manifeste.version, construit: Lexique.manifeste.construit,
+               fini, paquet: Lexique.paquet,
                mot, tranche: entree && entree.tranche, cartes: cartes.map(c => c.type).sort(),
                caches: await caches.keys(),
-               expressionsFeu: Lexique.chercherExpressions ? 'présent' : 'absent' };
+               neuf: !!Lexique.vedette('de', '${MOT_NEUF}') };
     `);
-    verifier(avant.version === 2 && avant.fini && avant.paquet === 'complet',
-      'le paquet complet de la version précédente (format 2) est installé', avant);
+    verifier(avant.version === manifesteAncien.version && avant.construit === manifesteAncien.construit
+             && avant.fini && avant.paquet === 'complet',
+      `le paquet complet de la version précédente (mouture ${manifesteAncien.construit}) est installé`, avant);
     verifier(!!avant.mot && avant.cartes.length >= 2,
       `« ${avant.mot} », absent du noyau, est appris (tranche ${avant.tranche}, ${avant.cartes.length} cartes)`,
       avant);
-    verifier(avant.caches.includes('wortschatz-donnees-2'),
-      'ses données vivent dans « wortschatz-donnees-2 »', avant.caches);
-    verifier(avant.expressionsFeu === 'absent',
-      'cette version ne connaît pas les expressions usuelles — c’est bien l’ancienne');
+    verifier(avant.caches.includes(ANCIEN_CACHE),
+      `ses données vivent dans « ${ANCIEN_CACHE} »`, avant.caches);
+    verifier(!avant.neuf,
+      `cette mouture ne connaît pas « ${MOT_NEUF} » — c’est bien l’ancienne`);
     const MOT = avant.mot;
     const TRANCHE = avant.tranche;
 
@@ -200,23 +232,28 @@ async function principal() {
                carte: carte ? { tranche: carte.tranche, echeance: carte.echeance } : null,
                ouvre: !!entree, motOuvert: entree && entree.mot,
                vedette: !!Lexique.vedette('de', '${MOT}'),
-               expressions: Lexique.chercherExpressions('feu').length,
-               keinProblem: !!Lexique.vedette('de', 'kein Problem'),
+               neuf: !!Lexique.vedette('de', '${MOT_NEUF}'),
                bandeau: bandeau && !bandeau.hidden ? bandeau.textContent : null,
                reglages: reglages.replace(/\\s+/g, ' ').slice(0, 600),
                caches: await caches.keys() };
     `);
-    verifier(apres.version === 3, 'le manifeste est passé au format 3', apres.version);
-    verifier(apres.paquet === 'complet' && apres.ancien === 'wortschatz-donnees-2'
+    verifier(apres.version === manifesteNeuf.version,
+      `le manifeste est celui de la nouvelle version (format ${manifesteNeuf.version})`, apres.version);
+    verifier(apres.paquet === 'complet' && apres.ancien === ANCIEN_CACHE
              && apres.reglagePaquet === 'complet',
       'le dictionnaire complet d’avant sert toujours, lu dans son propre cache', apres);
     verifier(apres.ouvre && apres.motOuvert === MOT && apres.vedette,
       'la carte de révision sur « ' + MOT + ' » s’ouvre : rien n’est perdu', apres);
-    verifier(apres.expressions === 0 && !apres.keinProblem,
-      'aucune expression usuelle n’apparaît : l’ancienne mouture n’est pas mélangée à la nouvelle',
-      { expressions: apres.expressions, keinProblem: apres.keinProblem });
-    verifier(!!apres.bandeau && /nouveau téléchargement|neuen Download/.test(apres.bandeau),
+    verifier(!apres.neuf,
+      `« ${MOT_NEUF} » n’apparaît pas : l’ancienne mouture n’est pas mélangée à la nouvelle`, apres.neuf);
+    verifier(!!apres.bandeau && /télécharg|Download|herunterladen/.test(apres.bandeau),
       'un bandeau dit qu’un nouveau téléchargement est nécessaire', apres.bandeau);
+    if (manifesteAncien.version >= 3) {
+      verifier(/mots de plus|Wörter mehr/.test(apres.bandeau || '')
+               && !/expressions usuelles|gängigen Wendungen/.test(apres.bandeau || ''),
+        'il dit combien de mots la nouvelle mouture ajoute, sans promettre des expressions déjà là',
+        apres.bandeau);
+    }
     verifier(/mouture précédente|vorherige Ausgabe/.test(apres.reglages)
              && /Mettre à jour le dictionnaire complet|aktualisieren/.test(apres.reglages),
       'les réglages le disent aussi, et proposent la mise à jour', apres.reglages);
@@ -237,10 +274,10 @@ async function principal() {
     `);
     verifier(interrompu.fini === false || (interrompu.fini && interrompu.fini.erreur === 'AbortError'),
       'le téléchargement s’arrête à la demande', interrompu.fini);
-    verifier(interrompu.effaces === 0 && interrompu.ancien === 'wortschatz-donnees-2'
-             && interrompu.caches.includes('wortschatz-donnees-2'),
+    verifier(interrompu.effaces === 0 && interrompu.ancien === ANCIEN_CACHE
+             && interrompu.caches.includes(ANCIEN_CACHE),
       'l’ancien paquet est gardé : le nouveau n’est pas entier', interrompu);
-    verifier(interrompu.ouvre && interrompu.lit === 'wortschatz-donnees-2',
+    verifier(interrompu.ouvre && interrompu.lit === ANCIEN_CACHE,
       'et « ' + MOT + ' » s’ouvre toujours, dans l’ancien');
 
     titre('5. Le téléchargement complet remplace l’ancien d’un bloc');
@@ -269,16 +306,17 @@ async function principal() {
                echeance: carte.echeance,
                expressions: Lexique.chercherExpressions('feu').length,
                keinProblem: !!Lexique.vedette('de', 'kein Problem'),
+               neuf: !!Lexique.vedette('de', '${MOT_NEUF}'),
                bandeauCache: !bandeau || bandeau.hidden,
                etat: document.querySelector('#etat-dictionnaire').textContent };
     `);
     verifier(!remplace.erreur && remplace.complet && remplace.ancien === null
              && remplace.paquet === 'complet' && remplace.reglagePaquet === 'complet',
       'le nouveau paquet est entier et c’est lui qui sert', remplace);
-    verifier(!remplace.caches.includes('wortschatz-donnees-2')
-             && remplace.caches.some(n => /^wortschatz-donnees-3-/.test(n)),
+    verifier(!remplace.caches.includes(ANCIEN_CACHE) && remplace.caches.includes(NOUVEAU_CACHE),
       'l’ancien cache est parti, le nouveau porte le format et la date de construction',
       remplace.caches);
+    verifier(remplace.neuf, `« ${MOT_NEUF} », que seule la nouvelle mouture connaît, est là`);
     verifier(remplace.ouvre,
       `la carte s’ouvre encore — sa tranche ${remplace.trancheCarte} → ${remplace.trancheNeuve} aujourd’hui`
       + (remplace.trancheCarte !== remplace.trancheNeuve ? ' (le mot avait changé de tranche)' : ''),

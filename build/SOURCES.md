@@ -42,6 +42,29 @@ aux seuls verbes irréguliers et aux formes reconstruites par règle.
 Le partage dans les mêmes conditions s'applique : les paquets de données produits
 dans `data/` sont eux aussi sous CC BY-SA, et l'application l'indique.
 
+### Les vedettes que le TEI n'a pas encore (version 3.4)
+
+Le TEI « recommended » n'a pas été republié depuis le 21 novembre 2025 ; la
+base SQLite du même projet en est à la mouture 2026-06. Entre les deux, des
+mots de tous les jours ont reçu leur traduction — *mission*, *faveur*,
+*définition*, *norme*, *divers*, *Stabilität*, *Konstruktion*, *blockieren*,
+*Signal*, *Video* — et le TEI les ignorait. `build/wikdict_sqlite.py` lit la
+table `translation` de `de-fr.sqlite3` et `fr-de.sqlite3` (sens par sens : la
+glose et ses traductions) et verse au dictionnaire les vedettes absentes du TEI,
+**5 986 allemandes et 9 368 françaises**. Le TEI garde la main sur tout ce qu'il
+connaît ; le genre, la prononciation et les formes de ces vedettes viennent du
+Wiktionnaire.
+
+La base mêle des traductions sûres et des devinettes ; on ne garde que les
+lignes rattachées à une entrée du Wiktionnaire (`lexentry`) **et** jugées bonnes
+par WikDict (`is_good`) ou de score au moins 10. En dessous, sur 75 lignes
+relues, une sur deux était fausse (« Pasta → diffuser », « Befall →
+apostropher »). Sont aussi écartés : les affixes, les prénoms et noms de
+famille, un nom propre écrit pareil dans les deux langues (« Manchester »), et
+la traduction d'un adjectif, d'un adverbe ou d'un verbe français par un nom
+allemand (« gouvernemental → Regierung »), seule incohérence que la graphie
+trahit à coup sûr.
+
 ## 2. Tatoeba — phrases d'exemple alignées
 
 - **Site** : <https://tatoeba.org/>
@@ -55,7 +78,49 @@ dans `data/` sont eux aussi sous CC BY-SA, et l'application l'indique.
 
 Ce que nous en tirons : des paires de phrases allemand/français réellement
 alignées, qui servent d'exemples sur les fiches, de matière aux exercices
-« phrase à trou » et de corpus consultable pour les expressions.
+« phrase à trou » et de corpus consultable pour les expressions ; et l'un des
+deux témoins de la fréquence d'usage (voir § 2 bis).
+
+## 2 bis. wordfreq — la fréquence d'usage réelle (version 3.4)
+
+- **Projet** : <https://github.com/rspeer/wordfreq> — Robyn Speer, version
+  3.1.1 (listes « large » de l'allemand et du français)
+- **Licence des données** : Creative Commons Attribution — Partage dans les
+  mêmes conditions 4.0 (CC BY-SA 4.0) ; le code est sous licence Apache 2.0.
+  <https://creativecommons.org/licenses/by-sa/4.0/legalcode>
+- **Ce qu'il agrège** : sous-titres de films et de séries, réseaux sociaux,
+  presse, Wikipédia, livres. Le détail des sources et de leurs licences est
+  dans le dépôt de wordfreq.
+
+wordfreq n'est pas redistribué : il ne sert qu'à la construction, et rien de
+lui n'est recopié dans `data/` sinon le **rang** des mots. Il sert à trois
+choses :
+
+1. **Classer le vocabulaire.** Jusqu'à la version 3.3, le rang venait du seul
+   Tatoeba : quelques millions de mots écrits par des apprenants, où « Tom » est
+   le douzième mot de l'allemand et où un mot absent passait pour rare, quel que
+   soit son usage. Le rang est désormais la **moyenne géométrique** des deux
+   témoins : un mot courant dans la langue *et* dans les phrases d'apprenants
+   passe devant un mot que l'un des deux seulement connaît — « Hund » devant
+   « Bundesregierung », que la presse seule ferait monter. Tatoeba étant petit,
+   un mot qu'il n'emploie pas reçoit de wordfreq un a priori plutôt qu'un zéro :
+   « Workshop » n'est plus jeté parmi les raretés.
+2. **Attester les formes engendrées par règle** — conjugaisons françaises,
+   déclinaisons allemandes — en plus de Tatoeba : une forme n'entre à l'index
+   que si l'un des deux l'emploie (2,5 sur l'échelle de Zipf pour wordfreq,
+   assez pour « produisent », trop peu pour la faute « appelent »).
+3. **Choisir les mots courants** que les gloses croisées et le supplément
+   éditorial font entrer (3 sur l'échelle de Zipf, une occurrence par million
+   de mots).
+
+Quatre défauts du classement précédent ont été trouvés et corrigés en chemin :
+l'apostrophe typographique des vedettes (« aujourd’hui » ne rencontrait jamais
+l'« aujourd'hui » de Tatoeba : le mot était classé rare, hors du noyau) ; le
+premier mot de chaque phrase écarté du décompte (« Tja », « Danke »,
+« Bonjour » passaient pour rares) ; l'auxiliaire rangé parmi les formes d'un
+verbe par le TEI (« bauchreden » héritait de la fréquence de « haben » et
+figurait parmi les mille deux cents premiers mots) ; et les lettres seules
+rangées parmi les formes (« Urethan » avait pour formes C, H, N et O).
 
 ## 3. Wiktionnaire intégral — définitions, exemples et flexions par sens
 
@@ -125,6 +190,27 @@ aurait tenu en un fichier et donné des définitions en anglais, inutilisables i
 L'appariement des sens avec ceux de WikDict est décrit dans
 `build/alignement.py` et mesuré par `build/verifier.py` : **95,7 % des sens
 allemands et 84,9 % des sens français du noyau** portent au moins un exemple.
+
+### Les gloses de l'édition d'en face, et toutes les formes (version 3.4)
+
+Le Wiktionnaire français décrit des dizaines de milliers de mots allemands **en
+français**, l'allemand des milliers de mots français **en allemand** ; ces gloses
+sont, le plus souvent, des traductions — « Handy » → *Téléphone portable*,
+« Kita » → *Crèche*, « abgeschlagen » → *fatigué, crevé*. Jusqu'ici on n'en
+lisait que les expressions. `build/croisees.py` (d'après le module du même nom
+de l'application Vocabulary) s'en sert désormais pour **créer les vedettes
+courantes que rien d'autre ne traduit** — 817 allemandes et 113 françaises —,
+à trois conditions : l'usage est attesté (wordfreq ou Tatoeba), le mot a son
+entrée dans l'édition de sa langue, qui donne définition, exemple, genre et
+formes, et ce n'est pas une forme fléchie d'une vedette déjà là. Une glose qui
+n'est qu'un renvoi (« tschüss » → *Variante de tschüs.*) fait de la graphie
+une forme de sa vedette. La liste des vedettes créées est écrite à chaque
+construction dans `build/croisees-creees.tsv`, pour relecture.
+
+L'extraction garde aussi, pour chaque nom, verbe et adjectif, **toutes ses
+formes d'un mot** (le champ `ff`), et pas seulement la douzaine que la fiche
+affiche : qui lit « zeitlosen » ou « blockierte » doit arriver à « zeitlos » et
+« blockieren », y compris pour les vedettes que le TEI n'a pas.
 
 ### Les expressions usuelles
 
@@ -242,7 +328,9 @@ DELF/DALF) sont également protégées. L'application n'affiche donc **aucun niv
 A1/A2/B1** : elle classe le vocabulaire par fréquence d'usage constatée, ce qui
 est mesurable, vérifiable et libre.
 
-## 5. Sept entrées écrites pour l'application
+## 5. Ce qui est écrit pour l'application
+
+### Sept entrées grammaticales
 
 WikDict ne retient que les entrées dotées d'une traduction bien attestée, et
 quelques mots-outils français passent au travers. Sept d'entre eux sont donc
@@ -256,7 +344,35 @@ qu'aucune entrée ne savait résoudre. Rien d'autre n'est ajouté : le reste du
 dictionnaire vient des sources, avec ses qualités et ses manques, et il n'est
 pas question de le retoucher mot à mot — on ne saurait plus ce qui vient d'où.
 
-Le côté allemand est complet ; *mein*, *dieser*, *nicht*, *kein* y sont tous.
+Le côté allemand a ses vedettes — *mein*, *dieser*, *nicht*, *kein* y sont
+toutes —, mais pas leurs **formes** : le TEI n'en donne aucune pour les articles,
+les pronoms et les déterminants, et « das », « eine », « ihm », « deinen » ou
+« im » ne menaient nulle part. Depuis la version 3.4, `grammaire.py` porte leur
+déclinaison, liste close de toutes les grammaires (et les contractions :
+« im », « zur », « beim »…). Ce ne sont pas des entrées, seulement des renvois
+vers des vedettes existantes.
+
+### Le supplément éditorial des mots courants (version 3.4)
+
+Après WikDict, sa base SQLite, les tables du Wiktionnaire et les gloses de
+l'édition d'en face, la construction mesure ce qui manque encore : des mots que
+tout le monde emploie (wordfreq ≥ 3,6), que le Wiktionnaire de leur langue
+décrit, et qu'**aucune source libre ne traduit**. Une liste fermée de ces mots
+est traduite dans [`mots_editoriaux.json`](mots_editoriaux.json) — 75 allemands
+(*naja*, *sorry*, *nochmal*, *Abo*, *Pommes*, *Prof*, *Rückweg*…) et 168
+français (*bof*, *bah*, *resto*, *ordi*, *appli*, *nettement*, *similaire*,
+*répartition*, *affronter*…) —, avec une vingtaine de graphies familières
+rattachées à leur vedette (« heut » → *heute*, « bcp » → *beaucoup*).
+
+- **Provenance** : traductions rédigées pour l'application par un assistant
+  d'écriture (Claude, Anthropic), le 2026-10-11 ; **non relues par un locuteur
+  natif**.
+- **Ce qui n'est pas rédigé** : la définition, les exemples, la prononciation et
+  les formes, qui viennent du Wiktionnaire de la langue du mot.
+- **Une source passe toujours devant** : une entrée n'est appliquée qu'à un mot
+  encore absent ; le jour où WikDict le traduit, elle cède sa place d'elle-même
+  et la construction le signale.
+- **Licence** : CC BY-SA 4.0.
 
 ## 6. Les phrases et dialogues — un contenu rédigé pour l'application
 

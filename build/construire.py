@@ -61,7 +61,9 @@ une requête de plus au moment précis où l'on veut lire.
 """
 
 import argparse
+import functools
 import json
+import math
 import shutil
 import sqlite3
 import time
@@ -70,14 +72,18 @@ from pathlib import Path
 
 import alignement
 import commun
+import croisees
 import expressions
 import familles
 import grammaire
+import mots_editoriaux
+import formes_de
 import formes_fr
 import phrases
 import corpus
 import tei
 import traductions
+import wikdict_sqlite
 import wiktionnaire
 
 RACINE = Path(__file__).resolve().parent
@@ -220,6 +226,115 @@ def charger_dictionnaire(fichier):
     return entrees, dict(formes), dict(graphies)
 
 
+def verser_base_sqlite(entrees, langue, journal):
+    """Ajoute au dictionnaire les vedettes que seule la base SQLite connaît.
+
+    Voir `wikdict_sqlite.py` : même source que le TEI, mouture plus récente.
+    Une vedette déjà présente n'est pas touchée — le TEI garde la main sur ce
+    qu'il connaît. Genre, prononciation et formes viendront du Wiktionnaire
+    (`completer_par_le_wiktionnaire`).
+    """
+    journal.setdefault("ajoutees", 0)
+    journal.setdefault("lectures", 0)
+    journal.setdefault("exemples", [])
+    deja = set(entrees)
+    for brut in wikdict_sqlite.lire(langue, journal.setdefault("base", {})):
+        mot = brut["mot"]
+        if mot in deja:
+            continue
+        sens = [[couper(s["def"]), s["trads"][:TRADUCTIONS_MAX]]
+                for s in brut["sens"][:SENS_MAX]]
+        lecture = [brut["pos"], "", "", [], sens]
+        if mot in entrees:
+            entrees[mot]["lectures"].append(lecture)
+            journal["lectures"] += 1
+            continue
+        entrees[mot] = {"mot": mot, "lectures": [lecture], "base_sqlite": True}
+        journal["ajoutees"] += 1
+        if len(journal["exemples"]) < 12:
+            journal["exemples"].append((mot, sens[0][1][:3]))
+
+
+def completer_par_le_wiktionnaire(entrees, par_mot, formes, graphies, journal):
+    """Ce que le Wiktionnaire sait et que la vedette n'a pas : le genre et la
+    prononciation des vedettes venues de la base SQLite, et pour toutes, les
+    formes fléchies complètes (`ff`) — celles que la recherche doit connaître.
+
+    Une forme n'est greffée que depuis une entrée de même nature qu'une des
+    lectures : les formes du nom « Essen » ne sont pas celles du verbe.
+    """
+    for cle_journal in ("genres", "prononciations", "formes"):
+        journal.setdefault(cle_journal, 0)
+    for mot, entree in entrees.items():
+        enregistrements = par_mot.get(mot)
+        if not enregistrements:
+            continue
+        natures = {alignement.NATURE_TEI.get(l[0]) for l in entree["lectures"]}
+        if entree.get("base_sqlite"):
+            for lecture in entree["lectures"]:
+                choisi = alignement.choisir_enregistrement(lecture[0], "", enregistrements)
+                if choisi is None:
+                    continue
+                if not lecture[1] and lecture[0] == "n" and choisi.get("g"):
+                    lecture[1] = choisi["g"]
+                    journal["genres"] += 1
+                if not lecture[2] and choisi.get("api"):
+                    lecture[2] = choisi["api"]
+                    journal["prononciations"] += 1
+        cle_lemme = commun.cle(mot)
+        for enregistrement in enregistrements:
+            if alignement.NATURE_WIKT.get(enregistrement.get("p")) not in natures:
+                continue
+            for graphie in enregistrement.get("ff", ()):
+                k = commun.cle(graphie)
+                if len(k) < 2 or " " in k or k == cle_lemme:
+                    continue
+                if cle_lemme not in formes.get(k, ()):
+                    formes.setdefault(k, set()).add(cle_lemme)
+                    journal["formes"] += 1
+                graphies.setdefault(mot, set()).add(graphie)
+
+
+# « lors », « tandis », « quant », « Hinblick », « Nachhinein » : des mots
+# courants qui n'existent qu'à l'intérieur d'une locution — « lors de »,
+# « tandis que », « im Hinblick auf ». Aucune source n'en fait une vedette, si
+# bien qu'ils restaient muets dans les citations et les phrases, où tout mot
+# est cliquable. On les rattache à leurs locutions (trois au plus, les plus
+# courtes d'abord), comme une forme l'est à son lemme.
+LOCUTIONS_PAR_MOT_MAX = 3
+ZIPF_MOT_LIE = 3.0
+
+
+def mots_lies_aux_locutions(entrees, index_formes, langue):
+    """Seules comptent les vraies locutions : une vedette qui commence par une
+    minuscule et ne porte aucun chiffre. « Abu Dhabi », « Alice Springs » ou
+    « 2ᵉ classe » ne disent rien de « dhabi », « alice » ou « eme ». En
+    français, un mot à majuscule à l'intérieur (« a comme Anatole ») est un nom
+    propre ; en allemand, c'est un nom commun (« im Hinblick auf »)."""
+    cles_vedettes = {commun.cle(m) for m in entrees}
+    par_mot = defaultdict(set)
+    for mot in entrees:
+        if " " not in mot or not mot[:1].islower() or any(c.isdigit() for c in mot):
+            continue
+        if any(lecture[0] == "pn" for lecture in entrees[mot]["lectures"]):
+            continue
+        for brut in corpus.MOT.findall(mot):
+            for morceau in corpus.decouper(brut, langue):
+                if langue == "fr" and morceau[:1].isupper():
+                    continue
+                k = commun.cle(morceau)
+                if k and k not in cles_vedettes and k not in index_formes:
+                    par_mot[k].add(commun.cle(mot))
+    zipf = zipf_par_cle(langue)
+    sortie = {}
+    for k, locutions in par_mot.items():
+        if len(k) < 3 or zipf.get(k, 0.0) < ZIPF_MOT_LIE:
+            continue
+        choisies = sorted(locutions, key=lambda l: (l.count(" "), len(l), l))
+        sortie[k] = set(choisies[:LOCUTIONS_PAR_MOT_MAX])
+    return sortie
+
+
 def charger_importance(base):
     """written_rep → rel_importance, depuis une base SQLite WikDict."""
     chemin = SOURCES / base
@@ -271,19 +386,50 @@ def frequences_corpus(textes, entrees, graphies, langue, formes=None):
     la casse ne distingue rien en français, contrairement à l'allemand où tous
     les noms portent la majuscule.
     """
-    par_cle, par_graphie = corpus.compter_deux(textes, langue)
+    par_cle, par_graphie = compter(textes, langue)
+    # Version 3.4 : l'apostrophe. Les vedettes l'écrivent typographique
+    # (« aujourd’hui »), Tatoeba le plus souvent droite (« aujourd'hui ») :
+    # comparées telles quelles, « aujourd’hui », « jusqu’à », « d’accord »
+    # n'avaient aucun emploi attesté, et le premier finissait classé « rare »,
+    # hors du noyau. On compare désormais apostrophes confondues.
+    par_graphie = apostrophes_confondues(par_graphie)
 
     # Combien de vedettes revendiquent chaque graphie.
     proprietaires = Counter()
     for mot in entrees:
-        for graphie in {mot} | set(graphies.get(mot, ())):
+        for graphie in {droite(g) for g in {mot} | set(graphies.get(mot, ()))}:
             proprietaires[graphie] += 1
+
+    # Écarter le premier mot de la phrase ne sert qu'à départager deux vedettes
+    # que seule la casse distingue. Mais « Tja », « Danke », « Hallo »,
+    # « Bonjour » sont presque toujours en tête de phrase, et passaient ainsi
+    # pour rares. On rend donc à chaque graphie sa part des emplois en tête de
+    # phrase, au prorata de ses emplois ailleurs : « hallo » l'interjection,
+    # vingt fois plus employée que « das Hallo » au milieu d'une phrase, reçoit
+    # vingt fois plus de ses « Hallo ! » initiaux (version 3.4).
+    exact_par_cle = Counter()
+    for graphie, nombre in par_graphie.items():
+        exact_par_cle[commun.cle(graphie)] += nombre
+    graphies_par_cle = defaultdict(set)
+    for mot in entrees:
+        for graphie in {droite(g) for g in {mot} | set(graphies.get(mot, ()))}:
+            graphies_par_cle[commun.cle(graphie)].add(graphie)
+
+    def emplois_de(graphie):
+        k = commun.cle(graphie)
+        initiaux = max(par_cle.get(k, 0) - exact_par_cle.get(k, 0), 0)
+        rivales = graphies_par_cle[k]
+        if len(rivales) <= 1:
+            return par_graphie.get(graphie, 0) + initiaux
+        poids = sum(par_graphie.get(g, 0) + 0.05 for g in rivales)
+        part = (par_graphie.get(graphie, 0) + 0.05) / poids
+        return par_graphie.get(graphie, 0) + initiaux * part
 
     frequences = Counter()
     for mot in entrees:
         propre = ambigu = 0
-        for graphie in {mot} | set(graphies.get(mot, ())):
-            compte = par_graphie.get(graphie, 0)
+        for graphie in {droite(g) for g in {mot} | set(graphies.get(mot, ()))}:
+            compte = emplois_de(graphie)
             ambigu += compte
             if proprietaires[graphie] == 1:
                 propre += compte
@@ -318,12 +464,218 @@ def frequences_corpus(textes, entrees, graphies, langue, formes=None):
     return frequences
 
 
+_COMPTES = {}
+
+
+def compter(textes, langue):
+    """`corpus.compter_deux`, une seule fois par corpus.
+
+    Le décompte de Tatoeba sert maintenant à cinq étapes (gloses croisées,
+    formes des deux langues, les deux témoins du classement). Refait à chaque
+    fois, il triplait la durée de la construction. On garde une référence au
+    corpus avec son décompte : l'identifiant ne peut pas être réattribué tant
+    que l'objet vit.
+    """
+    cle = (id(textes), langue)
+    if cle not in _COMPTES:
+        _COMPTES[cle] = (textes, corpus.compter_deux(textes, langue))
+    return _COMPTES[cle][1]
+
+
+def droite(graphie):
+    """L'apostrophe typographique ramenée à l'apostrophe droite."""
+    return graphie.replace("’", "'")
+
+
+def apostrophes_confondues(compte):
+    sortie = Counter()
+    for graphie, nombre in compte.items():
+        sortie[droite(graphie)] += nombre
+    return sortie
+
+
+# --- La fréquence d'usage réelle : wordfreq et Tatoeba (version 3.4) --------
+#
+# Jusqu'ici, le classement ne reposait que sur Tatoeba : un corpus de phrases
+# écrites par des apprenants et des bénévoles, précieux pour ses traductions,
+# mais petit — quelques millions de mots — et singulier : « Tom » y est le
+# douzième mot de l'allemand. Un mot que ses phrases n'emploient pas passait
+# pour rare, quel que soit son usage réel ; et un verbe rare pouvait se hisser
+# en tête par un accident de ses formes (voir `tei.forme_de_recherche`).
+#
+# wordfreq (Robyn Speer, données sous CC BY-SA 4.0) agrège des sous-titres de
+# films et de séries, des réseaux sociaux, la presse, Wikipédia et des livres :
+# c'est le meilleur témoin libre de ce qui se dit et s'écrit aujourd'hui.
+# Seul, il pencherait vers la presse — « Bundesregierung » avant « Hund ».
+#
+# On prend donc la **moyenne géométrique** des deux témoignages : un mot
+# courant dans la langue *et* dans les phrases d'apprenants passe devant un mot
+# que l'un des deux seulement connaît. C'est le langage courant, au sens le
+# plus littéral : courant partout.
+
+POIDS_WORDFREQ = 0.5
+# wordfreq estime une suite de mots par le produit de ses mots, très
+# généreusement : « parce que » y vaudrait « parce ». On la ramène à sa place.
+MULTIMOTS = 0.05
+# Une graphie absente de wordfreq vaut ce plancher (un emploi par milliard de
+# mots), un mot absent de Tatoeba un demi-emploi : ni l'un ni l'autre ne doit
+# annuler l'autre témoin.
+PLANCHER_WORDFREQ = 1e-9
+DEMI_EMPLOI = 0.5
+POIDS_A_PRIORI = 0.2
+MOTS_D_UNE_LETTRE = {"de": set(), "fr": {"à", "a", "y", "ô"}}
+
+
+def frequences_wordfreq(entrees, graphies, langue, exact):
+    """Fréquence wordfreq de chaque vedette : sa graphie, puis ses formes.
+
+    wordfreq ignore la casse : « Essen » (le repas) et « essen » (manger),
+    « Sie » et « sie » y ont une seule fréquence. On la partage selon Tatoeba,
+    qui compte les graphies exactes hors début de phrase (`exact`). Une forme
+    que plusieurs vedettes revendiquent ne compte que pour la plus courante
+    d'entre elles : « die » est à « der » et à « die », pas à « Die » (le dé
+    ancien).
+    """
+    from wordfreq import get_frequency_dict, word_frequency
+    dico = get_frequency_dict(langue)
+
+    def brute(graphie):
+        k = droite(graphie).casefold()
+        if " " in k:
+            try:
+                return word_frequency(k, langue) * MULTIMOTS
+            except (ValueError, LookupError):
+                return 0.0
+        if k in dico:
+            return dico[k]
+        # wordfreq découpe « petit-déjeuner » et « d'accord » en deux mots, et
+        # ne les a donc pas dans sa table : on lui demande son estimation de la
+        # suite, sans la décote des locutions — c'est un seul mot.
+        if "-" in k or "'" in k:
+            try:
+                return word_frequency(k, langue)
+            except (ValueError, LookupError):
+                return 0.0
+        return 0.0
+
+    par_minuscules = defaultdict(list)
+    for mot in entrees:
+        par_minuscules[mot.casefold()].append(mot)
+
+    def part_de_casse(mot):
+        """Une majuscule se compare toujours à sa minuscule, vedette ou non :
+        « Des » (ré bémol) n'a pas de vedette « des » en face — c'est une forme
+        de « der » —, et recevait toute la fréquence de l'article."""
+        homographes = [m for m in par_minuscules[mot.casefold()] if m != mot]
+        lui = exact.get(droite(mot), 0)
+        autres = sum(exact.get(droite(m), 0) for m in homographes)
+        concurrents = len(homographes)
+        minuscule = mot.lower()
+        if minuscule != mot and minuscule not in homographes:
+            autres += exact.get(droite(minuscule), 0)
+            concurrents += 1
+        if not concurrents:
+            return 1.0
+        return (lui + 0.05) / (lui + autres + 0.05 * (1 + concurrents))
+
+    propres = {}
+    for mot in entrees:
+        f = brute(mot) * part_de_casse(mot)
+        if len(commun.cle(mot)) == 1 and mot not in MOTS_D_UNE_LETTRE[langue]:
+            f *= 0.001
+        propres[mot] = f
+
+    proprietaires = defaultdict(list)
+    for mot in entrees:
+        for graphie in graphies.get(mot, ()):
+            proprietaires[droite(graphie).casefold()].append(mot)
+
+    resultat = Counter()
+    for mot in entrees:
+        total = propres[mot]
+        vues = {droite(mot).casefold()}
+        for graphie in graphies.get(mot, ()):
+            g = droite(graphie).casefold()
+            if g in vues:
+                continue
+            vues.add(g)
+            # Une forme qui est aussi une vedette (« die », « sein ») ou que
+            # plusieurs vedettes revendiquent revient à la plus courante.
+            candidats = proprietaires[g] + par_minuscules.get(g, [])
+            if len(candidats) > 1:
+                meilleur = max(candidats, key=lambda m: propres.get(m, 0.0))
+                if meilleur != mot:
+                    continue
+            total += brute(graphie)
+        if total > 0:
+            resultat[mot] = total
+    return resultat
+
+
+# Une forme engendrée par une règle n'entre à l'index que si l'usage l'atteste.
+# 2,5 sur l'échelle de Zipf, c'est trois emplois par cent millions de mots :
+# assez pour « produisent » ou « appellent », trop peu pour les fautes de
+# frappe courantes (« appelent » est à 2,28).
+ZIPF_FORME = 2.5
+
+
+@functools.lru_cache(maxsize=None)
+def zipf_par_cle(langue):
+    """Clé de recherche → la meilleure fréquence wordfreq (échelle de Zipf)
+    des graphies qui la partagent : « achete » vaut « achète »."""
+    from wordfreq import get_frequency_dict
+    table = {}
+    for mot, frequence in get_frequency_dict(langue).items():
+        if frequence <= 0:
+            continue
+        k = commun.cle(mot)
+        z = math.log10(frequence) + 9
+        if z > table.get(k, 0.0):
+            table[k] = z
+    return table
+
+
+def attestation_wordfreq(langue, seuil=ZIPF_FORME):
+    table = zipf_par_cle(langue)
+    return lambda k: table.get(k, 0.0) >= seuil
+
+
+def frequences_usage(entrees, graphies, langue, textes, formes=None):
+    """La fréquence qui classe : moyenne géométrique de wordfreq et de Tatoeba.
+
+    Rend `{vedette: score}`. Une vedette qu'aucun des deux témoins ne connaît
+    n'y figure pas — `classer()` la range après les autres.
+    """
+    tatoeba = frequences_corpus(textes, entrees, graphies, langue, formes=formes)
+    par_cle, par_graphie = compter(textes, langue)
+    total_tatoeba = max(sum(par_cle.values()), 1)
+    usage = frequences_wordfreq(entrees, graphies, langue,
+                                apostrophes_confondues(par_graphie))
+    # Tatoeba est petit : qu'un mot n'y figure pas prouve peu. Plutôt qu'un
+    # zéro sec, on lui prête un a priori tiré de wordfreq, de poids égal à un
+    # cinquième du corpus. Un mot que Tatoeba emploie souvent n'en est pas
+    # changé (« Hund » : 858 emplois, 13 prêtés) ; un mot qu'il ignore et que
+    # la langue emploie (« Workshop ») n'est plus jeté parmi les raretés.
+    a_priori = total_tatoeba * POIDS_A_PRIORI
+    scores = Counter()
+    for mot in entrees:
+        emplois = tatoeba.get(mot, 0)
+        f = usage.get(mot, 0.0)
+        if emplois < 1 and f <= 0:
+            continue
+        p_tatoeba = ((emplois + a_priori * f + DEMI_EMPLOI)
+                     / (total_tatoeba + a_priori))
+        p_usage = max(f, PLANCHER_WORDFREQ)
+        scores[mot] = p_usage ** POIDS_WORDFREQ * p_tatoeba ** (1 - POIDS_WORDFREQ)
+    return scores
+
+
 def classer(entrees, frequences, importance):
     """Ordonne les entrées de la plus utile à la moins utile.
 
     La fréquence d'usage prime : c'est ce qu'un apprenant rencontrera. Les mots
-    que le corpus ignore sont rangés après, départagés par le score WikDict —
-    faute de mieux, et sans prétendre que ce soit une mesure d'usage.
+    qu'aucun témoin ne connaît sont rangés après, départagés par le score
+    WikDict — faute de mieux, et sans prétendre que ce soit une mesure d'usage.
     """
     def rang(entree):
         mot = entree["mot"]
@@ -335,7 +687,7 @@ def classer(entrees, frequences, importance):
         if "·" in mot:
             return (1, 0.0, mot)
         f = frequences.get(mot, 0)
-        if f >= 1:
+        if f > 0:
             return (0, -f, mot)
         return (1, -importance.get(commun.cle(mot), 0.0), mot)
 
@@ -604,6 +956,30 @@ def main():
         print(f"  {langue} : {len(entrees)} vedettes, {len(formes)} formes fléchies "
               f"({fichier}, mouture {mouture})")
 
+    print("\nBase SQLite de WikDict — les vedettes que le TEI n'a pas encore")
+    for langue in ("de", "fr"):
+        journal_base = {}
+        verser_base_sqlite(dictionnaires[langue], langue, journal_base)
+        base = journal_base.get("base", {})
+        print(f"  {langue} : + {journal_base['ajoutees']} vedettes "
+              f"({base.get('entrees', 0)} entrées sûres sur {base.get('lignes', 0)} "
+              f"lignes ; {base.get('douteuses', 0)} lignes douteuses écartées)")
+        if journal_base["exemples"]:
+            print("       exemples : " + ", ".join(
+                f"{mot} → {'/'.join(trads)}" for mot, trads in journal_base["exemples"][:6]))
+
+    # Les formes des mots-outils allemands, que le TEI ne donne pas.
+    ajoutees = 0
+    for forme, lemme in grammaire.formes_allemandes():
+        if lemme not in dictionnaires["de"]:
+            continue
+        k = commun.cle(forme)
+        if k != commun.cle(lemme):
+            index_formes["de"].setdefault(k, set()).add(commun.cle(lemme))
+            index_graphies["de"].setdefault(lemme, set()).add(forme)
+            ajoutees += 1
+    print(f"  de : + {ajoutees} formes de mots-outils (das, eine, ihm, im, zur…)")
+
     journal_grammaire = {}
     grammaire.ajouter(dictionnaires, journal_grammaire)
     if journal_grammaire["ajoutees"]:
@@ -617,6 +993,13 @@ def main():
         par_mot = wiktionnaire.charger(langue)
         extraits[langue] = par_mot
         avant = len(dictionnaires[langue])
+        journal_complements = {}
+        completer_par_le_wiktionnaire(dictionnaires[langue], par_mot, index_formes[langue],
+                                      index_graphies[langue], journal_complements)
+        print(f"  {langue} : {journal_complements['formes']} formes fléchies greffées, "
+              f"{journal_complements['genres']} genres et "
+              f"{journal_complements['prononciations']} prononciations pour les "
+              f"vedettes de la base SQLite")
         journal_wikt = {}
         for mot, entree in dictionnaires[langue].items():
             alignement.enrichir(entree, par_mot.get(mot, []), journal_wikt)
@@ -657,6 +1040,65 @@ def main():
     paires_alignees, allemandes, francaises = corpus.paires()
     textes = {"de": allemandes.values(), "fr": francaises.values()}
     print(f"  {len(allemandes)} phrases allemandes, {len(francaises)} françaises")
+
+    print("\nGloses croisées — les mots courants que seule l'autre édition traduit")
+    emplois = {langue: compter(textes[langue], langue)[0]
+               for langue in ("de", "fr")}
+
+    def frequence(langue, mot):
+        k = commun.cle(mot)
+        return zipf_par_cle(langue).get(k, 0.0), emplois[langue].get(k, 0)
+
+    gloses = {"de": wiktionnaire.charger_gloses_croisees("fr"),
+              "fr": wiktionnaire.charger_gloses_croisees("de")}
+    journal_croisees = {}
+    creees = croisees.creer(dictionnaires, gloses, extraits, frequence,
+                            index_formes, journal_croisees)
+    for langue in ("de", "fr"):
+        completer_par_le_wiktionnaire(
+            {mot: dictionnaires[langue][mot] for mot in creees[langue]},
+            extraits[langue], index_formes[langue], index_graphies[langue], {})
+        for mot in creees[langue]:
+            elaguer_citations(dictionnaires[langue][mot])
+    print(f"  + {len(creees['de'])} vedettes allemandes et {len(creees['fr'])} "
+          f"françaises ; écartées : {journal_croisees['ecartees_rares']} trop rares, "
+          f"{journal_croisees['ecartees_formes']} formes fléchies, "
+          f"{journal_croisees['sans_entree']} sans entrée dans leur langue, "
+          f"{journal_croisees['ecartees_propres']} noms propres")
+    for langue, mot, eq in journal_croisees["exemples"][:12]:
+        print(f"       {langue} {mot} → {' / '.join(eq)}")
+    print("\nSupplément éditorial — les mots courants qu'aucune source ne traduit")
+    journal_editorial = {}
+    editoriaux = mots_editoriaux.appliquer(dictionnaires, extraits, index_formes,
+                                           index_graphies, mots_editoriaux.charger(),
+                                           journal_editorial)
+    for langue in ("de", "fr"):
+        completer_par_le_wiktionnaire(
+            {mot: dictionnaires[langue][mot] for mot in editoriaux[langue]},
+            extraits[langue], index_formes[langue], index_graphies[langue], {})
+        for mot in editoriaux[langue]:
+            elaguer_citations(dictionnaires[langue][mot])
+    for forme, lemme in grammaire.formes_allemandes():
+        if lemme in editoriaux["de"]:
+            index_formes["de"].setdefault(commun.cle(forme), set()).add(commun.cle(lemme))
+            index_graphies["de"].setdefault(lemme, set()).add(forme)
+    print(f"  + {len(editoriaux['de'])} vedettes allemandes et {len(editoriaux['fr'])} "
+          f"françaises, {journal_editorial['variantes']} variantes de graphie")
+    if journal_editorial["cedes"]:
+        print("  cédés aux sources (déjà là) : " + ", ".join(
+            f"{l}:{m}" for l, m in journal_editorial["cedes"]))
+    if journal_editorial["orphelines"]:
+        print("  ! variantes sans vedette : " + ", ".join(
+            f"{l}:{f}→{c}" for l, f, c in journal_editorial["orphelines"]))
+
+    croisees.renvois(gloses, dictionnaires, index_formes, index_graphies, journal_croisees)
+    print(f"  + {journal_croisees['renvois']} variantes de graphie rattachées à leur "
+          f"vedette (tschüss → tschüs)")
+    ecrire(RACINE / "croisees-creees.tsv", "".join(
+        f"{langue}\t{mot}\t" + " / ".join(
+            t for l in dictionnaires[langue][mot]["lectures"] for b in l[4][:1]
+            for t in b[1][:3]) + "\n"
+        for langue in ("de", "fr") for mot in sorted(creees[langue])))
 
     print("\nExpressions usuelles")
     journal_expr = {}
@@ -717,8 +1159,9 @@ def main():
 
     print("\nFormes fléchies du français")
     journal = {}
-    par_cle_fr, _ = corpus.compter_deux(francaises.values(), "fr")
-    reconstituees = formes_fr.construire(dictionnaires["fr"], par_cle_fr, journal)
+    par_cle_fr, _ = compter(textes["fr"], "fr")
+    reconstituees = formes_fr.construire(dictionnaires["fr"], par_cle_fr, journal,
+                                         atteste=attestation_wordfreq("fr"))
     for cle_forme, cles_lemmes in reconstituees.items():
         index_formes["fr"].setdefault(cle_forme, set()).update(cles_lemmes)
     print(f"  {journal['base']} de la base WikDict, {journal['irreguliers']} verbes "
@@ -726,18 +1169,40 @@ def main():
           f"({journal['ecartees']} écartées faute d'attestation)")
     print(f"  index français : {len(index_formes['fr'])} formes au total")
 
+    print("\nFormes déclinées de l'allemand (participes et adjectifs)")
+    par_cle_de, _ = compter(textes["de"], "de")
+    attestes_de = {k for k, z in zipf_par_cle("de").items() if z >= ZIPF_FORME}
+    attestes_de |= set(par_cle_de)
+    journal_de = {}
+    for cle_forme, cles_lemmes in formes_de.construire(
+            dictionnaires["de"], index_formes["de"], sorted(attestes_de),
+            journal_de).items():
+        index_formes["de"].setdefault(cle_forme, set()).update(cles_lemmes)
+    print(f"  + {journal_de['formes']} formes attestées ({journal_de['participes']} "
+          f"de participes, {journal_de['adjectifs']} d'adjectifs, "
+          f"{journal_de['infinitifs_zu']} infinitifs en « zu »)")
+    print(f"  index allemand : {len(index_formes['de'])} formes au total")
+
+    print("\nMots qui ne vivent que dans une locution")
+    for langue in ("de", "fr"):
+        lies = mots_lies_aux_locutions(dictionnaires[langue], index_formes[langue], langue)
+        for k, locutions in lies.items():
+            index_formes[langue].setdefault(k, set()).update(locutions)
+        exemples = ", ".join(f"{k} → {sorted(v)[0]}" for k, v in list(lies.items())[:6])
+        print(f"  {langue} : {len(lies)} mots rattachés ({exemples}…)")
+
     print("\nClassement du vocabulaire")
     ordres, positions = {}, {}
     for langue, base in (("de", "de-fr.sqlite3"), ("fr", "fr-de.sqlite3")):
         importance = charger_importance(base)
-        frequences = frequences_corpus(
-            textes[langue], dictionnaires[langue], index_graphies[langue], langue,
+        frequences = frequences_usage(
+            dictionnaires[langue], index_graphies[langue], langue, textes[langue],
             formes=index_formes[langue] if langue == "fr" else None)
         ordre = classer(dictionnaires[langue].values(), frequences, importance)
         ordres[langue] = ordre
         positions[langue] = {e["mot"]: i for i, e in enumerate(ordre)}
-        attestes = sum(1 for e in ordre if frequences.get(e["mot"], 0) >= 1)
-        print(f"  {langue} : {attestes} mots attestés dans le corpus, "
+        attestes = sum(1 for e in ordre if frequences.get(e["mot"], 0) > 0)
+        print(f"  {langue} : {attestes} mots d'usage attesté (wordfreq ou Tatoeba), "
               f"{len(ordre) - attestes} classés par le score WikDict")
         print(f"       tête de liste : {', '.join(e['mot'] for e in ordre[:14])}")
 
@@ -773,9 +1238,14 @@ def main():
           f"({100 * rangees / total_phrases:.0f} %), "
           f"{journal_repartition['libres']} gardées au niveau du mot")
 
-    if DATA.exists():
-        shutil.rmtree(DATA)
-    DATA.mkdir(parents=True)
+    # On ne retire que ce que la construction produit : `data/` porte aussi
+    # `conversation.json`, le contenu rédigé des phrases et dialogues, qui ne
+    # vient d'aucune source et ne se reconstruit pas. Tout effacer le faisait
+    # disparaître à chaque construction.
+    for produit in ("noyau", "complet"):
+        if (DATA / produit).exists():
+            shutil.rmtree(DATA / produit)
+    DATA.mkdir(parents=True, exist_ok=True)
 
     manifeste = {
         # La version du **format** des données, qui nomme le cache du paquet
@@ -806,9 +1276,16 @@ def main():
                 continue
             # Le noyau : les mots les plus courants, puis les expressions
             # faites de ces mots — voir `expressions.va_au_noyau`.
-            base = ordres[langue][:borne]
+            #
+            # Une expression sans équivalent n'y entre jamais, même courante :
+            # elle ne se révise pas, et le noyau est installé d'office. Depuis
+            # que wordfreq atteste les locutions (version 3.4), elles
+            # remontaient d'elles-mêmes parmi les douze mille premiers mots.
+            admis = [e for e in ordres[langue]
+                     if not (e.get("expression") and not expressions.est_traduite(e))]
+            base = admis[:borne]
             cles_du_noyau = {commun.cle(e["mot"]) for e in base}
-            en_plus = [e for e in ordres[langue][borne:]
+            en_plus = [e for e in admis[borne:]
                        if expressions.va_au_noyau(e, cles_du_noyau)]
             selections[langue] = base + en_plus
         vivier, attributions = phrases.sous_ensemble(

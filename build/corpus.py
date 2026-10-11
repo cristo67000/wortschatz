@@ -46,6 +46,10 @@ CLITIQUES = {"je", "tu", "il", "ils", "elle", "elles", "on", "nous", "vous",
 
 APOSTROPHE = re.compile(r"['’]")
 
+# Ce qui ouvre une phrase à l'intérieur d'une autre : ponctuation finale,
+# deux-points, guillemets et tiret de dialogue.
+DEBUTS_DE_PHRASE = set(".!?:„“\"«»‚‘—–-")
+
 
 def decouper(brut, langue):
     """Un mot du texte → les mots qu'il contient réellement."""
@@ -137,12 +141,18 @@ def compter_deux(textes, langue="fr"):
     par_forme = Counter()
     for texte in textes:
         rang = 0
-        for brut in MOT.findall(texte):
-            for mot in decouper(brut, langue):
+        for trouve in MOT.finditer(texte):
+            # Un début de citation ou de discours rapporté est un début de
+            # phrase : « Er sagte: „Ich komme.“ » met une majuscule à « Ich »
+            # pour la même raison qu'au premier mot. Les compter faisait passer
+            # « das Ich » ou « der Er » pour des mots courants (version 3.4).
+            avant = texte[:trouve.start()].rstrip()[-1:]
+            debut = rang == 0 or avant in DEBUTS_DE_PHRASE
+            for mot in decouper(trouve.group(0), langue):
                 k = commun.cle(mot)
                 if k:
                     par_cle[k] += 1
-                    if rang > 0:
+                    if not debut:
                         par_forme[mot] += 1
                 rang += 1
     return par_cle, par_forme
