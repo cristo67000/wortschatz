@@ -13,7 +13,7 @@
        le service worker refuse une page d'une autre version — relais en
        retard, publication en cours. build/essais_conversation.mjs vérifie
        que les deux numéros sont égaux. -->
-  <meta name="application-version" content="v3.4.1">
+  <meta name="application-version" content="v3.4.2">
   <title>Wortschatz — français ⇄ allemand</title>
   <!-- Installation sur iOS : Safari ne lit pas le manifeste pour l'écran
        d'accueil, il lui faut ces trois-là. -->
@@ -70,6 +70,7 @@
       <div id="accueil">
         <h2 data-t="chercher.accueil.titre"></h2>
         <p data-t="chercher.accueil.texte"></p>
+        <section id="carte-installation" class="carte-installation" data-t-aria="reglages.installer" hidden></section>
         <p class="essayez"><span data-t="chercher.essayez"></span> <span id="suggestions"></span></p>
         <button id="b-vers-conversation" type="button" class="vers-conversation">
           <span class="pictogramme" aria-hidden="true">💬</span>
